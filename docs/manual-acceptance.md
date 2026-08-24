@@ -722,3 +722,29 @@ ausgeführt; der frühere DI-Befund ist im aktuellen Stand nicht reproduzierbar.
 Die geprüften Kernfunktionen des Raumplaners sind überwiegend stabil. Besonders positiv sind die serverseitig bestätigten Berechtigungsprüfungen für fremde Buchungen, die Besitzerermittlung aus der Sitzung, die Adminberechtigungen sowie der CSRF-Schutz für Buchungen und Raumverwaltung.
 
 Vor einer vollständigen Abnahme sollten mindestens die fünf als nicht erfolgreich bewerteten Prüffälle korrigiert bzw. fachlich abschließend entschieden und erneut getestet werden. E3 sollte nach Abschluss der vorgesehenen Architekturänderungen neu spezifiziert und nachgetestet werden.
+
+---
+
+# Technische Datenschutz-Pilotabnahme vom 23.08.2026
+
+Diese ergänzende Abnahme bewertet ausschließlich die optionale Anbindung an
+die Standalone-App `filzmann_data_protection`. Sie ändert nicht die oben
+dokumentierte Gesamtentscheidung zur allgemeinen Produktabnahme.
+
+| Prüfpunkt | Ergebnis |
+|---|---|
+| Ausgangszustand | `adroom` und `localbase` aktiv, `filzmann_data_protection` deaktiviert |
+| Privacy-App deaktiviert | AD Raumplaner weiterhin über HTTPS mit HTTP 200 erreichbar |
+| Privacy-App aktiviert | App aktivierbar, Nextcloud `34.0.2` bleibt gesund, kein offenes Datenbankupgrade |
+| Self-Service | authentifizierter API-Aufruf mit nativer Nextcloud-CSRF-/OCS-Anforderung liefert HTTP 200 |
+| Provider | `adroom` wird lazy registriert und meldet `complete` |
+| Drittpersonenschutz | freier Buchungstitel wird als `[Freitext mit möglichen Drittpersonenangaben entfernt]` ausgegeben |
+| Kontexterhalt | Raum, Zweck sowie Start- und Endzeit bleiben im Datensatz erhalten |
+| Oberfläche/Assets | Berichtseite, CSS und beide JavaScript-Assets über HTTPS mit passendem Content-Type erreichbar |
+| Rückbau | `filzmann_data_protection` anschließend wieder deaktiviert; AD Raumplaner weiterhin HTTP 200 |
+
+Die Repository-Tests decken zusätzlich Fremdbuchungen, Seitenlimit und
+Teilantwort sowie die Ablehnung einer inkompatiblen Vertragsversion ab. Nicht
+als reale DDEV-Installation geprüft sind ein physisch fehlendes App-Verzeichnis
+und eine tatsächlich installierte inkompatible Privacy-App; diese beiden
+Fälle bleiben als automatisierbare Integrationsprüfungen offen.

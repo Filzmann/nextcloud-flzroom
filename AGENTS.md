@@ -32,17 +32,23 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 
 ## Architektur und Sicherheit
 
-- AD Raumplaner registriert app-lokale PersonalData- und Retention-Provider
-  über die öffentlichen LocalBase-Registry-Events. Auskünfte fragen
-  Buchungen ausschließlich nach der typisierten Subject-UID ab; LocalBase
-  greift nie direkt auf Raumtabellen oder Repositorys zu. Retention liefert
-  im Pilot nur `REVIEW`-Kandidaten und verändert keine Buchung. Aktivierung
-  und Frist nach Buchungsende sind im eigenen Adminbereich bearbeitbar;
-  andere Maßnahmen werden serverseitig abgelehnt.
+- AD Raumplaner registriert seinen app-lokalen `PersonalDataProvider` lazy
+  über den öffentlichen V1-Registry-Event der optionalen App
+  `filzmann_data_protection`. Fehlt oder ist diese App deaktiviert, bleibt der
+  Raumplaner einschließlich seines LocalBase-basierten
+  `RetentionProvider`-Dry-Runs funktionsfähig und instanziiert den
+  PersonalDataProvider nicht. Auskünfte fragen Buchungen ausschließlich nach
+  der typisierten Subject-UID ab; die Datenschutz-App greift nie direkt auf
+  Raumtabellen oder Repositorys zu. Retention liefert im Pilot nur
+  `REVIEW`-Kandidaten und verändert keine Buchung. Aktivierung und Frist nach
+  Buchungsende sind im eigenen Adminbereich bearbeitbar; andere Maßnahmen
+  werden serverseitig abgelehnt.
 - Jede Buchung erscheint in der persönlichen Auskunft menschenlesbar mit
   Datum, Uhrzeit und Raum, konkretem Zweck sowie einer aus der aktuellen
   Retention-Regel abgeleiteten Aussage. Ein REVIEW-Stichtag wird nicht als
-  automatische Löschfrist dargestellt.
+  automatische Löschfrist dargestellt. Der freie Buchungstitel wird wegen
+  möglicher Drittpersonenangaben durch einen neutralen, nicht rückauflösbaren
+  Platzhalter ersetzt; Raum, Zweck und Zeit erhalten den Buchungskontext.
 - Adminblöcke sind zugänglich klappbar und per Tastatur oder Drag-and-drop
   verschiebbar. Ihre persönliche Anordnung verändert keine Fachwerte.
 - Controller bleiben duenn. Validierung und Kollisionspruefung liegen im `BookingService`, Rechte im `RoomAccessService`, Datenzugriff in Repositories.
