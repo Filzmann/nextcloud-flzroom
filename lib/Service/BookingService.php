@@ -54,6 +54,8 @@ final class BookingService {
         $bookingItems = [];
         foreach ($this->bookings->findRange($start->setTimezone($this->utc), $end->setTimezone($this->utc)) as $booking) {
             $item = $booking->toArray();
+            $item['startsAt'] = $booking->startsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
+            $item['endsAt'] = $booking->endsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
             $item['userName'] = $this->users->get($booking->userUid())?->getDisplayName() ?: $booking->userUid();
             $item['canManage'] = $access->canManageBooking($booking);
             $bookingItems[] = $item;
@@ -94,11 +96,8 @@ final class BookingService {
         if ($startsAt->format('Y-m-d') !== $endsAt->format('Y-m-d') || $startsAt >= $endsAt) {
             throw new \InvalidArgumentException('Beginn und Ende müssen am selben Tag in richtiger Reihenfolge liegen.');
         }
-        if ($startsAt->format('H:i') < '06:00' || $endsAt->format('H:i') > '21:00') {
-            throw new \InvalidArgumentException('Buchungen sind zwischen 06:00 und 21:00 Uhr erlaubt.');
-        }
-        if ((int)$startsAt->format('i') % 15 !== 0 || (int)$endsAt->format('i') % 15 !== 0) {
-            throw new \InvalidArgumentException('Buchungen verwenden 15-Minuten-Schritte.');
+        if ((int)$startsAt->format('i') % 5 !== 0 || (int)$endsAt->format('i') % 5 !== 0) {
+            throw new \InvalidArgumentException('Buchungen verwenden 5-Minuten-Schritte.');
         }
 
         $startUtc = $startsAt->setTimezone($this->utc);

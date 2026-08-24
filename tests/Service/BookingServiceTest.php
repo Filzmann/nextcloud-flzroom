@@ -23,20 +23,19 @@ namespace OCA\AdRoom\Service {
     class RoomService { public function get(int $id): ?object { return $id===1 ? (object)['id'=>1] : null; } public function all(): array { return []; } }
 }
 namespace {
-    require __DIR__.'/../../lib/Model/Booking.php';
-    require __DIR__.'/../../lib/Exception/BookingConflictException.php';
-    require __DIR__.'/../../lib/Service/HolidayService.php';
-    require __DIR__.'/../../lib/Service/BookingService.php';
     $repo=new OCA\AdRoom\Repository\BookingRepository();
     $users=new class implements OCP\IUserManager { public function get(string $uid){ return null; } };
     $service=new OCA\AdRoom\Service\BookingService($repo,new OCA\AdRoom\Service\RoomService(),$users,new OCA\AdRoom\Service\HolidayService(new OCA\LocalBase\Calendar\HolidayCalendarService()),new OCA\LocalBase\Calendar\CalendarContextSettingsService());
     if ($service->create(1,'2026-07-13T08:00','2026-07-13T09:00','Sitzung','Büroteam','admin')!==7) throw new RuntimeException('Gültige Buchung wurde nicht gespeichert.');
     if ($repo->saved?->startsAt()->format('H:i')!=='12:00') throw new RuntimeException('Administrative Fachzeitzone wurde nicht nach UTC normalisiert.');
     if ($repo->saved?->title()!=='Büroteam') throw new RuntimeException('Buchungstitel wurde nicht gespeichert.');
+    foreach ([['2026-07-13T00:05','2026-07-13T00:10'],['2026-07-13T21:05','2026-07-13T23:55']] as [$start,$end]) {
+        if ($service->create(1,$start,$end,'Sitzung','Randzeit','admin')!==7) throw new RuntimeException('Gültige Fünf-Minuten-Buchung außerhalb der alten Tagesgrenzen wurde abgelehnt.');
+    }
     $repo->overlap=true;
     try { $service->create(1,'2026-07-13T08:00','2026-07-13T09:00','Sitzung','Büroteam','admin'); throw new RuntimeException('Überschneidung wurde nicht blockiert.'); } catch (OCA\AdRoom\Exception\BookingConflictException) {}
     $repo->overlap=false;
-    foreach ([['2026-07-13T08:07','2026-07-13T09:00'],['2026-07-13T05:45','2026-07-13T07:00'],['2026-07-13T09:00','2026-07-14T10:00']] as [$start,$end]) {
+    foreach ([['2026-07-13T08:07','2026-07-13T09:00'],['2026-07-13T09:00','2026-07-14T10:00'],['2026-07-13T09:00','2026-07-13T09:00']] as [$start,$end]) {
         try { $service->create(1,$start,$end,'Sitzung','Büroteam','admin'); throw new RuntimeException('Ungültige Zeit wurde akzeptiert.'); } catch (InvalidArgumentException) {}
     }
     try { $service->create(1,'2026-07-13T10:00','2026-07-13T11:00','AT','','admin'); throw new RuntimeException('Leerer Titel wurde akzeptiert.'); } catch (InvalidArgumentException) {}

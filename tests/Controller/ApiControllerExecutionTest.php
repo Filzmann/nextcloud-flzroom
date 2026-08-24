@@ -111,9 +111,6 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    require __DIR__ . '/../../lib/Exception/BookingConflictException.php';
-    require __DIR__ . '/../../lib/Controller/ApiController.php';
-
     use OCA\AdRoom\Controller\ApiController;
     use OCA\AdRoom\Service\BookingService;
     use OCA\AdRoom\Service\RoomAccessService;

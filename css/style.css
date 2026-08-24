@@ -3,7 +3,10 @@
     width: 100%;
     height: 100%;
     min-height: 0;
-    overflow-y: auto;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     overflow-x: hidden;
     padding: 16px 20px 80px;
     background: var(--color-main-background);
@@ -11,10 +14,15 @@
 
 .adr-admin { width:100%; max-width:none; box-sizing:border-box; }
 .adr-admin [hidden] { display:none !important; }
+.adr-admin .orgs-dashboard-grid { max-width:none; }
+.adr-admin .orgs-dashboard-widget { min-width:0; }
+.adr-admin #adr-retention-form { display:grid; gap:12px; }
+.adr-admin #adr-retention-form label { display:grid; gap:4px; }
+.adr-admin :is(button,input,select):focus-visible { outline:2px solid var(--color-primary-element); outline-offset:2px; }
 
 .adr-app [hidden] { display: none !important; }
 .adr-header,.adr-month-navigation,.adr-tabs,.adr-room-form,.adr-time-row,.adr-dialog header,.adr-dialog footer { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.adr-header { justify-content:space-between; align-items:flex-end; margin-bottom:10px; }
+.adr-header { position:sticky; top:0; z-index:5; flex:0 0 auto; justify-content:space-between; align-items:flex-end; margin-bottom:10px; background:var(--color-main-background); }
 .adr-header h1,.adr-header p { margin:0; }
 .adr-header p { color:var(--color-text-maxcontrast); }
 .adr-month-navigation label,.adr-room-form label,.adr-dialog label { display:grid; gap:4px; font-weight:600; }
@@ -24,7 +32,8 @@
 .adr-notice { margin:8px 0; padding:8px 10px; border:1px solid var(--color-border); border-radius:var(--border-radius); }
 .adr-notice.is-error { border-color:var(--color-error); }
 .adr-notice.is-success { border-color:var(--color-success); }
-.adr-table-wrap { min-width:0; max-width:100%; overflow-x:auto; }
+#adr-calendar-view { min-width:0; min-height:0; display:flex; flex:1 1 auto; overflow:hidden; }
+.adr-table-wrap { min-width:0; min-height:0; max-width:100%; flex:1 1 auto; overflow:auto; overscroll-behavior:contain; }
 .adr-calendar,.adr-room-table { width:max-content; min-width:100%; border-collapse:collapse; table-layout:auto; }
 .adr-calendar caption,.adr-room-table caption { text-align:left; padding:6px 0; color:var(--color-text-maxcontrast); }
 .adr-calendar th,.adr-calendar td,.adr-room-table th,.adr-room-table td { border:1px solid var(--color-border); padding:5px; vertical-align:top; text-align:left; }
@@ -47,6 +56,7 @@
 .adr-booking-actions { position:absolute; top:2px; right:2px; display:grid; gap:1px; }
 .adr-icon-button { display:inline-grid; place-items:center; width:26px; min-width:26px; height:26px; min-height:26px; padding:0; border-radius:50%; font-size:18px; line-height:1; }
 .adr-icon-button:focus-visible { outline:2px solid var(--color-primary-element); outline-offset:2px; }
+.adr-app :is(button,input,select):focus-visible { outline:2px solid var(--color-primary-element); outline-offset:2px; }
 .adr-add { flex:0 0 auto; }
 .adr-room-form { margin-top:16px; padding:12px; border:1px solid var(--color-border); border-radius:var(--border-radius-large); }
 .adr-admin-demo { margin-top:24px; padding-top:18px; border-top:1px solid var(--color-border); }
@@ -61,6 +71,7 @@
 .adr-dialog header { justify-content:space-between; }
 .adr-dialog header h2 { margin:0; }
 .adr-dialog footer { justify-content:flex-end; }
+.adr-dialog .adr-notice { margin:0; }
 .adr-time-row > label { flex:1 1 140px; }
 
 @media (max-width:700px) {

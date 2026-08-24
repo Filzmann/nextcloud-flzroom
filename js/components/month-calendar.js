@@ -162,7 +162,7 @@
         bookingsFor(dateKey) {
             return this.state.bookings
                 .filter(booking => this.dateKey(booking.startsAt) === dateKey)
-                .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
+                .sort((a, b) => this.timeline.minute(a.startsAt) - this.timeline.minute(b.startsAt));
         }
 
         node(tag, value, className) {
@@ -177,12 +177,11 @@
         }
 
         dateKey(value) {
-            const date = new Date(value);
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+            return window.AdRoom.BookingWallTime.parts(value).date;
         }
 
         time(value) {
-            return new Date(value).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            return window.AdRoom.BookingWallTime.parts(value).time;
         }
     }
 

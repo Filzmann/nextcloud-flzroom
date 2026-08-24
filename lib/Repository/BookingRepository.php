@@ -53,6 +53,40 @@ final class BookingRepository {
         return $row === false ? null : Booking::get($this->mapRow($row));
     }
 
+    /** @return list<Booking> */
+    public function findByUserUid(string $uid, int $limit): array {
+        $qb = $this->db->getQueryBuilder();
+        $rows = $qb
+            ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
+            ->from('adr_bookings')
+            ->where($qb->expr()->eq(
+                'user_uid',
+                $qb->createNamedParameter($uid, IQueryBuilder::PARAM_STR),
+            ))
+            ->orderBy('starts_at', 'ASC')
+            ->setMaxResults($limit)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return Booking::get_all(array_map([$this, 'mapRow'], $rows));
+    }
+
+    /** @return list<Booking> */
+    public function findEndedByUserUid(string $uid, DateTimeImmutable $cutoff, int $limit): array {
+        $qb = $this->db->getQueryBuilder();
+        $rows = $qb
+            ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
+            ->from('adr_bookings')
+            ->where($qb->expr()->eq('user_uid', $qb->createNamedParameter($uid, IQueryBuilder::PARAM_STR)))
+            ->andWhere($qb->expr()->lte('ends_at', $qb->createNamedParameter($cutoff, IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
+            ->orderBy('ends_at', 'ASC')
+            ->setMaxResults($limit)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return Booking::get_all(array_map([$this, 'mapRow'], $rows));
+    }
+
     public function overlaps(int $roomId, DateTimeImmutable $start, DateTimeImmutable $end, ?int $excludeId = null): bool {
         $qb = $this->db->getQueryBuilder();
         $qb

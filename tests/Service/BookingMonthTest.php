@@ -44,12 +44,6 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    require_once __DIR__ . '/../../../localbase/lib/Model/ModelApiTrait.php';
-    require_once __DIR__ . '/../../lib/Model/Room.php';
-    require_once __DIR__ . '/../../lib/Model/Booking.php';
-    require_once __DIR__ . '/../../lib/Service/HolidayService.php';
-    require_once __DIR__ . '/../../lib/Service/BookingService.php';
-
     use OCA\AdRoom\Model\Booking;
     use OCA\AdRoom\Repository\BookingRepository;
     use OCA\AdRoom\Service\BookingService;
@@ -67,6 +61,9 @@ namespace {
     $month = $service->month('2026-05', new RoomAccessService());
     if ($month['month'] !== '2026-05' || $month['bookings'][0]['userName'] !== 'Anna Beispiel' || !$month['bookings'][0]['canManage'] || !$month['capabilities']['canManageRooms']) {
         throw new RuntimeException('Monatsansicht projiziert Buchungen oder Rechte nicht korrekt.');
+    }
+    if ($month['bookings'][0]['startsAt'] !== '2026-07-13T07:00:00+01:00' || $month['bookings'][0]['endsAt'] !== '2026-07-13T08:00:00+01:00') {
+        throw new RuntimeException('Monatsansicht projiziert Buchungszeiten nicht in die fachliche Organisationszeitzone.');
     }
     if ($repository->lastRange[0]->format(DATE_ATOM) !== '2026-04-30T23:00:00+00:00' || $month['holidays'] === []) throw new RuntimeException('Administrative Monatsgrenzen oder gemeinsame Feiertage fehlen.');
     foreach (['Juli 2026', '2026-00', '2026-13'] as $invalid) {

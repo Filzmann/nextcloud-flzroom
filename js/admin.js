@@ -14,6 +14,36 @@
         onUpdate: (id, payload) => workflow.update(id, payload),
         onRemove: room => workflow.remove(room),
     });
+    const retentionForm = byId('adr-retention-form');
+    let layoutSave = Promise.resolve();
+    const dashboard = new window.LocalBase.components.OrganizationDashboard({
+        root: byId('adroom-admin'),
+        onChange: layout => {
+            layoutSave = layoutSave.then(() => client.request('/api/admin/layout', {
+                method: 'PUT',
+                body: JSON.stringify({ layout }),
+            })).catch(error => notice.error(error, 'Das persönliche Kartenlayout konnte nicht gespeichert werden.'));
+        },
+    });
+
+    retentionForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const fields = new FormData(retentionForm);
+        try {
+            const response = await client.request('/api/admin/retention-policy', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    enabled: fields.get('enabled') === 'on',
+                    reviewAfterDays: Number(fields.get('reviewAfterDays')),
+                    action: String(fields.get('action')),
+                }),
+            });
+            renderRetention(response.retentionPolicy);
+            notice.success('Retention-Regel wurde gespeichert.');
+        } catch (error) {
+            notice.error(error, 'Die Retention-Regel konnte nicht gespeichert werden.');
+        }
+    });
 
     const demoConfirmation = byId('adr-demo-confirm');
     const demoButton = byId('adr-demo-install');
@@ -51,5 +81,22 @@
         }
     }
 
-    void load();
+    function renderRetention(policy) {
+        retentionForm.elements.enabled.checked = policy.enabled === true;
+        retentionForm.elements.reviewAfterDays.value = String(policy.reviewAfterDays ?? 0);
+        retentionForm.elements.action.value = policy.action || 'REVIEW';
+    }
+
+    async function loadAdminSettings() {
+        try {
+            const response = await client.request('/api/admin/settings');
+            renderRetention(response.retentionPolicy);
+            dashboard.set(response.dashboardLayout);
+        } catch (error) {
+            notice.error(error, 'Die Admin-Einstellungen konnten nicht geladen werden.');
+            retentionForm.querySelector('button[type="submit"]').disabled = true;
+        }
+    }
+
+    void Promise.all([load(), loadAdminSettings()]);
 }());

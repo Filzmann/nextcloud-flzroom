@@ -4,10 +4,10 @@
     /**
      * Zweck: Berechnet die gemeinsamen Zeitpunkte, Rasterhöhen und Grid-Linien eines Buchungstags.
      * Zusammenspiel: MonthCalendar verwendet dieselbe Instanz für alle Raumspalten eines Tages.
-     * Vertrag: Der sichtbare Tag reicht von 06:00 bis 21:00 Uhr; jede Buchungsgrenze wird zu einer gemeinsamen Grid-Linie.
+     * Vertrag: Der sichtbare Tag umfasst den ganzen Kalendertag; jede Buchungsgrenze wird zu einer gemeinsamen Grid-Linie.
      */
     class BookingTimeline {
-        constructor(dayStart = 360, dayEnd = 1260) {
+        constructor(dayStart = 0, dayEnd = 1440) {
             this.dayStart = dayStart;
             this.dayEnd = dayEnd;
         }
@@ -30,8 +30,7 @@
         }
 
         minute(value) {
-            const date = new Date(value);
-            return date.getHours() * 60 + date.getMinutes();
+            return window.AdRoom.BookingWallTime.parts(value).minute;
         }
     }
 

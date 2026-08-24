@@ -31,9 +31,6 @@ namespace OCA\AdRoom\AppInfo {
 }
 
 namespace {
-    require __DIR__ . '/../lib/Settings/Admin.php';
-    require __DIR__ . '/../lib/Settings/AdminSection.php';
-
     use OCA\AdRoom\Settings\Admin;
     use OCA\AdRoom\Settings\AdminSection;
     use OCP\IURLGenerator;

@@ -22,7 +22,7 @@
                 this.notice.success('Buchung gespeichert.');
                 await this.reload();
             } catch (error) {
-                this.notice.error(error, 'Die Buchung konnte nicht gespeichert werden.');
+                this.dialog.showError(error, 'Die Buchung konnte nicht gespeichert werden.');
             }
         }
 

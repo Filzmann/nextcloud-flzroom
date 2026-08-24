@@ -6,6 +6,7 @@
 \OCP\Util::addScript('adroom','models/room');
 \OCP\Util::addScript('adroom','models/booking');
 \OCP\Util::addScript('adroom','repositories/room-repository');
+\OCP\Util::addScript('adroom','modules/booking-wall-time');
 \OCP\Util::addScript('adroom','modules/booking-timeline');
 \OCP\Util::addScript('adroom','modules/booking-workflow');
 \OCP\Util::addScript('adroom','components/month-calendar');
@@ -40,13 +41,14 @@
             <label>Raum <select name="roomId" required></select></label>
             <label>Datum <input name="date" type="date" required></label>
             <div class="adr-time-row">
-                <label>Beginn <input name="startTime" type="time" min="06:00" max="21:00" step="900" required></label>
-                <label>Ende <input name="endTime" type="time" min="06:00" max="21:00" step="900" required></label>
+                <label>Beginn <input name="startTime" type="time" step="300" required></label>
+                <label>Ende <input name="endTime" type="time" step="300" required></label>
             </div>
             <label>Zweck <input name="purpose" list="adr-purpose-options" maxlength="255" required></label>
             <datalist id="adr-purpose-options"><option value="AT"><option value="Sitzung"><option value="BQ"><option value="Fortbildung"><option value="SV"><option value="HB"><option value="LG"></datalist>
             <label>Titel <input name="title" maxlength="255" aria-describedby="adr-title-hint" required></label>
             <small id="adr-title-hint">Zum Beispiel ASN, Gremium oder Thema.</small>
+            <div id="adr-booking-error" class="adr-notice is-error" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
             <footer><button type="button" data-dialog-close>Abbrechen</button><button type="submit" class="primary">Speichern</button></footer>
         </form>
     </dialog>

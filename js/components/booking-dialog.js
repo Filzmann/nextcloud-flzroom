@@ -1,14 +1,14 @@
 (function() {
     'use strict';
 
-    const pad = value => String(value).padStart(2, '0');
-
     /** Zweck: Zeigt das Buchungsformular und übergibt Formularwerte an den Buchungsworkflow. */
     class BookingDialog {
         constructor(dialog, form, onSubmit) {
             this.dialog = dialog;
             this.form = form;
             this.onSubmit = onSubmit;
+            this.errorNode = this.dialog.querySelector('#adr-booking-error');
+            this.opener = null;
             this.form.addEventListener('submit', event => this.submit(event));
             this.dialog.addEventListener('cancel', event => { event.preventDefault(); this.close(); });
             this.dialog.querySelectorAll('[data-dialog-close]').forEach(button => button.addEventListener('click', () => this.close()));
@@ -48,12 +48,28 @@
         }
 
         open(title) {
+            this.opener = document.activeElement;
+            this.clearError();
             this.dialog.querySelector('h2').textContent = title;
             this.dialog.showModal();
         }
 
         close() {
-            this.dialog.close();
+            if (this.dialog.open) this.dialog.close();
+            this.clearError();
+            this.opener?.focus();
+            this.opener = null;
+        }
+
+        showError(error, fallback) {
+            this.errorNode.textContent = error?.message || fallback;
+            this.errorNode.hidden = false;
+            this.errorNode.focus();
+        }
+
+        clearError() {
+            this.errorNode.textContent = '';
+            this.errorNode.hidden = true;
         }
 
         async submit(event) {
@@ -73,11 +89,7 @@
         }
 
         localParts(value) {
-            const date = new Date(value);
-            return {
-                date: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
-                time: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-            };
+            return window.AdRoom.BookingWallTime.parts(value);
         }
     }
 

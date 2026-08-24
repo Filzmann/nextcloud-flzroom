@@ -2,15 +2,16 @@
 
 Diese Datei bündelt geplante Erweiterungen und offene Produktentscheidungen. Verbindliche Fach-, Sicherheits- und Architekturregeln stehen in `AGENTS.md`.
 
-## Freigegebene Umsetzungsaufgaben
+## Zukunftsplanung – nicht freigegeben
 
 ### ROOM-L10N – AD Raumplaner vollständig lokalisieren
 
-Status: bereit nach festgelegtem l10n-Pilotvertrag
+Status: später, nicht freigegeben; Pilot-App, Reihenfolge und Rohtext-Gate
+werden vor jeder Umsetzung appübergreifend separat freigegeben
 
 - Monats-/Wochentagsnamen und sichtbare UI-, Admin-, Validierungs- und
   Fehlermeldungen auf aktive Nextcloud-Locale und Nextcloud-l10n umstellen.
-- ISO-Zeiträume, 15-Minuten-Raster, Buchungszweck-Schlüssel, Raum-IDs und
+- ISO-Zeiträume, 5-Minuten-Raster, Buchungszweck-Schlüssel, Raum-IDs und
   API-Werte unverändert lassen; konfigurierte Titel und Raumnamen nicht
   automatisch übersetzen.
 - Deutsche Ausgabe, eine weitere Locale, Fallback, Monats-/Jahresgrenzen,
@@ -33,6 +34,8 @@ Status: bereit nach festgelegtem l10n-Pilotvertrag
 
 ## Vor der Umsetzung zu klären
 
+- Ob und wie eine einzelne Buchung über eine Kalendertagsgrenze geführt wird;
+  bis dahin bleiben Beginn und Ende auf denselben lokalen Kalendertag begrenzt.
 - Fachlicher Auslöser, Zielraum, Zeitraum und Besitzer*in einer Direktbuchung.
 - Serverseitige Rechte, Konfliktverhalten und Rückmeldung an die aufrufende App.
 - Kleiner optionaler Integrationsvertrag ohne direkten Zugriff auf fremde Tabellen oder Assets.

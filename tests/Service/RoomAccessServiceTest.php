@@ -8,8 +8,6 @@ namespace OCP {
     interface IGroupManager { public function isAdmin(string $uid): bool; }
 }
 namespace {
-    require __DIR__.'/../../lib/Model/Booking.php';
-    require __DIR__.'/../../lib/Service/RoomAccessService.php';
     $user=new class implements OCP\IUser { public function getUID(): string { return 'anna'; } };
     $session=new class($user) implements OCP\IUserSession { public function __construct(private ?OCP\IUser $user){} public function getUser(): ?OCP\IUser{return $this->user;} };
     $groups=new class implements OCP\IGroupManager { public bool $admin=false; public function isAdmin(string $uid): bool{return $this->admin;} };

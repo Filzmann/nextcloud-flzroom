@@ -17,10 +17,6 @@ namespace OCA\AdRoom\Repository {
 }
 
 namespace {
-    require_once __DIR__ . '/../../../localbase/lib/Model/ModelApiTrait.php';
-    require_once __DIR__ . '/../../lib/Model/Room.php';
-    require_once __DIR__ . '/../../lib/Service/RoomService.php';
-
     use OCA\AdRoom\Model\Room;
     use OCA\AdRoom\Repository\RoomRepository;
     use OCA\AdRoom\Service\RoomService;

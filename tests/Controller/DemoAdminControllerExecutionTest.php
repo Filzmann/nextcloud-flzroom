@@ -47,8 +47,6 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    require __DIR__ . '/../../lib/Controller/DemoAdminController.php';
-
     use OCA\AdRoom\Controller\DemoAdminController;
     use OCA\AdRoom\Service\RoomDemoPackService;
     use OCP\AppFramework\Http;

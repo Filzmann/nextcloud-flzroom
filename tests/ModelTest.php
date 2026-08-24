@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-require __DIR__.'/../lib/Model/Room.php';
-require __DIR__.'/../lib/Model/Booking.php';
-
 use OCA\AdRoom\Model\Booking;
 use OCA\AdRoom\Model\Room;
 

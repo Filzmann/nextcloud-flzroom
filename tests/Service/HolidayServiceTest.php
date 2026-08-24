@@ -14,8 +14,6 @@ namespace OCA\LocalBase\Calendar {
 }
 
 namespace {
-    require __DIR__ . '/../../lib/Service/HolidayService.php';
-
     $shared = new OCA\LocalBase\Calendar\HolidayCalendarService();
     $service = new OCA\AdRoom\Service\HolidayService($shared);
     if (($service->forMonth(2026, 3)['2026-03-08'] ?? '') !== 'Regionaler Feiertag') throw new RuntimeException('Gemeinsamer regionaler Feiertag fehlt.');

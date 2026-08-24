@@ -26,7 +26,7 @@ for contract in '"rooms"' '"bookings"' '"holidays"' '"canManageRooms":true'; do
 done
 room_id="$(php -r '$data=json_decode(file_get_contents($argv[1]),true); echo $data["rooms"][0]["id"] ?? "";' "$state")"
 if [[ -z "$room_id" ]]; then echo 'Demo-Raum fehlt.' >&2; exit 1; fi
-payload="{\"roomId\":$room_id,\"start\":\"2035-01-15T18:00\",\"end\":\"2035-01-15T19:00\",\"purpose\":\"Sitzung\",\"title\":\"HTTP Smoke\"}"
+payload="{\"roomId\":$room_id,\"start\":\"2035-01-15T00:05\",\"end\":\"2035-01-15T00:10\",\"purpose\":\"Sitzung\",\"title\":\"HTTP Smoke\"}"
 
 curl --fail --silent --show-error --insecure --user "$ADR_USER:$ADR_PASSWORD" --cookie "$cookies" --cookie-jar "$cookies" -H "requesttoken: $token" -H 'Content-Type: application/json' -X POST --data "$payload" "$ADR_BASE_URL/index.php/apps/adroom/api/bookings" --output "$created"
 booking_id="$(php -r '$data=json_decode(file_get_contents($argv[1]),true); echo $data["id"] ?? "";' "$created")"
