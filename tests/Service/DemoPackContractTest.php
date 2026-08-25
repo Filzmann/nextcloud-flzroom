@@ -14,7 +14,8 @@ foreach (['DemoAccountProvisioningService', "->provision('ad-suite-demo'", 'ad-d
 foreach (['RoomDemoPackService', '->install()'] as $contract) if (!str_contains($command, $contract)) throw new RuntimeException("Demo-Command delegiert nicht: {$contract}");
 foreach (['IUserManager', "addOption('user'", "getOption('user'"] as $unsafe) if (str_contains($command, $unsafe)) throw new RuntimeException("Raum-Demo verwendet ein reales Konto: {$unsafe}");
 foreach (['/api/admin/demo-pack/install', "'verb' => 'POST'"] as $contract) if (!str_contains($routes, $contract)) throw new RuntimeException("Demo-Route fehlt: {$contract}");
-foreach (['private function isAdmin()', '$this->groups->isAdmin(', 'Http::STATUS_FORBIDDEN'] as $contract) if (!str_contains($controller, $contract)) throw new RuntimeException("Adminschutz fehlt: {$contract}");
+foreach (['RoomAccessService', '$this->access->canManageRooms()', 'Http::STATUS_FORBIDDEN'] as $contract) if (!str_contains($controller, $contract)) throw new RuntimeException("Zeitbegrenzter app-lokaler Adminschutz fehlt: {$contract}");
+if (str_contains($controller, '$this->groups->isAdmin(')) throw new RuntimeException('Demo-Installation darf nativen Adminstatus nicht als Vollzugriff verwenden.');
 if (str_contains($controller, 'NoCSRFRequired')) throw new RuntimeException('Demo-Installation umgeht CSRF.');
 foreach (['id="adr-demo-confirm"', 'id="adr-demo-install"', 'nicht automatisch'] as $contract) if (!str_contains($template, $contract)) throw new RuntimeException("Demo-Adminoberfläche fehlt: {$contract}");
 foreach (['adr-demo-confirm', 'adr-demo-install', "/api/admin/demo-pack/install"] as $contract) if (!str_contains($script, $contract)) throw new RuntimeException("Demo-Admininteraktion fehlt: {$contract}");

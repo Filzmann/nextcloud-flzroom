@@ -15,4 +15,7 @@ return ['routes' => [
     ['name' => 'retention_admin#settings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
     ['name' => 'retention_admin#savePolicy', 'url' => '/api/admin/retention-policy', 'verb' => 'PUT'],
     ['name' => 'retention_admin#saveLayout', 'url' => '/api/admin/layout', 'verb' => 'PUT'],
+    ['name' => 'temporary_admin_access#status', 'url' => '/api/admin/full-access', 'verb' => 'GET'],
+    ['name' => 'temporary_admin_access#activate', 'url' => '/api/admin/full-access', 'verb' => 'POST'],
+    ['name' => 'temporary_admin_access#revoke', 'url' => '/api/admin/full-access/{targetUid}', 'verb' => 'DELETE'],
 ]];

@@ -22,6 +22,9 @@ werden vor jeder Umsetzung appübergreifend separat freigegeben
 
 ## Aktueller Fokus
 
+- App-lokalen temporären Admin-Vollzugriff einschließlich 24-Stunden-Grenze,
+  Auditmigration, Privacy-/PermissionProvider und Allow-/Deny-Vertrag in DDEV
+  migrieren und auf Staging abnehmen.
 - Die manuellen Prüfungen werden im ausfüllbaren
   [`docs/manual-acceptance.md`](docs/manual-acceptance.md) dokumentiert.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.

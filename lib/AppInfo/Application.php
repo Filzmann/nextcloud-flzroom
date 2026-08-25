@@ -9,6 +9,10 @@ use OCA\AdRoom\Listener\StandaloneNavigationListener;
 use OCA\AdRoom\Privacy\RoomPrivacyProviderListener;
 use OCA\AdRoom\Privacy\RoomPersonalDataProviderListener;
 use OCA\AdRoom\Permission\RoomPermissionProviderListener;
+use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
+use OCA\AdRoom\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\AdRoom\Service\TemporaryAdminAccessChecker;
+use OCA\AdRoom\Service\TemporaryAdminAccessService;
 use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
 use OCA\FilzmannPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
 use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
@@ -33,6 +37,8 @@ final class Application extends App implements IBootstrap {
         $context->registerEventListener(RegisterPermissionProvidersEvent::class, RoomPermissionProviderListener::class);
         $context->registerEventListener(RetentionProviderRegistryEvent::class, RoomPrivacyProviderListener::class);
         $context->registerEventListener(LoadAdditionalEntriesEvent::class, StandaloneNavigationListener::class);
+        $context->registerServiceAlias(TemporaryAdminAccessChecker::class, TemporaryAdminAccessService::class);
+        $context->registerServiceAlias(TemporaryAdminAccessRepositoryInterface::class, TemporaryAdminAccessRepository::class);
     }
 
     public function boot(IBootContext $context): void {

@@ -37,6 +37,7 @@ namespace OCA\AdRoom\AppInfo {
 }
 
 namespace OCA\AdRoom\Service {
+    final class RoomAccessService { public bool $allowed=false; public function canManageRooms():bool{return $this->allowed;} }
     final class RoomDemoPackService {
         public bool $fail = false;
         public function install(): array {
@@ -49,6 +50,7 @@ namespace OCA\AdRoom\Service {
 namespace {
     use OCA\AdRoom\Controller\DemoAdminController;
     use OCA\AdRoom\Service\RoomDemoPackService;
+    use OCA\AdRoom\Service\RoomAccessService;
     use OCP\AppFramework\Http;
     use OCP\IGroupManager;
     use OCP\IRequest;
@@ -68,7 +70,8 @@ namespace {
         public array $errors = [];
         public function error(string $message, array $context = []): void { $this->errors[] = [$message, $context]; }
     };
-    $controller = new DemoAdminController($request, $session, $groups, $demoPack, $logger);
+    $access = new RoomAccessService();
+    $controller = new DemoAdminController($request, $access, $demoPack, $logger);
     $assert = static function (bool $condition, string $message): void {
         if (!$condition) throw new RuntimeException($message);
     };
@@ -79,9 +82,12 @@ namespace {
     };
     $assert($controller->install()->getStatus() === Http::STATUS_FORBIDDEN, 'Non-admin users can install demo data.');
 
-    $groups->admin = true;
     $response = $controller->install();
-    $assert($response->getStatus() === 200, 'Admins cannot install demo data.');
+    $assert($response->getStatus() === Http::STATUS_FORBIDDEN, 'Native admins without an app-local grant can install demo data.');
+
+    $access->allowed = true;
+    $response = $controller->install();
+    $assert($response->getStatus() === 200, 'Temporarily authorized admins cannot install demo data.');
     $assert($response->getData()['result']['rooms'] === 3, 'The demo result is not forwarded.');
 
     $demoPack->fail = true;

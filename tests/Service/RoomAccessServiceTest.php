@@ -7,15 +7,26 @@ namespace OCP {
     interface IUserSession { public function getUser(): ?IUser; }
     interface IGroupManager { public function isAdmin(string $uid): bool; }
 }
+namespace OCA\AdRoom\Service {
+    interface TemporaryAdminAccessChecker { public function hasActiveGrant(string $uid): bool; }
+}
 namespace {
     $user=new class implements OCP\IUser { public function getUID(): string { return 'anna'; } };
     $session=new class($user) implements OCP\IUserSession { public function __construct(private ?OCP\IUser $user){} public function getUser(): ?OCP\IUser{return $this->user;} };
     $groups=new class implements OCP\IGroupManager { public bool $admin=false; public function isAdmin(string $uid): bool{return $this->admin;} };
-    $access=new OCA\AdRoom\Service\RoomAccessService($session,$groups);
+    $grants=new class implements OCA\AdRoom\Service\TemporaryAdminAccessChecker {
+        public bool $active=false;
+        public function hasActiveGrant(string $uid): bool { return $this->active && $uid === 'anna'; }
+    };
+    $access=new OCA\AdRoom\Service\RoomAccessService($session,$groups,$grants);
     $own=OCA\AdRoom\Model\Booking::get(['roomId'=>1,'userUid'=>'anna','purpose'=>'AT','title'=>'ASN Nordost','startsAt'=>'2026-07-13T08:00:00+00:00','endsAt'=>'2026-07-13T09:00:00+00:00']);
     $foreign=OCA\AdRoom\Model\Booking::get(['roomId'=>1,'userUid'=>'bea','purpose'=>'AT','title'=>'ASN West','startsAt'=>'2026-07-13T08:00:00+00:00','endsAt'=>'2026-07-13T09:00:00+00:00']);
     if (!$access->canView() || !$access->canManageBooking($own) || $access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Eigenrechte sind fehlerhaft.');
     $groups->admin=true;
-    if (!$access->canManageBooking($foreign) || !$access->canManageRooms()) throw new RuntimeException('Adminrechte sind fehlerhaft.');
+    if ($access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Native Nextcloud-Administration darf ohne app-lokale Freigabe keinen Vollzugriff erhalten.');
+    $grants->active=true;
+    if (!$access->canManageBooking($foreign) || !$access->canManageRooms()) throw new RuntimeException('Zeitweise freigegebene Nextcloud-Administration muss app-lokalen Vollzugriff erhalten.');
+    $groups->admin=false;
+    if ($access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Eine gespeicherte Freigabe darf ohne aktuellen Nextcloud-Adminstatus keinen Vollzugriff erteilen.');
     echo "AD Raumplaner access tests passed\n";
 }

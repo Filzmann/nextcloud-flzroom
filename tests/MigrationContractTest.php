@@ -7,8 +7,11 @@ if ($initial === false) throw new RuntimeException('Initiale Raumplaner-Migratio
 if (!str_contains($initial, "addColumn('title', Types::STRING, ['length' => 255, 'notnull' => true])")) {
     throw new RuntimeException('Buchungstitel ist in der initialen Migration nicht verpflichtend.');
 }
-if (glob(__DIR__ . '/../lib/Migration/Version000002*.php') !== []) {
-    throw new RuntimeException('Nicht benötigte Übergangsmigration ist weiterhin vorhanden.');
+$adminAccess = file_get_contents(__DIR__ . '/../lib/Migration/Version000002Date202608250001.php');
+if ($adminAccess === false) throw new RuntimeException('Additive Migration für temporären Admin-Vollzugriff fehlt.');
+foreach (['adr_admin_access', 'target_uid', 'granted_by', 'starts_at', 'ends_at', 'revoked_at', 'revoked_by'] as $contract) {
+    if (!str_contains($adminAccess, $contract)) throw new RuntimeException("Admin-Auditmigration ist unvollständig: {$contract}");
 }
+if (!str_contains($adminAccess, "if (!\$schema->hasTable('adr_admin_access'))")) throw new RuntimeException('Admin-Auditmigration muss wiederholbar additiv sein.');
 
 echo "AD Raumplaner migration contract test passed\n";

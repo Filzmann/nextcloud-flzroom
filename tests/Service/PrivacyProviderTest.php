@@ -32,6 +32,17 @@ namespace OCA\AdRoom\Repository {
         /** @return list<Room> */
         public function findAll(): array { return [Room::get(['id' => 2, 'name' => 'Besprechung 1', 'description' => '', 'sortOrder' => 1])]; }
     }
+    class TemporaryAdminAccessRepository {
+        public function historyForUid(string $uid, int $limit): array {
+            if ($uid !== 'user-17') return [];
+            return [[
+                'id'=>9,'targetUid'=>'user-17','grantedBy'=>'admin-other',
+                'startsAt'=>new \DateTimeImmutable('2026-08-05T10:00:00+00:00'),
+                'endsAt'=>new \DateTimeImmutable('2026-08-05T11:00:00+00:00'),
+                'revokedAt'=>null,'revokedBy'=>null,
+            ]];
+        }
+    }
 }
 
 namespace {
@@ -42,6 +53,7 @@ namespace {
     use OCA\AdRoom\Privacy\RoomRetentionProvider;
     use OCA\AdRoom\Repository\BookingRepository;
     use OCA\AdRoom\Repository\RoomRepository;
+    use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
     use OCA\AdRoom\Service\RoomRetentionPolicyService;
     use OCA\LocalBase\Calendar\CalendarContextSettingsService;
     use OCA\LocalBase\Privacy\RetentionPreviewRequest;
@@ -65,9 +77,9 @@ namespace {
     $policy = new RoomRetentionPolicyService($config);
     $policy->save(['enabled' => true, 'reviewAfterDays' => 5, 'action' => 'REVIEW']);
     $clock = new class implements OCP\AppFramework\Utility\ITimeFactory { public function getTime(): int { return strtotime('2026-08-12T12:00:00+00:00'); } };
-    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config));
+    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository());
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
-    if (count($report->entries()) !== 1 || $report->status() !== 'complete') throw new RuntimeException('Provider liefert fremde Buchungen, lässt eigene aus oder meldet einen falschen Status.');
+    if (count($report->entries()) !== 2 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen oder Admin-Freigabehistorie der betroffenen UID aus.');
     $item = $report->entries()[0]->toArray();
     if ($item['reference'] !== 'booking:1' || isset($item['attributes']['userUid']) || str_contains(json_encode($item, JSON_THROW_ON_ERROR), 'Fremd')) throw new RuntimeException('Providerbericht ist nicht referenzierbar, datensparsam oder nicht subjectgebunden.');
     if (($item['attributes']['Titel'] ?? null) !== '[Freitext mit möglichen Drittpersonenangaben entfernt]' || str_contains(json_encode($item, JSON_THROW_ON_ERROR), 'Team')) throw new RuntimeException('Mögliche Drittpersonenangaben im freien Titel wurden nicht kontextbewahrend entfernt.');
@@ -83,6 +95,8 @@ namespace {
         || !str_contains((string)$item['thirdPartyContentNotice'], 'Freitext')) {
         throw new RuntimeException('Art.-15-Verarbeitungsangaben des Raumplaners fehlen oder sind unzutreffend.');
     }
+    $adminAudit = $report->entries()[1]->toArray();
+    if ($adminAudit['reference'] !== 'admin-access:9' || str_contains(json_encode($adminAudit, JSON_THROW_ON_ERROR), 'admin-other')) throw new RuntimeException('Admin-Freigabeaudit fehlt oder legt eine Drittpersonen-UID offen.');
     $foreignSubjectReport = $personal->collect(new PersonalDataRequest(
         new DataSubjectRef('external-applicant', 'user-17'),
         'de',

@@ -15,6 +15,8 @@
         onRemove: room => workflow.remove(room),
     });
     const retentionForm = byId('adr-retention-form');
+    const fullAccessForm = byId('adr-full-access-form');
+    const fullAccessHistory = byId('adr-full-access-history');
     let layoutSave = Promise.resolve();
     const dashboard = new window.LocalBase.components.OrganizationDashboard({
         root: byId('adroom-admin'),
@@ -42,6 +44,42 @@
             notice.success('Retention-Regel wurde gespeichert.');
         } catch (error) {
             notice.error(error, 'Die Retention-Regel konnte nicht gespeichert werden.');
+        }
+    });
+
+    fullAccessForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const fields = new FormData(fullAccessForm);
+        if (fields.get('enabled') !== 'on') return;
+        try {
+            await client.request('/api/admin/full-access', {
+                method: 'POST',
+                body: JSON.stringify({
+                    targetUid: String(fields.get('targetUid') || '').trim(),
+                    durationMinutes: Number(fields.get('durationMinutes')),
+                }),
+            });
+            fullAccessForm.elements.enabled.checked = false;
+            notice.success('Der zeitlich begrenzte Vollzugriff wurde aktiviert.');
+            await loadFullAccess();
+            await load();
+        } catch (error) {
+            notice.error(error, 'Der Vollzugriff konnte nicht aktiviert werden.');
+        }
+    });
+
+    fullAccessHistory.addEventListener('click', async event => {
+        const button = event.target.closest('button[data-revoke-uid]');
+        if (!button) return;
+        button.disabled = true;
+        try {
+            await client.request(`/api/admin/full-access/${encodeURIComponent(button.dataset.revokeUid)}`, { method: 'DELETE' });
+            notice.success('Der Vollzugriff wurde widerrufen.');
+            await loadFullAccess();
+            await load();
+        } catch (error) {
+            button.disabled = false;
+            notice.error(error, 'Der Vollzugriff konnte nicht widerrufen werden.');
         }
     });
 
@@ -98,5 +136,53 @@
         }
     }
 
-    void Promise.all([load(), loadAdminSettings()]);
+    async function loadFullAccess() {
+        try {
+            const state = await client.request('/api/admin/full-access');
+            fullAccessHistory.replaceChildren();
+            if (!state.history?.length) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 6;
+                cell.textContent = 'Noch keine Freigabe protokolliert.';
+                row.append(cell);
+                fullAccessHistory.append(row);
+                return;
+            }
+            state.history.forEach(grant => fullAccessHistory.append(renderFullAccessRow(grant)));
+        } catch (error) {
+            notice.error(error, 'Die Vollzugriffshistorie konnte nicht geladen werden.');
+        }
+    }
+
+    function renderFullAccessRow(grant) {
+        const row = document.createElement('tr');
+        const now = Date.now();
+        const active = !grant.revokedAt && Date.parse(grant.endsAt) > now;
+        const values = [grant.targetUid, grant.grantedBy, formatDateTime(grant.startsAt), formatDateTime(grant.endsAt), `${formatDateTime(grant.revokedAt || grant.endsAt)} · ${active ? 'aktiv' : (grant.revokedAt ? 'widerrufen' : 'abgelaufen')}`];
+        values.forEach(value => {
+            const cell = document.createElement('td');
+            cell.textContent = String(value || '—');
+            row.append(cell);
+        });
+        const action = document.createElement('td');
+        if (active) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.revokeUid = grant.targetUid;
+            button.textContent = 'Widerrufen';
+            action.append(button);
+        } else {
+            action.textContent = '—';
+        }
+        row.append(action);
+        return row;
+    }
+
+    function formatDateTime(value) {
+        if (!value) return '—';
+        return new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value));
+    }
+
+    void Promise.all([load(), loadAdminSettings(), loadFullAccess()]);
 }());

@@ -22,7 +22,13 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Buchungen liegen innerhalb eines Kalendertags und verwenden 5-Minuten-Schritte ohne pauschale Einschränkung auf bestimmte Tageszeiten.
 - Buchungen desselben Raums duerfen sich nicht ueberschneiden. Angrenzende Buchungen sind erlaubt.
 - Alle angemeldeten Nutzer*innen duerfen Raeume und Buchungen lesen sowie eigene Buchungen anlegen, bearbeiten, in andere Raeume verschieben und loeschen.
-- Nextcloud-Admins duerfen alle Buchungen und die Raumliste verwalten.
+- Native Nextcloud-Administration erteilt keinen automatischen fachlichen
+  Vollzugriff. Ein konkretes Administrationskonto darf alle Buchungen und die
+  Raumliste ausschließlich mit einer app-lokalen, serverseitig geprüften und
+  höchstens 24 Stunden gültigen Freigabe verwalten. Beginn, geplantes Ende,
+  Widerruf und tatsächliches Ende bleiben in der app-eigenen Auditquelle
+  erhalten. Der technische Zugriff auf den Nextcloud-Adminabschnitt bleibt
+  davon getrennt.
 - Raumloeschungen loeschen die zugehoerigen Buchungen. Die UI muss diese Auswirkung vor der Aktion deutlich bestaetigen.
 - Samstage, Sonntage und die gesetzlichen Feiertage der zentral in LocalBase konfigurierten Organisationsregion werden in der Monatsansicht textlich und optisch gekennzeichnet. Ohne abweichende Administration gilt Berlin.
 - Buchungszeiten und Monatsgrenzen verwenden die zentral konfigurierte fachliche Organisationszeitzone. Persönliche Nextcloud-Zeitzonen verändern nur die individuelle Anzeige, nicht den fachlichen Buchungskontext.
@@ -54,6 +60,11 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Controller bleiben duenn. Validierung und Kollisionspruefung liegen im `BookingService`, Rechte im `RoomAccessService`, Datenzugriff in Repositories.
 - `HolidayService` ist nur ein app-spezifischer Projektionsadapter auf den gemeinsamen, zwischengespeicherten LocalBase-Feiertagskalender; AD Raumplaner pflegt keine eigene Feiertagsquelle oder Regionstabelle.
 - Deny by default: Jede schreibende API prueft die angemeldete Person und die Zielbuchung serverseitig.
+- Temporärer Admin-Vollzugriff bleibt bewusst lokaler Raumplanervertrag ohne
+  zentrale Runtime-Abhängigkeit. Fehlende, abgelaufene, widerrufene oder
+  fehlerhaft gelesene Freigaben sowie entzogener nativer Adminstatus ergeben
+  deny by default. Privacy- und PermissionProvider werden mit dieser
+  Sicherheitsdatenklasse gemeinsam gepflegt.
 - Der Browser uebermittelt bei eigenen Buchungen keine vertrauenswuerdige Besitzer-UID; der Server setzt die UID aus der Session.
 - GET-Routen sind CSRF-frei, schreibende Routen behalten den Nextcloud-CSRF-Schutz.
 - Persistente Modelle bieten `get(...)`, `get_all([...])` und `toArray()`; direkte Modellpersistenz ist nicht erlaubt.

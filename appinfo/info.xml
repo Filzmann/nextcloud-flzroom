@@ -5,7 +5,7 @@
     <name>AD Raumplaner</name>
     <summary>Monatliche Raumbelegung und kollisionsfreie Raumbuchungen.</summary>
     <description>Verwaltet Räume und eigene beziehungsweise administrative Buchungen in einer kompakten Monatsmatrix.</description>
-    <version>0.12.0-rc.1</version>
+    <version>0.12.0-rc.2</version>
     <licence>agpl</licence>
     <author>Simon</author>
     <namespace>AdRoom</namespace>
