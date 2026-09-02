@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Dokumentations- und Steuerungsstruktur vereinheitlicht.
+
 ## 0.12.0-rc.1
 
 - Subjectgebundene persönliche Datenauskunft für eigene Raumbuchungen mit Zweck, Zeitraum und Aufbewahrungshinweis ergänzt.

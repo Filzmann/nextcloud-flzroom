@@ -36,3 +36,11 @@ Vertrauliche Besprechungstitel und personenbezogene Echtdaten werden darin
 nicht dokumentiert.
 
 Installations-, Betriebs- und Abnahmeunterlagen stehen im öffentlichen [AD-Suite-Projekt](https://github.com/Filzmann/ad-suite).
+
+## Dokumentation
+
+- [Architektur](docs/architecture.md)
+- [Manuelle Abnahme](docs/manual-acceptance.md)
+- [Roadmap](ROADMAP.md)
+- [Changelog](CHANGELOG.md)
+- [Arbeitsregeln](AGENTS.md)
