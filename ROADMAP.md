@@ -2,23 +2,27 @@
 
 Diese Datei bündelt geplante Erweiterungen und offene Produktentscheidungen. Verbindliche Fach-, Sicherheits- und Architekturregeln stehen in `AGENTS.md`.
 
-## Zukunftsplanung – nicht freigegeben
+## Nextcloud-Kompatibilitätsgate
 
-### ROOM-L10N – AD Raumplaner vollständig lokalisieren
+### ROOM-NC-COMPAT – OpenDesk-Boden 33 und künftige Majors nachweisen
 
-Status: später, nicht freigegeben; Pilot-App, Reihenfolge und Rohtext-Gate
-werden vor jeder Umsetzung appübergreifend separat freigegeben
+Status: `info.xml` bleibt bei 34/34; NC 33.0.7 ist nur statisch geprüft. Vor
+`min-version="33"` müssen Fresh Install/Upgrade, DI, Migrationen,
+Buchungs-/Kollisions- und Rechtepfade, temporärer Adminzugriff,
+Privacy-/PermissionProvider, Kalenderprovider-Ausfall, Assets und sichtbare
+Oberfläche grün sein. Jede weitere Major wird lückenlos über
+`verify-nextcloud-future-compatibility` geprüft; unvollständige Provider
+werden sichtbar und nicht als Kompatibilitätserfolg gewertet.
 
-- Monats-/Wochentagsnamen und sichtbare UI-, Admin-, Validierungs- und
-  Fehlermeldungen auf aktive Nextcloud-Locale und Nextcloud-l10n umstellen.
-- ISO-Zeiträume, 5-Minuten-Raster, Buchungszweck-Schlüssel, Raum-IDs und
-  API-Werte unverändert lassen; konfigurierte Titel und Raumnamen nicht
-  automatisch übersetzen.
-- Deutsche Ausgabe, eine weitere Locale, Fallback, Monats-/Jahresgrenzen,
-  Pluralformen, Platzhalter, Escaping sowie zugängliche Wochenend- und
-  Feiertagsbeschriftungen testen.
-- Erst nach vollständiger Migration einen Rohtext-Check für AD Raumplaner
-  verbindlich schalten.
+## Systemweit gegatete app-lokale Aufgabe
+
+### ROOM-L10N – Oberfläche und Kalenderdarstellung lokalisieren
+
+Aktivierung ausschließlich nach Freigabe des Root-Vorhabens `ZM-06`.
+Sichtbare Texte sowie Monats- und Wochentagsnamen werden app-lokal auf
+Nextcloud-l10n umgestellt; ISO-Zeiträume, 5-Minuten-Raster, Zweck-Schlüssel,
+Raum-IDs und API-Werte bleiben sprachneutral. Konfigurierte Titel und
+Raumnamen werden nicht automatisch übersetzt.
 
 ## Aktueller Fokus
 
