@@ -10,4 +10,7 @@ return [
     'postGrantUiStatuses' => [200],
     'grantService' => OCA\AdRoom\Service\TemporaryAdminAccessService::class,
     'permissionProbe' => static fn(string $uid): bool => OCP\Server::get(RoomAccessService::class)->canManageRooms(),
+    'apiSmokes' => [
+        ['/index.php/apps/adroom/api/month/2035-01', [200]],
+    ],
 ];

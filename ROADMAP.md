@@ -5,18 +5,6 @@ und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
 erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 `docs/architecture.md`.
 
-## Nextcloud-Kompatibilitätsgate
-
-### ROOM-NC-COMPAT – OpenDesk-Boden 33 und künftige Majors nachweisen
-
-Status: `info.xml` bleibt bei 34/34; NC 33.0.7 ist nur statisch geprüft. Vor
-`min-version="33"` müssen Fresh Install/Upgrade, DI, Migrationen,
-Buchungs-/Kollisions- und Rechtepfade, temporärer Adminzugriff,
-Privacy-/PermissionProvider, Kalenderprovider-Ausfall, Assets und sichtbare
-Oberfläche grün sein. Jede weitere Major wird lückenlos über
-`verify-nextcloud-future-compatibility` geprüft; unvollständige Provider
-werden sichtbar und nicht als Kompatibilitätserfolg gewertet.
-
 ## Systemweit gegatete app-lokale Aufgabe
 
 ### ROOM-L10N – Oberfläche und Kalenderdarstellung lokalisieren
