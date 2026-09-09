@@ -49,6 +49,14 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
   `REVIEW`-Kandidaten und verändert keine Buchung. Aktivierung und Frist nach
   Buchungsende sind im eigenen Adminbereich bearbeitbar; andere Maßnahmen
   werden serverseitig abgelehnt.
+- Der app-eigene Processing-Katalog liegt ausschließlich unter
+  `resources/privacy-processing.json` und wird über den zusätzlichen
+  öffentlichen V1-`ProcessingMetadataProvider` des Datenschutz-Centers lazy
+  registriert. Er enthält nur Policy-Metadaten, niemals personenbezogene
+  Laufzeitdaten. Buchungs-, Adminfreigabe- und persönliche Layoutverarbeitung
+  bleiben dort vollständig aufgeführt; ungeklärte Rechtsgrundlagen,
+  Zuständigkeiten, Retention-, Backup- und Betroffenenrechtsfragen bleiben
+  `PRIVACY-DECISION-REQUIRED` und aktivieren keine technische Maßnahme.
 - Jede Buchung erscheint in der persönlichen Auskunft menschenlesbar mit
   Datum, Uhrzeit und Raum, konkretem Zweck sowie einer aus der aktuellen
   Retention-Regel abgeleiteten Aussage. Ein REVIEW-Stichtag wird nicht als
@@ -65,6 +73,11 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
   fehlerhaft gelesene Freigaben sowie entzogener nativer Adminstatus ergeben
   deny by default. Privacy- und PermissionProvider werden mit dieser
   Sicherheitsdatenklasse gemeinsam gepflegt.
+- `PersonalDataProvider`, `ProcessingMetadataProvider`, Retention-Preview und
+  `PermissionProvider` werden bei Änderungen ihrer Datenklassen und Scopes
+  gemeinsam geprüft. Ein tatsächlich gespeichertes persönliches Adminlayout
+  wird subjectgebunden ausgegeben; fremde und bloße Standardwerte bleiben aus
+  der Art.-15-Projektion ausgeschlossen.
 - Der Browser uebermittelt bei eigenen Buchungen keine vertrauenswuerdige Besitzer-UID; der Server setzt die UID aus der Session.
 - GET-Routen sind CSRF-frei, schreibende Routen behalten den Nextcloud-CSRF-Schutz.
 - Persistente Modelle bieten `get(...)`, `get_all([...])` und `toArray()`; direkte Modellpersistenz ist nicht erlaubt.

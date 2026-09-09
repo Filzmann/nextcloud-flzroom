@@ -12,7 +12,16 @@ namespace OCP {
         public function setValueString(string $appId, string $key, string $value): void;
     }
 }
+namespace OCP\Config {
+    interface IUserConfig {
+        public function getValueArray(string $userId, string $appId, string $key, array $default = [], bool $lazy = false): array;
+        public function setValueArray(string $userId, string $appId, string $key, array $value, bool $lazy = false): void;
+    }
+}
 namespace OCP\AppFramework\Utility { interface ITimeFactory { public function getTime(): int; } }
+namespace Psr\Log {
+    interface LoggerInterface { public function warning(string $message, array $context = []): void; }
+}
 
 namespace OCA\AdRoom\Repository {
     use OCA\AdRoom\Model\Booking;
@@ -54,6 +63,7 @@ namespace {
     use OCA\AdRoom\Repository\BookingRepository;
     use OCA\AdRoom\Repository\RoomRepository;
     use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
+    use OCA\AdRoom\Service\RoomAdminLayoutService;
     use OCA\AdRoom\Service\RoomRetentionPolicyService;
     use OCA\LocalBase\Calendar\CalendarContextSettingsService;
     use OCA\LocalBase\Privacy\RetentionPreviewRequest;
@@ -69,17 +79,23 @@ namespace {
         Booking::get(['id' => 2, 'roomId' => 3, 'userUid' => 'foreign', 'purpose' => 'BQ', 'title' => 'Fremd', 'startsAt' => '2026-08-03T08:00:00+00:00', 'endsAt' => '2026-08-03T09:00:00+00:00']),
     ];
     $subject = new DataSubjectRef('nextcloud-user', 'user-17');
-    $config = new class implements OCP\IAppConfig {
+    $config = new class implements OCP\IAppConfig, OCP\Config\IUserConfig {
         public array $values = [];
+        public array $userValues = [];
         public function getValueString(string $appId, string $key, string $default = ''): string { return $this->values[$appId][$key] ?? $default; }
         public function setValueString(string $appId, string $key, string $value): void { $this->values[$appId][$key] = $value; }
+        public function getValueArray(string $userId, string $appId, string $key, array $default = [], bool $lazy = false): array { return $this->userValues[$userId][$appId][$key] ?? $default; }
+        public function setValueArray(string $userId, string $appId, string $key, array $value, bool $lazy = false): void { $this->userValues[$userId][$appId][$key] = $value; }
     };
+    $config->userValues['user-17']['adroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['demo','rooms','retention'],'collapsed'=>['retention']]],'organigram'=>['zoom'=>100]];
+    $config->userValues['foreign-user']['adroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['retention','rooms','demo'],'collapsed'=>['rooms']]],'organigram'=>['zoom'=>100]];
+    $logger = new class implements Psr\Log\LoggerInterface { public function warning(string $message, array $context = []): void {} };
     $policy = new RoomRetentionPolicyService($config);
     $policy->save(['enabled' => true, 'reviewAfterDays' => 5, 'action' => 'REVIEW']);
     $clock = new class implements OCP\AppFramework\Utility\ITimeFactory { public function getTime(): int { return strtotime('2026-08-12T12:00:00+00:00'); } };
-    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository());
+    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
-    if (count($report->entries()) !== 2 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen oder Admin-Freigabehistorie der betroffenen UID aus.');
+    if (count($report->entries()) !== 3 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie oder das persönliche Adminlayout der betroffenen UID aus.');
     $item = $report->entries()[0]->toArray();
     if ($item['reference'] !== 'booking:1' || isset($item['attributes']['userUid']) || str_contains(json_encode($item, JSON_THROW_ON_ERROR), 'Fremd')) throw new RuntimeException('Providerbericht ist nicht referenzierbar, datensparsam oder nicht subjectgebunden.');
     if (($item['attributes']['Titel'] ?? null) !== '[Freitext mit möglichen Drittpersonenangaben entfernt]' || str_contains(json_encode($item, JSON_THROW_ON_ERROR), 'Team')) throw new RuntimeException('Mögliche Drittpersonenangaben im freien Titel wurden nicht kontextbewahrend entfernt.');
@@ -97,6 +113,27 @@ namespace {
     }
     $adminAudit = $report->entries()[1]->toArray();
     if ($adminAudit['reference'] !== 'admin-access:9' || str_contains(json_encode($adminAudit, JSON_THROW_ON_ERROR), 'admin-other')) throw new RuntimeException('Admin-Freigabeaudit fehlt oder legt eine Drittpersonen-UID offen.');
+    $adminLayout = $report->entries()[2]->toArray();
+    if ($adminLayout['reference'] !== 'admin-layout'
+        || ($adminLayout['attributes']['Reihenfolge'] ?? null) !== 'Demo-Daten, Räume, Aufbewahrung'
+        || ($adminLayout['attributes']['Eingeklappt'] ?? null) !== 'Aufbewahrung'
+        || str_contains(json_encode($adminLayout, JSON_THROW_ON_ERROR), 'foreign-user')) {
+        throw new RuntimeException('Das persönliche Adminlayout fehlt, ist nicht verständlich oder legt einen fremden UserConfig-Wert offen.');
+    }
+    unset($config->userValues['user-17']['adroom']['admin_dashboard_layout']);
+    $reportWithoutStoredLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
+    foreach ($reportWithoutStoredLayout->entries() as $entry) {
+        if ($entry->toArray()['reference'] === 'admin-layout') {
+            throw new RuntimeException('Das nicht persistierte Standardlayout wurde als gespeicherte Personendate ausgegeben.');
+        }
+    }
+    $config->userValues['user-17']['adroom']['admin_dashboard_layout'] = ['version'=>2];
+    $reportWithInvalidLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
+    if ($reportWithInvalidLayout->status() !== 'partial'
+        || $reportWithInvalidLayout->restrictions() !== ['Das gespeicherte persönliche Adminlayout konnte nicht sicher ausgegeben werden.']) {
+        throw new RuntimeException('Ein ungültiges gespeichertes Adminlayout wird nicht als unvollständige Auskunft ausgewiesen.');
+    }
+    unset($config->userValues['user-17']['adroom']['admin_dashboard_layout']);
     $foreignSubjectReport = $personal->collect(new PersonalDataRequest(
         new DataSubjectRef('external-applicant', 'user-17'),
         'de',

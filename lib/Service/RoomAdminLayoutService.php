@@ -17,12 +17,29 @@ final class RoomAdminLayoutService {
 
     public function layout(string $uid): array {
         try {
-            $stored = $this->config->getValueArray($uid, AppId::VALUE, self::KEY, [], true);
-            return $stored === [] ? $this->default() : $this->normalize($stored);
+            return $this->storedLayout($uid) ?? $this->default();
         } catch (\Throwable $error) {
-            $this->logger->warning('Persönliches Raumplaner-Adminlayout ist ungültig; Standard wird verwendet.', ['exception' => $error]);
+            $this->logInvalidLayout($error);
             return $this->default();
         }
+    }
+
+    public function personalDataForUid(string $uid): ?array {
+        try {
+            return $this->storedLayout($uid);
+        } catch (\Throwable $error) {
+            $this->logInvalidLayout($error);
+            throw new InvalidArgumentException('Personal admin layout is unavailable.', 0, $error);
+        }
+    }
+
+    private function storedLayout(string $uid): ?array {
+        $stored = $this->config->getValueArray($uid, AppId::VALUE, self::KEY, [], true);
+        return $stored === [] ? null : $this->normalize($stored);
+    }
+
+    private function logInvalidLayout(\Throwable $error): void {
+        $this->logger->warning('Persönliches Raumplaner-Adminlayout ist ungültig; Standard wird verwendet.', ['exception' => $error]);
     }
 
     public function save(string $uid, array $layout): array {

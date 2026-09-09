@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- App-eigenen Processing-Metadatenkatalog für Raumbuchungen,
+  Adminfreigabehistorie und persönliche Adminanordnung sowie dessen optionalen
+  öffentlichen V1-Provider ergänzt; offene Datenschutzentscheidungen bleiben
+  sichtbar und lösen keine automatische Maßnahme aus.
+- Tatsächlich gespeicherte persönliche Adminanordnungen subjectgebunden in die
+  Art.-15-Auskunft aufgenommen; fremde und bloße Standardwerte bleiben außen vor.
 - Nextcloud 33.0.7 bis 34.0.2 durch Fresh Install und Upgrade 33→34 mit
   App-Suiten, DI-/Registrierungs-, API-, Rechte-, HTTPS-, Asset- und UI-Smokes unterstützt.
 - Dokumentations- und Steuerungsstruktur vereinheitlicht.

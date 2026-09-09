@@ -10,6 +10,7 @@ use OCA\AdRoom\Repository\BookingRepository;
 use OCA\AdRoom\Repository\RoomRepository;
 use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
 use OCA\AdRoom\Service\RoomRetentionPolicyService;
+use OCA\AdRoom\Service\RoomAdminLayoutService;
 use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataEntry;
 use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataPage;
 use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataProvider;
@@ -25,6 +26,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
         private RoomRetentionPolicyService $retentionPolicy,
         private CalendarContextSettingsService $calendarContext,
         private TemporaryAdminAccessRepository $adminAccess,
+        private RoomAdminLayoutService $adminLayout,
     ) {}
     public function descriptor(): ProviderDescriptor {
         return new ProviderDescriptor(
@@ -51,7 +53,14 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
         foreach ($this->rooms->findAll() as $room) $roomNames[$room->id()] = $room->name();
         $bookings = $this->bookings->findByUserUid($request->subject()->subjectId(), $request->pageLimit() + 1);
         $adminHistory = $this->adminAccess->historyForUid($request->subject()->subjectId(), $request->pageLimit() + 1);
-        $limited = count($bookings) + count($adminHistory) > $request->pageLimit();
+        $restrictions = [];
+        try {
+            $adminLayout = $this->adminLayout->personalDataForUid($request->subject()->subjectId());
+        } catch (InvalidArgumentException) {
+            $adminLayout = null;
+            $restrictions[] = 'Das gespeicherte persönliche Adminlayout konnte nicht sicher ausgegeben werden.';
+        }
+        $limited = count($bookings) + count($adminHistory) + ($adminLayout === null ? 0 : 1) > $request->pageLimit();
         $items = array_map(
             static fn(Booking $booking): PersonalDataEntry => new PersonalDataEntry(
                 categoryId: 'booking',
@@ -112,16 +121,41 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
                 ],
             );
         }
-        if ($limited) $items = array_slice($items, 0, $request->pageLimit());
+        if ($adminLayout !== null) {
+            $labels = ['rooms' => 'Räume', 'retention' => 'Aufbewahrung', 'demo' => 'Demo-Daten'];
+            $order = array_map(static fn(string $id): string => $labels[$id], $adminLayout['scopes']['main']['order']);
+            $collapsed = array_map(static fn(string $id): string => $labels[$id], $adminLayout['scopes']['main']['collapsed']);
+            $items[] = new PersonalDataEntry(
+                categoryId: 'admin-layout',
+                categoryLabel: 'Persönliche Adminanordnung',
+                reference: 'admin-layout',
+                summary: 'Persönliche Anordnung der Administrationskarten im AD Raumplaner',
+                purpose: 'Wiederherstellung der persönlichen Anordnung des app-eigenen Adminbereichs',
+                source: 'Eigene Eingabe im AD-Raumplaner-Adminbereich',
+                recipientCategories: ['Betroffene Person'],
+                retention: 'Keine feste Löschfrist und kein app-eigener Resetpfad festgelegt.',
+                thirdCountryTransfer: 'Durch AD Raumplaner sind keine Drittlandübermittlungen vorgesehen.',
+                automatedDecision: 'Die Präferenz steuert nur die Darstellung und keine fachliche Entscheidung.',
+                thirdPartyContentNotice: 'Die Layoutpräferenz enthält keine vorgesehenen Drittpersonenangaben.',
+                attributes: [
+                    'Reihenfolge' => implode(', ', $order),
+                    'Eingeklappt' => $collapsed === [] ? 'Keine' : implode(', ', $collapsed),
+                ],
+            );
+        }
+        if ($limited) {
+            $items = array_slice($items, 0, $request->pageLimit());
+            $restrictions[] = 'Ausgabelimit erreicht; weitere Raumbuchungen können vorhanden sein.';
+        }
 
-        if ($items === []) {
+        if ($items === [] && $restrictions === []) {
             return new PersonalDataPage('not_applicable');
         }
 
         return new PersonalDataPage(
-            $limited ? 'partial' : 'complete',
+            $restrictions === [] ? 'complete' : 'partial',
             $items,
-            $limited ? ['Ausgabelimit erreicht; weitere Raumbuchungen können vorhanden sein.'] : [],
+            $restrictions,
         );
     }
 

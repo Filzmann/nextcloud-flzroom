@@ -23,3 +23,21 @@ Eigene Buchungen werden aus der Session-UID serverseitig gebunden. Fremde
 Buchungen und Raumverwaltung benötigen eine app-lokale, zeitlich begrenzte
 Adminfreigabe zusätzlich zum nativen Adminstatus. Der Datenschutzprovider
 liefert nur app-eigene, typisierte Buchungsbezüge und redigiert freie Titel.
+
+Der kanonische Policykatalog liegt unter
+`resources/privacy-processing.json`. Der optionale
+`RoomProcessingMetadataProvider` liest ausschließlich diese feste app-eigene
+Datei und registriert sie lazy über den öffentlichen V1-Vertrag von
+`filzmann_data_protection`. Der Katalog umfasst die Verarbeitung von
+Raumbuchungen, der temporären Adminfreigabehistorie und der persönlichen
+Admin-Kartenanordnung. Er enthält keine Laufzeitdatensätze und führt keine
+Retention-Maßnahme aus.
+
+Die Katalogwerte sind die künftige kanonische Policyquelle. Die bestehenden
+Projektionen in `RoomPersonalDataProvider` und `RoomRetentionProvider` bleiben
+im ersten Consumer-Schritt unverändert; ihre Ableitung aus dem Katalog ist ein
+gesonderter Rolloutschritt. Ein tatsächlich gespeicherter `IUserConfig`-Wert
+`admin_dashboard_layout` wird inzwischen subjectgebunden und mit
+verständlichen Kartenbezeichnungen ausgegeben. Fremde Layoutwerte und das nur
+berechnete Standardlayout bleiben ausgeschlossen. Der noch fehlende Reset-
+und Lifecycle-Vertrag bleibt getrennt als offene Entscheidung markiert.

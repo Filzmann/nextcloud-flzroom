@@ -25,6 +25,17 @@ Raumnamen werden nicht automatisch übersetzt.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
 - Löschbestätigung, Zeitraster, Wochenenden und die Feiertage der administrativ gewählten Organisationsregion sichtbar und barrierefrei prüfen.
 
+## Offene Datenschutzentscheidungen
+
+- Fachliche Verantwortlichkeit und Rechtsgrundlage für Raumbuchungen,
+  temporäre Adminfreigaben und die persönliche Adminanordnung entscheiden.
+- Verbindliche Retention-, Backup-/Restore- und Betroffenenrechtsregeln für
+  Buchungen und Adminfreigabehistorie festlegen; bis dahin bleibt es bei der
+  rein lesenden `REVIEW`-Vorschau ohne automatische Maßnahme.
+- Für den bereits subjectgebunden ausgegebenen Nextcloud-`IUserConfig`-Wert
+  `admin_dashboard_layout` einen autorisierten Reset- und Lifecycle-Vertrag
+  festlegen.
+
 ## Geplante Erweiterungen
 
 - Persönliche Einstellungen erhalten erst bei einem konkreten dauerhaften Nutzerwert einen eigenen App-Tab.

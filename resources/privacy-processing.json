@@ -1,0 +1,454 @@
+{
+  "schema_version": "1.0",
+  "app_id": "adroom",
+  "processings": [
+    {
+      "processing_id": "room_booking_management",
+      "name": "Verwaltung und Anzeige von Raumbuchungen",
+      "controller": {
+        "component": "AD Raumplaner",
+        "business_owner": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Raumbuchungen mit buchender Person und möglichen Drittpersonenangaben im Freititel",
+          "planned_processing": "Planung, Anzeige und konfliktfreie Verwaltung gemeinsam genutzter Räume",
+          "missing_decision": "Fachlich verantwortliche Stelle für den Raumplanungsprozess",
+          "reason": "Die technische App-Eigentümerschaft bestimmt keine fachliche Verantwortlichkeit.",
+          "technical_impact": "Die verantwortliche Stelle kann noch nicht verbindlich ausgewiesen werden.",
+          "privacy_preserving_alternative": "Zugriffe auf den dokumentierten Buchungs- und Freigabevertrag begrenzen.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        }
+      },
+      "data_categories": [
+        "Nextcloud-UID und daraus aktuell aufgelöster Anzeigename der buchenden Person",
+        "Raum, Beginn, Ende und standardisierter Buchungszweck",
+        "Frei eingegebener Buchungstitel mit möglichen Drittpersonenangaben",
+        "Technische Erstellungs- und Änderungszeitpunkte"
+      ],
+      "data_subjects": [
+        "Buchende Nextcloud-Nutzer*innen",
+        "Möglicherweise im freien Buchungstitel genannte Drittpersonen"
+      ],
+      "purposes": [
+        "Planung der gemeinsamen Raumnutzung",
+        "Vermeidung zeitlicher Doppelbelegungen eines Raums",
+        "Nachvollziehbare Verwaltung eigener und ausdrücklich administrierbarer Buchungen"
+      ],
+      "access_roles": [
+        "Angemeldete Nutzer*innen für die gemeinsame Monatsansicht",
+        "Buchende Person für Änderungen der eigenen Buchung",
+        "Native Nextcloud-Administration mit aktiver app-lokaler Freigabe von höchstens 24 Stunden"
+      ],
+      "recipients": [
+        {
+          "category": "Angemeldete Nutzer*innen der Nextcloud-Instanz",
+          "allowed_disclosures": [
+            "Raum, Zeitraum, Zweck, Titel und aktuell aufgelöster Anzeigename in der gemeinsamen Belegungsansicht"
+          ],
+          "conditions": [
+            "Authentifizierte Sitzung",
+            "Keine daraus abgeleitete Änderungsberechtigung"
+          ]
+        },
+        {
+          "category": "Betroffene buchende Person",
+          "allowed_disclosures": [
+            "Eigene Buchungen in der Art.-15-Auskunft ohne den Freititel"
+          ],
+          "conditions": [
+            "Subject wird serverseitig aus der authentifizierten Sitzung gebunden"
+          ]
+        }
+      ],
+      "data_sources": [
+        "Serverseitig gebundene Nextcloud-Session-UID",
+        "Eingaben der buchenden oder berechtigt administrierenden Person",
+        "App-eigene Tabellen adr_bookings und adr_rooms"
+      ],
+      "legal_basis": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "Personenbezug und möglicher Drittpersoneninhalt einer Raumbuchung",
+        "planned_processing": "Instanzweite Anzeige und Verwaltung von Raumbuchungen",
+        "missing_decision": "Anwendbare Rechtsgrundlage und verbindliche Dokumentation der Sichtbarkeit",
+        "reason": "Die Rechtsgrundlage und Erforderlichkeit der instanzweiten Titelsichtbarkeit sind fachlich zu entscheiden.",
+        "technical_impact": "Der Katalog kann keine freigegebene Rechtsgrundlage behaupten.",
+        "privacy_preserving_alternative": "Nur erforderliche Buchungsfelder anzeigen und Freititel in der persönlichen Auskunft redigieren.",
+        "responsible_party": "ungeklärt",
+        "blocking": false
+      },
+      "retention": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "Beendete Raumbuchungen einschließlich UID, Zweck und Freititel",
+        "planned_processing": "Administrative Prüfung nach einem konfigurierten Zeitraum und spätere Löschung, Anonymisierung oder Einschränkung",
+        "missing_decision": "Verbindliche Frist, Trigger, Sperren und Maßnahme nach Fristablauf",
+        "reason": "Die bestehende Konfiguration erzeugt nur REVIEW-Kandidaten und ist keine freigegebene Löschregel.",
+        "technical_impact": "Es bleibt bei einer rein lesenden REVIEW-Vorschau; keine automatische Maßnahme ist zulässig.",
+        "privacy_preserving_alternative": "Keine automatische Verarbeitung ausführen und nur minimale REVIEW-Angaben bereitstellen.",
+        "responsible_party": "ungeklärt",
+        "blocking": true
+      },
+      "logging": {
+        "audit_requirements": [
+          "Fehler und Konflikte ohne Buchungstitel oder unnötige Personenkennungen diagnostizieren"
+        ],
+        "personal_data_policy": "Keine vollständigen Buchungsinhalte, Freititel oder unnötigen UIDs in Standardlogs übernehmen."
+      },
+      "backup": {
+        "relevance": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Persistierte Raumbuchungen in der Nextcloud-Datenbank",
+          "planned_processing": "Einbeziehung in betriebliche Sicherung und Wiederherstellung",
+          "missing_decision": "Backup-Relevanz und Aufbewahrungsdauer",
+          "reason": "Der App-Code kennt den betrieblichen Backupzyklus nicht.",
+          "technical_impact": "Die App kann keinen Entfall aus Sicherungen behaupten.",
+          "privacy_preserving_alternative": "Keine separate app-eigene Sicherungskopie anlegen.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        },
+        "restore_handling": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Nach Restore wieder vorhandene beendete Raumbuchungen",
+          "planned_processing": "Erneute Anwendung der festzulegenden Aufbewahrungsregel",
+          "missing_decision": "Umgang mit beim Restore bereits abgelaufenen Fristen",
+          "reason": "Ohne Retentionentscheidung ist kein Restore-Nachlauf festlegbar.",
+          "technical_impact": "Keine automatische Löschung oder Anonymisierung nach Restore.",
+          "privacy_preserving_alternative": "Nur die bestehende REVIEW-Vorschau verwenden.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        }
+      },
+      "exports_and_reports": {
+        "article_15_relevance": "Eigene Buchungen werden subjectgebunden ausgegeben; der mögliche Drittpersonen-Freititel wird durch einen neutralen Platzhalter ersetzt.",
+        "other_outputs": [
+          "Gemeinsame Monatsansicht für angemeldete Nutzer*innen",
+          "Administrative REVIEW-Vorschau ohne automatische Maßnahme"
+        ],
+        "minimization": "Art.-15-Ausgabe auf Raum, Zweck und Zeitraum begrenzen und Freititel redigieren."
+      },
+      "data_subject_rights": {
+        "article_15": "Subjectgebundene Ausgabe eigener Buchungen ist über den app-eigenen PersonalDataProvider implementiert.",
+        "rectification": "Die buchende Person kann eine eigene Buchung innerhalb des geltenden Buchungsvertrags bearbeiten.",
+        "restriction": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Raumbuchungen mit strittigem oder zu sperrendem Personenbezug",
+          "planned_processing": "Einschränkung von Anzeige und weiterer Verarbeitung",
+          "missing_decision": "Fachliche Sperrgründe und technische Wirkung",
+          "reason": "Ein Einschränkungsworkflow ist fachlich nicht definiert.",
+          "technical_impact": "Kein automatischer Einschränkungspfad wird angeboten.",
+          "privacy_preserving_alternative": "Zugriffe unverändert serverseitig auf die bestehenden Rollen begrenzen.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        },
+        "erasure_or_anonymization": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Beendete Raumbuchungen",
+          "planned_processing": "Löschung oder Anonymisierung nach festzulegender Frist",
+          "missing_decision": "Fachliche Lösch- oder Anonymisierungsregel",
+          "reason": "Die vorhandene Retention-Schnittstelle führt ausschließlich REVIEW aus.",
+          "technical_impact": "Keine automatische Löschung oder Anonymisierung.",
+          "privacy_preserving_alternative": "Nur REVIEW-Kandidaten anzeigen und keine Daten verändern.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        }
+      },
+      "international_transfers": "AD Raumplaner übermittelt selbst keine Buchungsdaten an Drittländer.",
+      "automated_decisions": "Die Kollisionsprüfung verhindert Doppelbelegungen, trifft aber keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
+      "special_safeguards": [
+        "Serverseitige Bindung der Besitzer-UID aus der Sitzung",
+        "Deny-by-default für fremde Änderungen",
+        "Redaktion möglicher Drittpersonenangaben in der Art.-15-Auskunft",
+        "Keine automatische Retention-Ausführung"
+      ],
+      "systems": [
+        "Nextcloud",
+        "AD Raumplaner",
+        "App-eigene Tabellen adr_bookings und adr_rooms"
+      ]
+    },
+    {
+      "processing_id": "temporary_admin_full_access",
+      "name": "Zeitlich begrenzte fachliche Adminfreigabe",
+      "controller": {
+        "component": "AD Raumplaner",
+        "business_owner": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Freigabehistorie für fachlichen Admin-Vollzugriff",
+          "planned_processing": "Erteilen, Beenden, Widerrufen und Nachweisen zeitlich begrenzter Freigaben",
+          "missing_decision": "Fachlich verantwortliche Stelle für Freigabeprozess und Nachweis",
+          "reason": "Technische Administration und fachliche Verantwortung sind getrennt.",
+          "technical_impact": "Die fachliche Ownerbezeichnung bleibt offen.",
+          "privacy_preserving_alternative": "Ohne aktive app-lokale Freigabe keinen fachlichen Vollzugriff erteilen.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        }
+      },
+      "data_categories": [
+        "Nextcloud-UIDs der Ziel-, freigebenden und widerrufenden Administrationskonten",
+        "Beginn, geplantes Ende, tatsächliches Ende und Status der Freigabe"
+      ],
+      "data_subjects": [
+        "Administrationskonten mit Bezug zu einer app-lokalen Vollzugriffsfreigabe"
+      ],
+      "purposes": [
+        "Durchsetzung einer höchstens 24 Stunden gültigen fachlichen Adminfreigabe",
+        "Sicherheits- und Auditnachweis der Freigabehistorie"
+      ],
+      "access_roles": [
+        "Technische Nextcloud-Administration für Erteilen und Widerrufen",
+        "Betroffene Person für die eigene Art.-15-Projektion",
+        "Ausdrücklich berechtigte Datenschutz-Prüfrolle"
+      ],
+      "recipients": [
+        {
+          "category": "Betroffene Person",
+          "allowed_disclosures": [
+            "Eigene Rolle und Zeitpunkte ohne Kennungen anderer beteiligter Personen"
+          ]
+        },
+        {
+          "category": "Ausdrücklich berechtigte Prüfrolle",
+          "allowed_disclosures": [
+            "Für Sicherheitsprüfung und Audit erforderliche Freigabenachweise"
+          ],
+          "conditions": [
+            "Serverseitige fachliche Berechtigungsprüfung"
+          ]
+        }
+      ],
+      "data_sources": [
+        "App-lokaler Freigabevorgang im Nextcloud-Adminbereich",
+        "App-eigene Tabelle adr_admin_access"
+      ],
+      "legal_basis": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "Personenbezogene Adminfreigabehistorie",
+        "planned_processing": "Sicherheitsprüfung und Audit des fachlichen Vollzugriffs",
+        "missing_decision": "Anwendbare Rechtsgrundlage",
+        "reason": "Die Rechtsgrundlage ist fachlich und rechtlich zu entscheiden.",
+        "technical_impact": "Der Katalog kann keine freigegebene Rechtsgrundlage ausweisen.",
+        "privacy_preserving_alternative": "Nur minimale UIDs und Zeitpunkte speichern und subjectgebunden ausgeben.",
+        "responsible_party": "ungeklärt",
+        "blocking": false
+      },
+      "retention": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "Adminfreigabehistorie mit UIDs und Zeitpunkten",
+        "planned_processing": "Aufbewahrung und spätere Löschung, Anonymisierung, Einschränkung oder Review",
+        "missing_decision": "Frist, Trigger, Sperren und Maßnahme nach Fristablauf",
+        "reason": "Der sicherheitsrelevante Beweiswert muss gegen Datenminimierung abgewogen werden.",
+        "technical_impact": "Keine automatische Retention-Maßnahme ist zulässig.",
+        "privacy_preserving_alternative": "Keine zusätzlichen Historienfelder sammeln und Ausführung deaktiviert lassen.",
+        "responsible_party": "ungeklärt",
+        "blocking": true
+      },
+      "logging": {
+        "audit_requirements": [
+          "Beginn, geplantes Ende und Widerruf der app-lokalen Freigabe bleiben nachvollziehbar"
+        ],
+        "personal_data_policy": "Keine vollständigen Requests oder Kennungen unbeteiligter Personen in Standardlogs übernehmen."
+      },
+      "backup": {
+        "relevance": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Persistierte Adminfreigabehistorie",
+          "planned_processing": "Einbeziehung in Sicherung und Wiederherstellung der Nextcloud-Datenbank",
+          "missing_decision": "Backup-Relevanz und Aufbewahrungsdauer",
+          "reason": "Der App-Code kennt den betrieblichen Backupzyklus nicht.",
+          "technical_impact": "Die App kann keinen Entfall aus Sicherungen behaupten.",
+          "privacy_preserving_alternative": "Keine separate app-eigene Backupkopie anlegen.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        },
+        "restore_handling": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Nach Restore wieder vorhandene Freigabehistorie",
+          "planned_processing": "Erneute Anwendung der festzulegenden Retention-Regel",
+          "missing_decision": "Umgang mit bereits abgelaufenen Nachweisen",
+          "reason": "Ohne Retentionentscheidung ist kein Restore-Nachlauf festlegbar.",
+          "technical_impact": "Keine automatische Löschung oder Anonymisierung nach Restore.",
+          "privacy_preserving_alternative": "Freigaben anhand ihres Endzeitpunkts technisch als inaktiv behandeln.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        }
+      },
+      "exports_and_reports": {
+        "article_15_relevance": "Eigene Rollen und Zeitpunkte werden subjectgebunden ausgegeben.",
+        "other_outputs": [
+          "Autorisierte administrative Prüfung der Freigabehistorie"
+        ],
+        "minimization": "In der Selbstauskunft Kennungen anderer beteiligter Administrationskonten neutralisieren."
+      },
+      "data_subject_rights": {
+        "article_15": "Subjectgebundene Projektion der eigenen Beteiligung ist implementiert.",
+        "rectification": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Historische Freigabenachweise",
+          "planned_processing": "Berichtigung ohne Verlust der Auditnachvollziehbarkeit",
+          "missing_decision": "Zulässiger Korrekturweg",
+          "reason": "Eine Überschreibung könnte den Beweiswert zerstören.",
+          "technical_impact": "Kein generischer Berichtigungsbefehl wird angeboten.",
+          "privacy_preserving_alternative": "Fehler manuell prüfen und Originalwerte nicht ungeprüft verändern.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        },
+        "restriction": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Historische Freigabenachweise",
+          "planned_processing": "Einschränkung der weiteren Verarbeitung",
+          "missing_decision": "Sperrgründe und technische Wirkung",
+          "reason": "Sperrgründe und Auditfolgen sind nicht technisch ableitbar.",
+          "technical_impact": "Kein automatischer Einschränkungspfad wird angeboten.",
+          "privacy_preserving_alternative": "Zugriff auf ausdrücklich berechtigte Rollen begrenzen.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        },
+        "erasure_or_anonymization": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "UIDs und Zeitpunkte in der Freigabehistorie",
+          "planned_processing": "Löschung oder Anonymisierung nach festzulegender Frist",
+          "missing_decision": "Maßnahme und Umgang mit dem Auditbeweis",
+          "reason": "Die fachliche Aufbewahrungsentscheidung fehlt.",
+          "technical_impact": "Keine automatische Löschung oder Anonymisierung.",
+          "privacy_preserving_alternative": "Nur minimale Freigabefelder speichern.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        }
+      },
+      "international_transfers": "AD Raumplaner übermittelt die Freigabehistorie nicht an Drittländer.",
+      "automated_decisions": "Der Server beendet die Freigabe spätestens nach 24 Stunden; es findet keine automatisierte Entscheidung über eine Person statt.",
+      "special_safeguards": [
+        "Nativer Adminstatus und aktive app-lokale Freigabe sind gemeinsam erforderlich",
+        "Ablauf und Fehler führen deny by default zu keinem fachlichen Vollzugriff",
+        "Drittpersonen-UIDs werden in der Selbstauskunft neutralisiert"
+      ],
+      "systems": [
+        "Nextcloud",
+        "AD Raumplaner",
+        "App-eigene Tabelle adr_admin_access"
+      ]
+    },
+    {
+      "processing_id": "personal_admin_layout",
+      "name": "Persönliche Anordnung der Administrationskarten",
+      "controller": {
+        "component": "AD Raumplaner",
+        "business_owner": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Benutzergebundene Layoutpräferenz im Adminbereich",
+          "planned_processing": "Speichern der persönlichen Reihenfolge und des Klappzustands von Administrationskarten",
+          "missing_decision": "Fachlich verantwortliche Stelle für die persönliche Oberflächenkonfiguration",
+          "reason": "Die technische Implementierung legt keine fachliche Verantwortung fest.",
+          "technical_impact": "Die verantwortliche Stelle bleibt im Katalog offen.",
+          "privacy_preserving_alternative": "Ohne gespeicherten Wert jederzeit das neutrale Standardlayout verwenden.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        }
+      },
+      "data_categories": [
+        "Nextcloud-UID als UserConfig-Zuordnung",
+        "Reihenfolge und Klappzustand der bekannten Administrationskarten",
+        "Konfigurationsformat-Version"
+      ],
+      "data_subjects": [
+        "Administrationskonten, die den AD-Raumplaner-Adminbereich personalisieren"
+      ],
+      "purposes": [
+        "Wiederherstellung der persönlichen Anordnung des app-eigenen Adminbereichs"
+      ],
+      "access_roles": [
+        "Jeweilige authentifizierte Person für den eigenen UserConfig-Wert"
+      ],
+      "recipients": [
+        {
+          "category": "Betroffene Person",
+          "allowed_disclosures": [
+            "Eigene gespeicherte Layoutpräferenz"
+          ],
+          "conditions": [
+            "Serverseitige Bindung an die authentifizierte UID"
+          ]
+        }
+      ],
+      "data_sources": [
+        "Eingabe der authentifizierten Person im AD-Raumplaner-Adminbereich",
+        "Nextcloud IUserConfig unter adroom/admin_dashboard_layout"
+      ],
+      "legal_basis": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "UID-gebundene Oberflächenpräferenz",
+        "planned_processing": "Speichern und Laden der persönlichen Adminanordnung",
+        "missing_decision": "Anwendbare Rechtsgrundlage beziehungsweise Einordnung als nutzerinitiierte Komfortfunktion",
+        "reason": "Die rechtliche Einordnung darf nicht technisch angenommen werden.",
+        "technical_impact": "Der Katalog weist noch keine freigegebene Rechtsgrundlage aus.",
+        "privacy_preserving_alternative": "Das Standardlayout ohne gespeicherten Wert verwenden.",
+        "responsible_party": "ungeklärt",
+        "blocking": false
+      },
+      "retention": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "Persönlicher UserConfig-Wert admin_dashboard_layout",
+        "planned_processing": "Entfernung bei Kontolöschung, App-Deinstallation oder ausdrücklichem Zurücksetzen",
+        "missing_decision": "Verbindlicher Lösch- und Resetvertrag",
+        "reason": "Der aktuelle Service besitzt keinen eigenen Löschpfad.",
+        "technical_impact": "Keine app-eigene automatische Retention-Maßnahme.",
+        "privacy_preserving_alternative": "Ungültige oder fehlende Werte nicht ergänzen, sondern das Standardlayout verwenden.",
+        "responsible_party": "ungeklärt",
+        "blocking": true
+      },
+      "logging": {
+        "audit_requirements": [
+          "Ungültige Konfiguration nur als technischer Warnzustand diagnostizieren"
+        ],
+        "personal_data_policy": "Layoutinhalt und UID nicht unnötig in Standardlogs übernehmen."
+      },
+      "backup": {
+        "relevance": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Nextcloud-UserConfig-Wert des Adminlayouts",
+          "planned_processing": "Einbeziehung in betriebliche Sicherung und Wiederherstellung",
+          "missing_decision": "Backup-Relevanz und Aufbewahrungsdauer",
+          "reason": "Der App-Code kennt den betrieblichen Backupzyklus nicht.",
+          "technical_impact": "Die App kann keinen Entfall aus Sicherungen behaupten.",
+          "privacy_preserving_alternative": "Keine separate app-eigene Backupkopie anlegen.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        },
+        "restore_handling": "Ein wiederhergestellter valider Wert personalisiert erneut nur das Konto, dem die Nextcloud-UserConfig zugeordnet ist."
+      },
+      "exports_and_reports": {
+        "article_15_relevance": "Der Wert ist personenbezogen, wird vom aktuellen PersonalDataProvider aber noch nicht ausgegeben.",
+        "other_outputs": [
+          "Eigener AD-Raumplaner-Adminbereich"
+        ],
+        "minimization": "Nur bekannte Karten-IDs, Reihenfolge, Klappzustand und Formatversion speichern."
+      },
+      "data_subject_rights": {
+        "article_15": "Ein tatsächlich gespeicherter Wert wird subjectgebunden und mit verständlichen Kartenbezeichnungen ausgegeben; fremde und bloße Standardwerte bleiben ausgeschlossen.",
+        "rectification": "Die Person kann durch erneutes Speichern eine valide eigene Anordnung setzen.",
+        "restriction": "Durch Nichtnutzung bleibt das Standardlayout wirksam; ein gesonderter Sperrworkflow ist nicht implementiert.",
+        "erasure_or_anonymization": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Persönlicher UserConfig-Wert admin_dashboard_layout",
+          "planned_processing": "Zurücksetzen beziehungsweise Löschen des eigenen Werts",
+          "missing_decision": "Autorisierter Reset-Endpunkt und Lifecycle-Auslöser",
+          "reason": "Der aktuelle Service bietet nur Lesen und Speichern.",
+          "technical_impact": "Kein app-eigener Löschpfad ist verfügbar.",
+          "privacy_preserving_alternative": "Bei ungültigem Wert das Standardlayout verwenden und keine zusätzlichen Daten anlegen.",
+          "responsible_party": "ungeklärt",
+          "blocking": true
+        }
+      },
+      "international_transfers": "AD Raumplaner übermittelt die Layoutpräferenz nicht an Drittländer.",
+      "automated_decisions": "Die Präferenz steuert nur die Darstellung und keine fachliche oder rechtliche Entscheidung.",
+      "special_safeguards": [
+        "Nextcloud-native kontogebundene IUserConfig",
+        "Strikte Allowlist bekannter Karten-IDs",
+        "Ungültige Werte führen zum neutralen Standardlayout"
+      ],
+      "systems": [
+        "Nextcloud IUserConfig",
+        "AD Raumplaner"
+      ]
+    }
+  ]
+}

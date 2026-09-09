@@ -26,6 +26,16 @@ gesperrt.
 
 Feiertage, Buchungszeiten und Monatsgrenzen richten sich nach dem gemeinsamen Kalenderkontext der AD-Suite. Land, Region und fachliche Zeitzone werden zentral durch die Administration gepflegt; ohne Änderung gilt Deutschland/Berlin.
 
+## Datenschutz
+
+AD Raumplaner registriert bei aktivem, kompatiblem Datenschutz-Center seinen
+subjectgebundenen `PersonalDataProvider` und zusätzlich einen versionierten
+`ProcessingMetadataProvider`. Der app-eigene Katalog beschreibt
+Raumbuchungen, temporäre Adminfreigaben und die persönliche Adminanordnung,
+ohne personenbezogene Laufzeitdaten zu enthalten. Offene fachliche
+Entscheidungen bleiben ausdrücklich `PRIVACY-DECISION-REQUIRED`; insbesondere
+werden daraus keine automatische Löschung oder Anonymisierung abgeleitet.
+
 ## Roadmap
 
 Geplante Erweiterungen und offene Produktentscheidungen stehen in der [Roadmap](ROADMAP.md).
