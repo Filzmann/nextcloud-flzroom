@@ -748,3 +748,19 @@ Teilantwort sowie die Ablehnung einer inkompatiblen Vertragsversion ab. Nicht
 als reale DDEV-Installation geprüft sind ein physisch fehlendes App-Verzeichnis
 und eine tatsächlich installierte inkompatible Privacy-App; diese beiden
 Fälle bleiben als automatisierbare Integrationsprüfungen offen.
+
+## Automatisierter lokaler Nachweis vom 11.09.2026
+
+Im Rahmen der risikoarmen Luna-Prüfung wurden ausschließlich lokale, nicht
+mutierende Prüfungen ausgeführt:
+
+| Prüfung | Ergebnis | Aussagegrenze |
+|---|---|---|
+| `php tests/run.php` | erfolgreich | PHP-Syntax sowie Controller-, Service-, Modell-, Repository-, Migrations-, Rechte-, Privacy-, Processing-Metadata-, Retention- und Adminverträge sind grün. |
+| `node tests/run-js.mjs` | erfolgreich | JavaScript-Syntax sowie Frontend- und UI-Smokes sind grün. |
+| `git diff --check` | erfolgreich | Keine Whitespace-Fehler im Arbeitsstand. |
+
+DDEV, `occ`, Installation, App-Aktivierung und Raum-/Buchungsdaten wurden
+nicht verändert. Dieser Nachweis ersetzt weder die offene visuelle
+Staging-Abnahme noch die ausstehende fachliche Entscheidung zu den manuellen
+Prüffällen.
