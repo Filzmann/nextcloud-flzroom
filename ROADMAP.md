@@ -42,6 +42,7 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - Persönliche Einstellungen erhalten erst bei einem konkreten dauerhaften Nutzerwert einen eigenen App-Tab.
 - Optionale Direktbuchungen aus Kalender oder Assistenzplanung können nach einem konkreten Anwendungsfall ergänzt werden; der manuelle Standalone-Betrieb bleibt erhalten.
+- Änderungen an fremden Buchungen werden vorerst weiterhin direkt außerhalb der App zwischen den Beteiligten abgestimmt. Ein späterer In-App-Anfrageworkflow wird erst bei einem konkreten Bedarf und nach einem eigenen Vertrag für Akteur*innen, Empfänger*innen, erforderliche Daten und Datenschutz, Zustände, Wiederholungen, Ablauf, Auditierung sowie serverseitige Autorisierung geprüft; eine Anfrage darf niemals automatisch die Buchung ändern.
 
 ## Vor der Umsetzung zu klären
 
