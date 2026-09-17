@@ -19,9 +19,17 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - Fachliche Verantwortlichkeit und Rechtsgrundlage für Raumbuchungen,
   temporäre Adminfreigaben und die persönliche Adminanordnung entscheiden.
-- Verbindliche Retention-, Backup-/Restore- und Betroffenenrechtsregeln für
-  Buchungen und Adminfreigabehistorie festlegen; bis dahin bleibt es bei der
-  rein lesenden `REVIEW`-Vorschau ohne automatische Maßnahme.
+- Den konfigurierbaren Standardwert von einem Jahr ab Buchungsende
+  ausschließlich für Mitglieder der Nextcloud-Gruppe
+  `Datenschutzbeauftragte` administrierbar machen und Friständerungen anhand
+  des ursprünglichen Buchungsendes rückwirkend auf vorhandene Buchungen
+  anwenden.
+- Maßnahme nach Fristablauf, Sperren sowie Backup-/Restore- und
+  Betroffenenrechtsregeln für Buchungen und Adminfreigabehistorie festlegen.
+  Retention-Ausführung bleibt bis zu einem freigegebenen und getesteten
+  Versions-, Wirksamkeitszeitpunkt-, Neuberechnungs-, Nebenläufigkeits-,
+  Fehlerdiagnostik- und Roll-forward-Vertrag blockiert; bis dahin bleibt es
+  bei der rein lesenden `REVIEW`-Vorschau ohne automatische Maßnahme.
 - Für den bereits subjectgebunden ausgegebenen Nextcloud-`IUserConfig`-Wert
   `admin_dashboard_layout` einen autorisierten Reset- und Lifecycle-Vertrag
   festlegen.

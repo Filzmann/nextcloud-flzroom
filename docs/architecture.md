@@ -33,6 +33,16 @@ Raumbuchungen, der temporären Adminfreigabehistorie und der persönlichen
 Admin-Kartenanordnung. Er enthält keine Laufzeitdatensätze und führt keine
 Retention-Maßnahme aus.
 
+Für beendete Raumbuchungen gilt ein Jahr ab Buchungsende als administrativ
+konfigurierbarer Standardwert. Mitglieder der Nextcloud-Gruppe
+`Datenschutzbeauftragte` dürfen die Frist verkürzen oder verlängern; eine
+Änderung wird anhand des ursprünglichen Buchungsendes auch auf bereits
+vorhandene Buchungen angewendet. Die Maßnahme nach Fristablauf, fachliche
+Sperren und der sichere Ausführungsvertrag bleiben offen. Bis Policyversion
+und Wirksamkeitszeitpunkt, rückwirkende Neuberechnung, Nebenläufigkeit,
+Backup/Restore, Fehlerdiagnostik und Roll-forward freigegeben und getestet
+sind, bleibt Retention ausschließlich eine lesende `REVIEW`-Vorschau.
+
 Die Katalogwerte sind die künftige kanonische Policyquelle. Die bestehenden
 Projektionen in `RoomPersonalDataProvider` und `RoomRetentionProvider` bleiben
 im ersten Consumer-Schritt unverändert; ihre Ableitung aus dem Katalog ist ein

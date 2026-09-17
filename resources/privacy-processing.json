@@ -37,6 +37,7 @@
       "access_roles": [
         "Angemeldete Nutzer*innen für die gemeinsame Monatsansicht",
         "Buchende Person für Änderungen der eigenen Buchung",
+        "Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte ausschließlich für fachliche Datenschutzkonfiguration",
         "Native Nextcloud-Administration mit aktiver app-lokaler Freigabe von höchstens 24 Stunden"
       ],
       "recipients": [
@@ -79,9 +80,9 @@
       "retention": {
         "status": "PRIVACY-DECISION-REQUIRED",
         "affected_data": "Beendete Raumbuchungen einschließlich UID, Zweck und Freititel",
-        "planned_processing": "Administrative Prüfung nach einem konfigurierten Zeitraum und spätere Löschung, Anonymisierung oder Einschränkung",
-        "missing_decision": "Verbindliche Frist, Trigger, Sperren und Maßnahme nach Fristablauf",
-        "reason": "Die bestehende Konfiguration erzeugt nur REVIEW-Kandidaten und ist keine freigegebene Löschregel.",
+        "planned_processing": "Administrative Prüfung nach einem durch die Nextcloud-Gruppe Datenschutzbeauftragte verkürzbaren oder verlängerbaren Standardwert von einem Jahr ab Buchungsende; Neuberechnung auch vorhandener Buchungen aus dem ursprünglichen Buchungsende; spätere Löschung, Anonymisierung oder Einschränkung",
+        "missing_decision": "Sperren, Maßnahme nach Fristablauf und sicherer Ausführungsvertrag",
+        "reason": "Standardwert, administrative Änderbarkeit, Trigger und rückwirkende Neuberechnung sind entschieden; die bestehende Konfiguration erzeugt nur REVIEW-Kandidaten und ist keine freigegebene Löschregel.",
         "technical_impact": "Es bleibt bei einer rein lesenden REVIEW-Vorschau; keine automatische Maßnahme ist zulässig.",
         "privacy_preserving_alternative": "Keine automatische Verarbeitung ausführen und nur minimale REVIEW-Angaben bereitstellen.",
         "responsible_party": "ungeklärt",
@@ -108,9 +109,9 @@
         "restore_handling": {
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Nach Restore wieder vorhandene beendete Raumbuchungen",
-          "planned_processing": "Erneute Anwendung der festzulegenden Aufbewahrungsregel",
+          "planned_processing": "Erneute Anwendung der zum Restore-Zeitpunkt konfigurierten Frist anhand des ursprünglichen Buchungsendes",
           "missing_decision": "Umgang mit beim Restore bereits abgelaufenen Fristen",
-          "reason": "Ohne Retentionentscheidung ist kein Restore-Nachlauf festlegbar.",
+          "reason": "Der konfigurierbare Standardwert ist entschieden; ein sicherer Restore-Nachlauf ist noch nicht festgelegt.",
           "technical_impact": "Keine automatische Löschung oder Anonymisierung nach Restore.",
           "privacy_preserving_alternative": "Nur die bestehende REVIEW-Vorschau verwenden.",
           "responsible_party": "ungeklärt",
@@ -142,9 +143,9 @@
         "erasure_or_anonymization": {
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Beendete Raumbuchungen",
-          "planned_processing": "Löschung oder Anonymisierung nach festzulegender Frist",
+          "planned_processing": "Löschung oder Anonymisierung nach der konfigurierten, standardmäßig einjährigen Frist ab Buchungsende",
           "missing_decision": "Fachliche Lösch- oder Anonymisierungsregel",
-          "reason": "Die vorhandene Retention-Schnittstelle führt ausschließlich REVIEW aus.",
+          "reason": "Standardwert, administrative Änderbarkeit und rückwirkende Neuberechnung sind entschieden; die vorhandene Retention-Schnittstelle führt ausschließlich REVIEW aus.",
           "technical_impact": "Keine automatische Löschung oder Anonymisierung.",
           "privacy_preserving_alternative": "Nur REVIEW-Kandidaten anzeigen und keine Daten verändern.",
           "responsible_party": "ungeklärt",
@@ -157,6 +158,7 @@
         "Serverseitige Bindung der Besitzer-UID aus der Sitzung",
         "Deny-by-default für fremde Änderungen",
         "Redaktion möglicher Drittpersonenangaben in der Art.-15-Auskunft",
+        "Fachliche Datenschutzkonfiguration ausschließlich durch die Nextcloud-Gruppe Datenschutzbeauftragte",
         "Keine automatische Retention-Ausführung"
       ],
       "systems": [
