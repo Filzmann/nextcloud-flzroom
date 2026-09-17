@@ -5,16 +5,6 @@ und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
 erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 `docs/architecture.md`.
 
-## Systemweit gegatete app-lokale Aufgabe
-
-### ROOM-L10N – Oberfläche und Kalenderdarstellung lokalisieren
-
-Aktivierung ausschließlich nach Freigabe des Root-Vorhabens `ZM-06`.
-Sichtbare Texte sowie Monats- und Wochentagsnamen werden app-lokal auf
-Nextcloud-l10n umgestellt; ISO-Zeiträume, 5-Minuten-Raster, Zweck-Schlüssel,
-Raum-IDs und API-Werte bleiben sprachneutral. Konfigurierte Titel und
-Raumnamen werden nicht automatisch übersetzt.
-
 ## Aktueller Fokus
 
 - App-lokalen temporären Admin-Vollzugriff einschließlich 24-Stunden-Grenze,
@@ -48,3 +38,19 @@ Raumnamen werden nicht automatisch übersetzt.
 - Fachlicher Auslöser, Zielraum, Zeitraum und Besitzer*in einer Direktbuchung.
 - Serverseitige Rechte, Konfliktverhalten und Rückmeldung an die aufrufende App.
 - Kleiner optionaler Integrationsvertrag ohne direkten Zugriff auf fremde Tabellen oder Assets.
+
+## Bewusst zurückgestellt – niedrigste Priorität
+
+### ROOM-L10N – Oberfläche und Kalenderdarstellung lokalisieren
+
+Status seit 17. September 2026: Die Umsetzung beginnt erst nach allen höher
+priorisierten Roadmap-Aufgaben und einer erneuten ausdrücklichen Freigabe des
+Root-Vorhabens `ZM-06`. Neue Funktionen und Codeänderungen berücksichtigen
+die spätere Lokalisierbarkeit an den jeweils berührten Stellen, lösen aber
+keine flächige Umstellung oder Übersetzungsimplementierung aus.
+
+Bei der späteren Umsetzung werden sichtbare Texte sowie Monats- und
+Wochentagsnamen app-lokal auf Nextcloud-l10n umgestellt; ISO-Zeiträume,
+5-Minuten-Raster, Zweck-Schlüssel, Raum-IDs und API-Werte bleiben
+sprachneutral. Konfigurierte Titel und Raumnamen werden nicht automatisch
+übersetzt.
