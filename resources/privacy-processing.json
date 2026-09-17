@@ -360,7 +360,7 @@
         "Wiederherstellung der persönlichen Anordnung des app-eigenen Adminbereichs"
       ],
       "access_roles": [
-        "Jeweilige authentifizierte Person für den eigenen UserConfig-Wert"
+        "Jeweilige authentifizierte Person für den eigenen UserConfig-Wert und dessen Reset; weder native Administration noch Datenschutzbeauftragte dürfen fremde Layoutwerte zurücksetzen"
       ],
       "recipients": [
         {
@@ -389,15 +389,15 @@
         "blocking": false
       },
       "retention": {
-        "status": "PRIVACY-DECISION-REQUIRED",
-        "affected_data": "Persönlicher UserConfig-Wert admin_dashboard_layout",
-        "planned_processing": "Entfernung bei Kontolöschung, App-Deinstallation oder ausdrücklichem Zurücksetzen",
-        "missing_decision": "Verbindlicher Lösch- und Resetvertrag",
-        "reason": "Der aktuelle Service besitzt keinen eigenen Löschpfad.",
-        "technical_impact": "Keine app-eigene automatische Retention-Maßnahme.",
-        "privacy_preserving_alternative": "Ungültige oder fehlende Werte nicht ergänzen, sondern das Standardlayout verwenden.",
-        "responsible_party": "ungeklärt",
-        "blocking": true
+        "policy_id": "personal_admin_layout_lifecycle",
+        "trigger": "Ausdrücklicher Self-Reset durch das zugeordnete Nextcloud-Konto, Löschung dieses Nextcloud-Kontos oder Deinstallation von AD Raumplaner",
+        "duration_or_deadline": "Keine eigenständige Aufbewahrungsfrist; bei jedem Auslöser unverzüglich löschen",
+        "action": "delete",
+        "conditions_or_holds": [
+          "Nur die Kontoinhaberin oder der Kontoinhaber darf den eigenen Layoutwert zurücksetzen; native Administration und Datenschutzbeauftragte dürfen keinen fremden Wert zurücksetzen.",
+          "Der derzeitige Service kann nur lesen und speichern; Reset-Endpunkt sowie Konto- und App-Lifecycle-Anbindung sind noch nicht implementiert.",
+          "Backup- und Restore-Verhalten bleibt bis zu einer eigenen Entscheidung offen."
+        ]
       },
       "logging": {
         "audit_requirements": [
@@ -430,17 +430,7 @@
         "article_15": "Ein tatsächlich gespeicherter Wert wird subjectgebunden und mit verständlichen Kartenbezeichnungen ausgegeben; fremde und bloße Standardwerte bleiben ausgeschlossen.",
         "rectification": "Die Person kann durch erneutes Speichern eine valide eigene Anordnung setzen.",
         "restriction": "Durch Nichtnutzung bleibt das Standardlayout wirksam; ein gesonderter Sperrworkflow ist nicht implementiert.",
-        "erasure_or_anonymization": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "Persönlicher UserConfig-Wert admin_dashboard_layout",
-          "planned_processing": "Zurücksetzen beziehungsweise Löschen des eigenen Werts",
-          "missing_decision": "Autorisierter Reset-Endpunkt und Lifecycle-Auslöser",
-          "reason": "Der aktuelle Service bietet nur Lesen und Speichern.",
-          "technical_impact": "Kein app-eigener Löschpfad ist verfügbar.",
-          "privacy_preserving_alternative": "Bei ungültigem Wert das Standardlayout verwenden und keine zusätzlichen Daten anlegen.",
-          "responsible_party": "ungeklärt",
-          "blocking": true
-        }
+        "erasure_or_anonymization": "Der eigene Wert ist beim ausdrücklichen Self-Reset sowie beim Löschen des zugeordneten Nextcloud-Kontos oder bei App-Deinstallation unverzüglich zu löschen. Nur die Kontoinhaberin oder der Kontoinhaber darf den eigenen Reset auslösen; weder native Administration noch Datenschutzbeauftragte dürfen fremde Layouts zurücksetzen. Der Service bietet derzeit keinen Löschpfad; die technische Umsetzung steht aus."
       },
       "international_transfers": "AD Raumplaner übermittelt die Layoutpräferenz nicht an Drittländer.",
       "automated_decisions": "Die Präferenz steuert nur die Darstellung und keine fachliche oder rechtliche Entscheidung.",

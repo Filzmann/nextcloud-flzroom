@@ -52,5 +52,14 @@ im ersten Consumer-Schritt unverändert; ihre Ableitung aus dem Katalog ist ein
 gesonderter Rolloutschritt. Ein tatsächlich gespeicherter `IUserConfig`-Wert
 `admin_dashboard_layout` wird inzwischen subjectgebunden und mit
 verständlichen Kartenbezeichnungen ausgegeben. Fremde Layoutwerte und das nur
-berechnete Standardlayout bleiben ausgeschlossen. Der noch fehlende Reset-
-und Lifecycle-Vertrag bleibt getrennt als offene Entscheidung markiert.
+berechnete Standardlayout bleiben ausgeschlossen. Die Layoutpräferenz hat
+keine eigene zeitliche Aufbewahrungsfrist: Sie wird beim ausdrücklichen Reset
+durch die jeweilige Kontoinhaberin oder den jeweiligen Kontoinhaber, bei
+Löschung dieses Nextcloud-Kontos oder bei Deinstallation der App gelöscht.
+Nur das betroffene Konto darf seinen Wert zurücksetzen; weder native
+Administration noch Mitglieder von `Datenschutzbeauftragte` dürfen fremde
+Layouts zurücksetzen. Der bestehende Service kann den Wert derzeit nur lesen
+und speichern. Ein selbstautorisierter Reset-Endpunkt sowie die verifizierte
+Anbindung an Konto- und App-Lifecycle-Auslöser sind daher noch umzusetzen;
+Backup- und Restore-Verhalten bleiben bis zu einer eigenen Entscheidung
+offen.

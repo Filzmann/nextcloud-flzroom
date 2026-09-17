@@ -34,9 +34,13 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
   Versions-, Wirksamkeitszeitpunkt-, Neuberechnungs-, Nebenläufigkeits-,
   Fehlerdiagnostik- und Roll-forward-Vertrag blockiert; bis dahin bleibt es
   bei der rein lesenden `REVIEW`-Vorschau ohne automatische Maßnahme.
-- Für den bereits subjectgebunden ausgegebenen Nextcloud-`IUserConfig`-Wert
-  `admin_dashboard_layout` einen autorisierten Reset- und Lifecycle-Vertrag
-  festlegen.
+- Den entschiedenen Lifecycle für den bereits subjectgebunden ausgegebenen
+  Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umsetzen: nur der
+  jeweilige Kontoinhaber darf den eigenen Wert zurücksetzen; der Wert ist beim
+  Self-Reset, bei Nextcloud-Kontolöschung und bei App-Deinstallation zu
+  löschen. Native Administration und `Datenschutzbeauftragte` dürfen keine
+  fremden Layouts zurücksetzen. Reset-Endpunkt, Konto-/App-Lifecycle-Anbindung
+  und Tests fehlen; Backup- und Restore-Verhalten bleiben offen.
 
 ## Geplante Erweiterungen
 
