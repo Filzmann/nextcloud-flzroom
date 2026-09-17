@@ -22,10 +22,40 @@ Zugriff auf Raumtabellen oder private Assets.
 
 ## Rechte und Datenschutz
 
-Eigene Buchungen werden aus der Session-UID serverseitig gebunden. Fremde
-Buchungen und Raumverwaltung benötigen eine app-lokale, zeitlich begrenzte
-Adminfreigabe zusätzlich zum nativen Adminstatus. Der Datenschutzprovider
-liefert nur app-eigene, typisierte Buchungsbezüge und redigiert freie Titel.
+Eigene Buchungen werden aus der Session-UID serverseitig gebunden. Der
+beschlossene Zielvertrag gewährt nur Organisationskräften Zugriff auf den
+Raumplaner; reine Assistenzkräfte erhalten keinen Zugriff. Organisationskräfte
+verwalten ausschließlich eigene Buchungen. Die Zuordnung muss aus der
+kanonischen Organisationsstruktur abgeleitet und auf jedem Lese- und
+Schreibpfad serverseitig durchgesetzt werden.
+
+Die kanonische LocalBase-Gruppe `ad-Sekretariat` bildet eine dauerhafte,
+app-lokale Fachrolle. Sie ist ausdrücklich kein Ersatz für den getrennten,
+höchstens 24 Stunden gültigen technischen Admin-Vollzugriff. Das Sekretariat
+darf Räume verwalten und zur Lösung organisatorischer Konflikte fremde
+Buchungen ändern oder löschen. Jeder solche Eingriff setzt eine vorab
+angegebene Begründung voraus und muss app-lokal auditierbar sein. Die
+betroffene buchende Person erhält über den nativen Nextcloud-Mechanismus eine
+datensparsame Benachrichtigung: alter und, soweit anwendbar, neuer Raum und
+Zeitraum sowie die Begründung. Namen oder Inhalte anderer Personen und
+Buchungen und weitere Buchungsdaten werden nicht mitgeteilt.
+
+Für die direkte Abstimmung sind buchende Person und frei eingegebener Zweck
+erforderlich und für berechtigte Organisationskräfte sichtbar. Zweck und
+Titel bleiben freie Eingaben, weil ein abschließender Zweckkatalog den
+Planungsbedarf nicht abbildet. Die Oberfläche muss deshalb sichtbar zur
+Datenminimierung auffordern und Namen, Gesundheits-, Fall- sowie andere
+unnötige Drittpersonenangaben ausdrücklich ausschließen.
+
+Dieser Zielvertrag ist noch nicht in der Laufzeit umgesetzt. Die bestehende
+Laufzeit erlaubt weiterhin allen angemeldeten Konten das Lesen und Verwalten
+eigener Buchungen und verwendet für fremde Buchungen sowie Raumverwaltung den
+temporären Adminpfad. Bis Organisationszuordnung, Sekretariatsrolle,
+Begründungs- und Auditpflicht sowie Benachrichtigung mit positiven und
+negativen Servertests umgesetzt sind, ist der Zielvertrag nicht als wirksame
+Berechtigungsgrenze oder produktionsreif zu behandeln. Der
+Datenschutzprovider liefert weiterhin nur app-eigene, typisierte
+Buchungsbezüge und redigiert freie Titel.
 
 Der kanonische Policykatalog liegt unter
 `resources/privacy-processing.json`. Der optionale

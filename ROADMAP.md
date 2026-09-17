@@ -4,6 +4,28 @@
 
 Nur Mitglieder von `Datenschutzbeauftragte` dürfen pro App und aktivem Nextcloud-Administrationskonto eine Freigabe erteilen oder widerrufen. Die Freigabe bleibt auf höchstens 24 Stunden begrenzt und app-lokal auditierbar; native Administration allein genügt nicht. Ohne Freigabe gilt eine aussagekräftige sichere Meldung, ein direkter Freigabelink erscheint nur bei gleichzeitiger Datenschutzbeauftragten- und Admin-Rolle. Runtime-, UI-, Controller- und Allow-/Deny-Tests bleiben offen.
 
+## Offene Fachberechtigung für Organisationskräfte und Sekretariat
+
+Der Zielvertrag ist entschieden, aber technisch noch nicht umgesetzt: Nur
+Organisationskräfte erhalten Zugriff auf den Raumplaner, reine
+Assistenzkräfte keinen. Organisationskräfte verwalten eigene Buchungen. Die
+kanonische LocalBase-Gruppe `ad-Sekretariat` erhält davon getrennte
+app-lokale Fachrechte zur Raumverwaltung und zur Konfliktlösung durch
+begründete Änderung oder Löschung fremder Buchungen; diese Rolle ist kein
+temporärer technischer Admin-Vollzugriff.
+
+Offen sind die Ableitung der Organisationszuordnung, die zentralisierte
+serverseitige Rechteprüfung, die verpflichtende Begründung und app-lokale
+Auditierung, die datensparsame Nextcloud-Benachrichtigung an die betroffene
+buchende Person sowie Allow-/Deny-, Fremdobjekt-, Manipulations- und
+Nebenwirkungstests. Die Benachrichtigung darf nur alten und, soweit
+anwendbar, neuen Raum und Zeitraum sowie die Begründung enthalten; andere
+Personen, Buchungen und weitere Buchungsdaten bleiben ausgeschlossen.
+Processing-Katalog, PersonalDataProvider, PermissionProvider, Retention und
+Betroffenenrechte sind für die neu gespeicherten Audit- und
+Benachrichtigungsdaten im selben Implementierungsauftrag nachzuführen. Bis
+dahin darf die Dokumentation keine bereits wirksame Einschränkung behaupten.
+
 Diese Datei enthält ausschließlich offene Arbeit, zurückgestellte Vorhaben
 und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
 erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
@@ -14,6 +36,9 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 - App-lokalen temporären Admin-Vollzugriff einschließlich 24-Stunden-Grenze,
   Auditmigration, Privacy-/PermissionProvider und Allow-/Deny-Vertrag in DDEV
   migrieren und auf Staging abnehmen.
+- Zugriff für Organisationskräfte und die Fachrolle `ad-Sekretariat`
+  einschließlich fremder Eingriffe, Audit und datensparsamer Benachrichtigung
+  nach dem entschiedenen Zielvertrag testgetrieben umsetzen.
 - Die manuellen Prüfungen werden im ausfüllbaren
   [`docs/manual-acceptance.md`](docs/manual-acceptance.md) dokumentiert.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
@@ -46,7 +71,15 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - Persönliche Einstellungen erhalten erst bei einem konkreten dauerhaften Nutzerwert einen eigenen App-Tab.
 - Optionale Direktbuchungen aus Kalender oder Assistenzplanung können nach einem konkreten Anwendungsfall ergänzt werden; der manuelle Standalone-Betrieb bleibt erhalten.
-- Änderungen an fremden Buchungen werden vorerst weiterhin direkt außerhalb der App zwischen den Beteiligten abgestimmt. Ein späterer In-App-Anfrageworkflow wird erst bei einem konkreten Bedarf und nach einem eigenen Vertrag für Akteur*innen, Empfänger*innen, erforderliche Daten und Datenschutz, Zustände, Wiederholungen, Ablauf, Auditierung sowie serverseitige Autorisierung geprüft; eine Anfrage darf niemals automatisch die Buchung ändern.
+- Änderungswünsche zu fremden Buchungen werden vorerst weiterhin direkt
+  außerhalb der App zwischen den Beteiligten abgestimmt. Nach Umsetzung der
+  beschlossenen Fachrolle darf das Sekretariat den abgestimmten Eingriff in
+  der App ausführen; dies ist kein In-App-Anfrageworkflow. Ein späterer
+  Anfrageworkflow wird erst bei einem konkreten Bedarf und nach einem eigenen
+  Vertrag für Akteur*innen, Empfänger*innen, erforderliche Daten und
+  Datenschutz, Zustände, Wiederholungen, Ablauf, Auditierung sowie
+  serverseitige Autorisierung geprüft; eine Anfrage darf niemals automatisch
+  die Buchung ändern.
 
 ## Vor der Umsetzung zu klären
 

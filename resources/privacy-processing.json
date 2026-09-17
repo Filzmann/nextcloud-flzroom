@@ -7,17 +7,7 @@
       "name": "Verwaltung und Anzeige von Raumbuchungen",
       "controller": {
         "component": "AD Raumplaner",
-        "business_owner": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "Raumbuchungen mit buchender Person und möglichen Drittpersonenangaben im Freititel",
-          "planned_processing": "Planung, Anzeige und konfliktfreie Verwaltung gemeinsam genutzter Räume",
-          "missing_decision": "Fachlich verantwortliche Stelle für den Raumplanungsprozess",
-          "reason": "Die technische App-Eigentümerschaft bestimmt keine fachliche Verantwortlichkeit.",
-          "technical_impact": "Die verantwortliche Stelle kann noch nicht verbindlich ausgewiesen werden.",
-          "privacy_preserving_alternative": "Zugriffe auf den dokumentierten Buchungs- und Freigabevertrag begrenzen.",
-          "responsible_party": "ungeklärt",
-          "blocking": false
-        }
+        "business_owner": "Sekretariat (kanonische LocalBase-Gruppe ad-Sekretariat)"
       },
       "data_categories": [
         "Nextcloud-UID und daraus aktuell aufgelöster Anzeigename der buchenden Person",

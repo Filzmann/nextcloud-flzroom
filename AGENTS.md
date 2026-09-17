@@ -17,11 +17,14 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 ## Fachvertrag
 
 - Der Monatsplan zeigt Tage als Zeilen und aktive Räume als Spalten. Innerhalb jedes Tages teilen sich alle Raumspalten eine vertikale Zeitachse: aufeinanderfolgende Buchungen stehen untereinander, zeitliche Lücken erzeugen Abstand und Buchungen verschiedener Räume bleiben zeitlich vergleichbar ausgerichtet.
-- Buchungen bestehen aus Raum, Beginn, Ende, standardisiertem Zweck, frei benennbarem Titel und der Nextcloud-UID der buchenden Person. Der Titel bezeichnet zum Beispiel ASN, Gremium oder Fortbildungsthema.
-- Als häufige Zwecke werden AT, Sitzung, BQ, Fortbildung, SV, HB und LG angeboten; die Liste bleibt durch die freie Texteingabe erweiterbar.
+- Buchungen bestehen aus Raum, Beginn, Ende, frei eingebbarem Zweck, frei benennbarem Titel und der Nextcloud-UID der buchenden Person. Häufige Zwecke dürfen als unverbindliche Eingabehilfe angeboten werden, bilden aber keinen geschlossenen Katalog.
+- Zweck und Titel sind auf die für die Raumkoordination erforderlichen Angaben zu begrenzen. Die Oberfläche warnt sichtbar davor, Namen, Gesundheits-, Fall- oder andere unnötige Drittpersonenangaben in die Freitextfelder einzutragen.
 - Buchungen liegen innerhalb eines Kalendertags und verwenden 5-Minuten-Schritte ohne pauschale Einschränkung auf bestimmte Tageszeiten.
 - Buchungen desselben Raums duerfen sich nicht ueberschneiden. Angrenzende Buchungen sind erlaubt.
-- Alle angemeldeten Nutzer*innen duerfen Raeume und Buchungen lesen sowie eigene Buchungen anlegen, bearbeiten, in andere Raeume verschieben und loeschen.
+- Nur Organisationskräfte erhalten Zugriff auf den Raumplaner; reine Assistenzkräfte erhalten keinen Zugriff. Organisationskräfte dürfen Räume und Buchungen lesen sowie eigene Buchungen anlegen, bearbeiten, in andere Räume verschieben und löschen. Die technische Zuordnung wird aus der kanonischen Organisationsstruktur abgeleitet und nicht app-lokal dupliziert.
+- Die kanonische LocalBase-Gruppe `ad-Sekretariat` bildet die app-lokale Fachrolle Sekretariat. Sie ist von temporärem technischem Admin-Vollzugriff getrennt und darf Räume verwalten sowie bei organisatorischen Konflikten fremde Buchungen ändern oder löschen.
+- Jeder Eingriff des Sekretariats in eine fremde Buchung verlangt vor der Änderung eine Begründung und einen app-lokal auditierbaren Nachweis. Die betroffene buchende Person erhält eine datensparsame Benachrichtigung mit altem und, soweit anwendbar, neuem Raum und Zeitraum sowie der Begründung; Angaben zu anderen Personen oder Buchungen bleiben ausgeschlossen.
+- Für eine direkte Abstimmung dürfen berechtigte Organisationskräfte die buchende Person und den frei eingegebenen Zweck einer Buchung sehen. Diese Sichtbarkeit erteilt kein Änderungsrecht und erweitert die Datenanzeige nicht über den erforderlichen Koordinationskontext hinaus.
 - Native Nextcloud-Administration erteilt keinen automatischen fachlichen
   Vollzugriff. Ein konkretes Administrationskonto darf alle Buchungen und die
   Raumliste ausschließlich mit einer app-lokalen, serverseitig geprüften und
