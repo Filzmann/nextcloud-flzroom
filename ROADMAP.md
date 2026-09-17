@@ -46,8 +46,6 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 ## Vor der Umsetzung zu klären
 
-- Ob und wie eine einzelne Buchung über eine Kalendertagsgrenze geführt wird;
-  bis dahin bleiben Beginn und Ende auf denselben lokalen Kalendertag begrenzt.
 - Fachlicher Auslöser, Zielraum, Zeitraum und Besitzer*in einer Direktbuchung.
 - Serverseitige Rechte, Konfliktverhalten und Rückmeldung an die aufrufende App.
 - Kleiner optionaler Integrationsvertrag ohne direkten Zugriff auf fremde Tabellen oder Assets.

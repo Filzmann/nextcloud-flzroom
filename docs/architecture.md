@@ -10,6 +10,9 @@ Zugriff auf Raumtabellen oder private Assets.
 
 - Buchungen besitzen Raum, Beginn, Ende, Zweck, Titel und die Nextcloud-UID
   der buchenden Person.
+- Beginn und Ende jeder Buchung liegen am selben lokalen Kalendertag der
+  fachlichen Organisationszeitzone; Buchungen über eine lokale
+  Kalendertagsgrenze hinweg sind nicht vorgesehen.
 - Buchungen desselben Raums dürfen sich nicht überschneiden; angrenzende
   Buchungen bleiben erlaubt.
 - Validierung und Konfliktprüfung liegen im Booking-Service, Rechte im
