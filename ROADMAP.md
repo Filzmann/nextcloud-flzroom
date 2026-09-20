@@ -52,13 +52,23 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
   ausschließlich für Mitglieder der Nextcloud-Gruppe
   `Datenschutzbeauftragte` administrierbar machen und Friständerungen anhand
   des ursprünglichen Buchungsendes rückwirkend auf vorhandene Buchungen
-  anwenden.
-- Maßnahme nach Fristablauf, Sperren sowie Backup-/Restore- und
-  Betroffenenrechtsregeln für Buchungen und Adminfreigabehistorie festlegen.
-  Retention-Ausführung bleibt bis zu einem freigegebenen und getesteten
-  Versions-, Wirksamkeitszeitpunkt-, Neuberechnungs-, Nebenläufigkeits-,
-  Fehlerdiagnostik- und Roll-forward-Vertrag blockiert; bis dahin bleibt es
-  bei der rein lesenden `REVIEW`-Vorschau ohne automatische Maßnahme.
+  anwenden. Policyänderungen 24 Monate auditierbar halten und mindestens
+  jährlich durch `Datenschutzbeauftragte` prüfen lassen.
+- Die entschiedene vollständige Löschung beendeter Buchungen nach Fristablauf
+  sowie der Adminfreigabehistorie sechs Monate nach tatsächlichem Ende ohne
+  Reststatistik umsetzen. Rechtliche oder datenschutzrechtliche Sperren
+  blockieren die Löschung und dürfen nur durch `Datenschutzbeauftragte`
+  begründet und auditiert aufgehoben werden. Nach Restore Fristen aus dem
+  ursprünglichen Trigger neu bewerten, abgelaufene ungesperrte Daten erneut
+  einplanen und keine Adminfreigabe reaktivieren.
+- Retention-Ausführung bis zu einem freigegebenen und getesteten Versions-,
+  Wirksamkeitszeitpunkt-, Reihenfolge-, Atomaritäts-, Nebenläufigkeits-,
+  Idempotenz-, Backupgrenz-, Sperr-, Audit-, Retry-, Fehlerdiagnostik-,
+  Fehlerrückbau- und Provider-/Consumer-Vertrag blockieren. Die spätere
+  Ausführung läuft automatisch ohne manuelle Einzelfreigabe; nach Retries
+  erhält `Datenschutzbeauftragte` nur App, Datenklasse, Zeitpunkt und
+  technische Referenz, der inhaltsarme Fehlernachweis bleibt 30 Tage. Bis
+  dahin bleibt es bei der lesenden `REVIEW`-Vorschau.
 - Den entschiedenen Lifecycle für den bereits subjectgebunden ausgegebenen
   Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umsetzen: nur der
   jeweilige Kontoinhaber darf den eigenen Wert zurücksetzen; der Wert ist beim

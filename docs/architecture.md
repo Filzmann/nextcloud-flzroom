@@ -70,11 +70,25 @@ Für beendete Raumbuchungen gilt ein Jahr ab Buchungsende als administrativ
 konfigurierbarer Standardwert. Mitglieder der Nextcloud-Gruppe
 `Datenschutzbeauftragte` dürfen die Frist verkürzen oder verlängern; eine
 Änderung wird anhand des ursprünglichen Buchungsendes auch auf bereits
-vorhandene Buchungen angewendet. Die Maßnahme nach Fristablauf, fachliche
-Sperren und der sichere Ausführungsvertrag bleiben offen. Bis Policyversion
-und Wirksamkeitszeitpunkt, rückwirkende Neuberechnung, Nebenläufigkeit,
-Backup/Restore, Fehlerdiagnostik und Roll-forward freigegeben und getestet
-sind, bleibt Retention ausschließlich eine lesende `REVIEW`-Vorschau.
+vorhandene Buchungen angewendet. Die Policyänderung wird 24 Monate
+auditierbar gehalten und mindestens jährlich durch diese Gruppe überprüft.
+Nach Fristablauf wird die Buchung vollständig gelöscht; es verbleibt weder
+ein anonymisierter Rest noch eine Statistik. Eine aktive rechtliche oder
+datenschutzrechtliche Sperre blockiert die Löschung, begrenzt die Nutzung auf
+den dokumentierten Sperrzweck und darf nur durch `Datenschutzbeauftragte`
+begründet und auditiert aufgehoben werden. Nach einem Restore wird die Frist
+vom ursprünglichen Buchungsende neu bewertet und eine abgelaufene ungesperrte
+Buchung erneut zur Löschung eingeplant.
+
+Dies ist noch kein ausführender Runtimevertrag. Die spätere Löschung läuft
+automatisch ohne manuelle Einzelfreigabe. Nach automatischen
+Wiederholungsversuchen erhält `Datenschutzbeauftragte` nur App, Datenklasse,
+Zeitpunkt und technische Referenz; der inhaltsarme Fehlernachweis wird nach
+30 Tagen gelöscht. Bis Policyversion und Wirksamkeitszeitpunkt, Reihenfolge,
+Atomarität, Nebenläufigkeit, Idempotenz, betriebliche Backupgrenze,
+Sperrdurchsetzung, Auditvollständigkeit, Fehlerrückbau und
+Provider-/Consumer-Verhalten freigegeben und getestet sind, bleibt Retention
+ausschließlich eine lesende `REVIEW`-Vorschau.
 
 Die Katalogwerte sind die künftige kanonische Policyquelle. Die bestehenden
 Projektionen in `RoomPersonalDataProvider` und `RoomRetentionProvider` bleiben
