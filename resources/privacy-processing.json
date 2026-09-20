@@ -68,15 +68,20 @@
         "blocking": false
       },
       "retention": {
-        "status": "PRIVACY-DECISION-REQUIRED",
-        "affected_data": "Beendete Raumbuchungen einschließlich UID, Zweck und Freititel",
-        "planned_processing": "Administrative Prüfung nach einem durch die Nextcloud-Gruppe Datenschutzbeauftragte verkürzbaren oder verlängerbaren Standardwert von einem Jahr ab Buchungsende; Neuberechnung auch vorhandener Buchungen aus dem ursprünglichen Buchungsende; spätere Löschung, Anonymisierung oder Einschränkung",
-        "missing_decision": "Sperren, Maßnahme nach Fristablauf und sicherer Ausführungsvertrag",
-        "reason": "Standardwert, administrative Änderbarkeit, Trigger und rückwirkende Neuberechnung sind entschieden; die bestehende Konfiguration erzeugt nur REVIEW-Kandidaten und ist keine freigegebene Löschregel.",
-        "technical_impact": "Es bleibt bei einer rein lesenden REVIEW-Vorschau; keine automatische Maßnahme ist zulässig.",
-        "privacy_preserving_alternative": "Keine automatische Verarbeitung ausführen und nur minimale REVIEW-Angaben bereitstellen.",
-        "responsible_party": "ungeklärt",
-        "blocking": true
+        "policy_id": "room_booking_default_one_year",
+        "trigger": "Ende der Raumbuchung",
+        "duration_or_deadline": "P1Y als administrativ konfigurierbarer Standardwert",
+        "action": "delete",
+        "conditions_or_holds": [
+          "Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen den Standardwert verkürzen oder verlängern.",
+          "Der jeweils konfigurierte Wert wird anhand des ursprünglichen Buchungsendes auch auf bereits vorhandene Buchungen angewendet.",
+          "Policyänderungen werden 24 Monate auditierbar gehalten und mindestens jährlich durch Datenschutzbeauftragte überprüft.",
+          "Nach Fristablauf wird die Buchung vollständig gelöscht; es verbleibt weder ein anonymisierter Restbestand noch eine Statistik.",
+          "Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung und begrenzen die Nutzung auf den dokumentierten Sperrzweck.",
+          "Nur Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen eine Sperre begründet und auditiert aufheben.",
+          "Nach Restore wird die Frist aus dem ursprünglichen Buchungsende neu bewertet und eine bereits abgelaufene ungesperrte Buchung erneut zur Löschung eingeplant.",
+          "Keine destruktive Retention-Ausführung vor freigegebenem und getestetem Versions-, Wirksamkeitszeitpunkt-, Reihenfolge-, Atomaritäts-, Nebenläufigkeits-, Idempotenz-, Backupgrenz-, Sperr-, Audit-, Retry-, Fehlerdiagnostik-, Fehlerrückbau- und Provider-/Consumer-Vertrag."
+        ]
       },
       "logging": {
         "audit_requirements": [
@@ -96,17 +101,7 @@
           "responsible_party": "ungeklärt",
           "blocking": false
         },
-        "restore_handling": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "Nach Restore wieder vorhandene beendete Raumbuchungen",
-          "planned_processing": "Erneute Anwendung der zum Restore-Zeitpunkt konfigurierten Frist anhand des ursprünglichen Buchungsendes",
-          "missing_decision": "Umgang mit beim Restore bereits abgelaufenen Fristen",
-          "reason": "Der konfigurierbare Standardwert ist entschieden; ein sicherer Restore-Nachlauf ist noch nicht festgelegt.",
-          "technical_impact": "Keine automatische Löschung oder Anonymisierung nach Restore.",
-          "privacy_preserving_alternative": "Nur die bestehende REVIEW-Vorschau verwenden.",
-          "responsible_party": "ungeklärt",
-          "blocking": true
-        }
+        "restore_handling": "Nach Restore wird die Aufbewahrungsfrist aus dem ursprünglichen Buchungsende neu bewertet. Eine bereits abgelaufene ungesperrte Buchung wird erneut zur Löschung eingeplant."
       },
       "exports_and_reports": {
         "article_15_relevance": "Eigene Buchungen werden subjectgebunden ausgegeben; der mögliche Drittpersonen-Freititel wird durch einen neutralen Platzhalter ersetzt.",
@@ -119,28 +114,8 @@
       "data_subject_rights": {
         "article_15": "Subjectgebundene Ausgabe eigener Buchungen ist über den app-eigenen PersonalDataProvider implementiert.",
         "rectification": "Die buchende Person kann eine eigene Buchung innerhalb des geltenden Buchungsvertrags bearbeiten.",
-        "restriction": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "Raumbuchungen mit strittigem oder zu sperrendem Personenbezug",
-          "planned_processing": "Einschränkung von Anzeige und weiterer Verarbeitung",
-          "missing_decision": "Fachliche Sperrgründe und technische Wirkung",
-          "reason": "Ein Einschränkungsworkflow ist fachlich nicht definiert.",
-          "technical_impact": "Kein automatischer Einschränkungspfad wird angeboten.",
-          "privacy_preserving_alternative": "Zugriffe unverändert serverseitig auf die bestehenden Rollen begrenzen.",
-          "responsible_party": "ungeklärt",
-          "blocking": true
-        },
-        "erasure_or_anonymization": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "Beendete Raumbuchungen",
-          "planned_processing": "Löschung oder Anonymisierung nach der konfigurierten, standardmäßig einjährigen Frist ab Buchungsende",
-          "missing_decision": "Fachliche Lösch- oder Anonymisierungsregel",
-          "reason": "Standardwert, administrative Änderbarkeit und rückwirkende Neuberechnung sind entschieden; die vorhandene Retention-Schnittstelle führt ausschließlich REVIEW aus.",
-          "technical_impact": "Keine automatische Löschung oder Anonymisierung.",
-          "privacy_preserving_alternative": "Nur REVIEW-Kandidaten anzeigen und keine Daten verändern.",
-          "responsible_party": "ungeklärt",
-          "blocking": true
-        }
+        "restriction": "Eine aktive rechtliche oder datenschutzrechtliche Sperre blockiert die Löschung und begrenzt die Nutzung auf den dokumentierten Sperrzweck. Nur Datenschutzbeauftragte dürfen die Sperre begründet und auditiert aufheben.",
+        "erasure_or_anonymization": "Nach Ablauf der konfigurierten Frist wird die Buchung vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren verhindern die Löschung. Die automatische technische Ausführung bleibt bis zur Freigabe und Prüfung des Retention-Ausführungsvertrags deaktiviert."
       },
       "international_transfers": "AD Raumplaner übermittelt selbst keine Buchungsdaten an Drittländer.",
       "automated_decisions": "Die Kollisionsprüfung verhindert Doppelbelegungen, trifft aber keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
@@ -224,15 +199,18 @@
         "blocking": false
       },
       "retention": {
-        "status": "PRIVACY-DECISION-REQUIRED",
-        "affected_data": "Adminfreigabehistorie mit UIDs und Zeitpunkten",
-        "planned_processing": "Aufbewahrung und spätere Löschung, Anonymisierung, Einschränkung oder Review",
-        "missing_decision": "Frist, Trigger, Sperren und Maßnahme nach Fristablauf",
-        "reason": "Der sicherheitsrelevante Beweiswert muss gegen Datenminimierung abgewogen werden.",
-        "technical_impact": "Keine automatische Retention-Maßnahme ist zulässig.",
-        "privacy_preserving_alternative": "Keine zusätzlichen Historienfelder sammeln und Ausführung deaktiviert lassen.",
-        "responsible_party": "ungeklärt",
-        "blocking": true
+        "policy_id": "temporary_admin_access_history_default_six_months",
+        "trigger": "Tatsächliches Ende der zeitlich begrenzten app-lokalen Adminfreigabe",
+        "duration_or_deadline": "P6M",
+        "action": "delete",
+        "conditions_or_holds": [
+          "Nach Fristablauf wird die Adminfreigabehistorie vollständig gelöscht; es verbleibt kein anonymisierter oder statistischer Restbestand.",
+          "Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung.",
+          "Nur Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen eine Sperre begründet und auditiert aufheben.",
+          "Nach Restore wird die Frist aus dem ursprünglichen tatsächlichen Ende neu bewertet; bereits abgelaufene ungesperrte Historie wird erneut zur Löschung eingeplant.",
+          "Ein Restore reaktiviert niemals eine fachliche Adminfreigabe.",
+          "Keine destruktive Retention-Ausführung vor freigegebenem und getestetem Versions-, Wirksamkeitszeitpunkt-, Reihenfolge-, Atomaritäts-, Nebenläufigkeits-, Idempotenz-, Backupgrenz-, Sperr-, Audit-, Retry-, Fehlerdiagnostik-, Fehlerrückbau- und Provider-/Consumer-Vertrag."
+        ]
       },
       "logging": {
         "audit_requirements": [
@@ -252,17 +230,7 @@
           "responsible_party": "ungeklärt",
           "blocking": false
         },
-        "restore_handling": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "Nach Restore wieder vorhandene Freigabehistorie",
-          "planned_processing": "Erneute Anwendung der festzulegenden Retention-Regel",
-          "missing_decision": "Umgang mit bereits abgelaufenen Nachweisen",
-          "reason": "Ohne Retentionentscheidung ist kein Restore-Nachlauf festlegbar.",
-          "technical_impact": "Keine automatische Löschung oder Anonymisierung nach Restore.",
-          "privacy_preserving_alternative": "Freigaben anhand ihres Endzeitpunkts technisch als inaktiv behandeln.",
-          "responsible_party": "ungeklärt",
-          "blocking": true
-        }
+        "restore_handling": "Nach Restore wird die Aufbewahrungsfrist aus dem ursprünglichen tatsächlichen Ende der Adminfreigabe neu bewertet. Bereits abgelaufene ungesperrte Historie wird erneut zur Löschung eingeplant; eine fachliche Adminfreigabe wird niemals reaktiviert."
       },
       "exports_and_reports": {
         "article_15_relevance": "Eigene Rollen und Zeitpunkte werden subjectgebunden ausgegeben.",
@@ -295,17 +263,7 @@
           "responsible_party": "ungeklärt",
           "blocking": true
         },
-        "erasure_or_anonymization": {
-          "status": "PRIVACY-DECISION-REQUIRED",
-          "affected_data": "UIDs und Zeitpunkte in der Freigabehistorie",
-          "planned_processing": "Löschung oder Anonymisierung nach festzulegender Frist",
-          "missing_decision": "Maßnahme und Umgang mit dem Auditbeweis",
-          "reason": "Die fachliche Aufbewahrungsentscheidung fehlt.",
-          "technical_impact": "Keine automatische Löschung oder Anonymisierung.",
-          "privacy_preserving_alternative": "Nur minimale Freigabefelder speichern.",
-          "responsible_party": "ungeklärt",
-          "blocking": true
-        }
+        "erasure_or_anonymization": "Die Adminfreigabehistorie wird sechs Monate nach ihrem tatsächlichen Ende vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung. Die automatische technische Ausführung bleibt bis zur Freigabe und Prüfung des Retention-Ausführungsvertrags deaktiviert."
       },
       "international_transfers": "AD Raumplaner übermittelt die Freigabehistorie nicht an Drittländer.",
       "automated_decisions": "Der Server beendet die Freigabe spätestens nach 24 Stunden; es findet keine automatisierte Entscheidung über eine Person statt.",
