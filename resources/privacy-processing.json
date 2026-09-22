@@ -184,7 +184,7 @@
         }
       ],
       "data_sources": [
-        "App-lokaler Freigabevorgang im Nextcloud-Adminbereich",
+        "App-lokaler Freigabevorgang durch Datenschutzbeauftragte im AD Raumplaner",
         "App-eigene Tabelle adr_admin_access"
       ],
       "legal_basis": {

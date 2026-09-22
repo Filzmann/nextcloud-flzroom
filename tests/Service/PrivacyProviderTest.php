@@ -113,6 +113,10 @@ namespace {
     }
     $adminAudit = $report->entries()[1]->toArray();
     if ($adminAudit['reference'] !== 'admin-access:9' || str_contains(json_encode($adminAudit, JSON_THROW_ON_ERROR), 'admin-other')) throw new RuntimeException('Admin-Freigabeaudit fehlt oder legt eine Drittpersonen-UID offen.');
+    if (($adminAudit['source'] ?? null) !== 'App-lokale Freigabesteuerung im AD Raumplaner'
+        || !str_contains(json_encode($adminAudit['recipientCategories'], JSON_THROW_ON_ERROR), 'Datenschutz')) {
+        throw new RuntimeException('Admin-Freigabeaudit projiziert die fachliche Freigaberolle oder Quelle nicht korrekt.');
+    }
     $adminLayout = $report->entries()[2]->toArray();
     if ($adminLayout['reference'] !== 'admin-layout'
         || ($adminLayout['attributes']['Reihenfolge'] ?? null) !== 'Demo-Daten, Räume, Aufbewahrung'

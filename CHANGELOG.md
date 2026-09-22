@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Temporären fachlichen Admin-Vollzugriff auf höchstens 24 Stunden begrenzt:
+  Nur `Datenschutzbeauftragte` dürfen aktuelle Nextcloud-Administrationskonten
+  in der Hauptoberfläche freigeben oder widerrufen; native Administration
+  allein bleibt ohne Freigabe- und Historienzugriff.
 - App-eigenen Processing-Metadatenkatalog für Raumbuchungen,
   Adminfreigabehistorie und persönliche Adminanordnung sowie dessen optionalen
   öffentlichen V1-Provider ergänzt; offene Datenschutzentscheidungen bleiben

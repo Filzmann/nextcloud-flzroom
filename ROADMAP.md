@@ -1,9 +1,5 @@
 # Roadmap – AD Raumplaner
 
-## Offene suiteweite Admin-Freigabe
-
-Nur Mitglieder von `Datenschutzbeauftragte` dürfen pro App und aktivem Nextcloud-Administrationskonto eine Freigabe erteilen oder widerrufen. Die Freigabe bleibt auf höchstens 24 Stunden begrenzt und app-lokal auditierbar; native Administration allein genügt nicht. Ohne Freigabe gilt eine aussagekräftige sichere Meldung, ein direkter Freigabelink erscheint nur bei gleichzeitiger Datenschutzbeauftragten- und Admin-Rolle. Runtime-, UI-, Controller- und Allow-/Deny-Tests bleiben offen.
-
 ## Offene Fachberechtigung für Organisationskräfte und Sekretariat
 
 Der Zielvertrag ist entschieden, aber technisch noch nicht umgesetzt: Nur
@@ -33,9 +29,8 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 ## Aktueller Fokus
 
-- App-lokalen temporären Admin-Vollzugriff einschließlich 24-Stunden-Grenze,
-  Auditmigration, Privacy-/PermissionProvider und Allow-/Deny-Vertrag in DDEV
-  migrieren und auf Staging abnehmen.
+- App-lokalen temporären Admin-Vollzugriff und seine rollenabhängige
+  Freigabesteuerung in DDEV und auf Staging abnehmen.
 - Zugriff für Organisationskräfte und die Fachrolle `ad-Sekretariat`
   einschließlich fremder Eingriffe, Audit und datensparsamer Benachrichtigung
   nach dem entschiedenen Zielvertrag testgetrieben umsetzen.

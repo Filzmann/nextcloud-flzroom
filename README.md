@@ -18,11 +18,15 @@ AD Raumplaner funktioniert einzeln; Buchungen bleiben ohne Kalender oder Assiste
 Räume werden nach der Aktivierung im eigenen Nextcloud-Adminabschnitt `AD Raumplaner` eingerichtet. `adroom:demo:seed` ist ausschließlich für synthetische Testdaten bestimmt.
 
 Native Nextcloud-Administration besitzt keinen automatischen Vollzugriff auf
-Raumdaten. Im Adminabschnitt kann ein konkretes Administrationskonto für
-höchstens 24 Stunden freigeschaltet und vorzeitig widerrufen werden. Beginn,
+Raumdaten. Ausschließlich Mitglieder der kanonischen Nextcloud-Gruppe
+`Datenschutzbeauftragte` können in der Hauptoberfläche ein aktuelles
+Administrationskonto für höchstens 24 Stunden freischalten oder die Freigabe
+vorzeitig widerrufen. Nativer Adminstatus allein genügt dafür nicht. Beginn,
 geplantes Ende und tatsächliches Ende bleiben app-lokal protokolliert; ohne
 aktive Freigabe sind Raumverwaltung, Fremdbuchungen und Demo-Installation
-gesperrt.
+gesperrt. Der sichere Eintrittshinweis ist nur für betroffene native
+Administrationskonten sichtbar und verlinkt die Freigabesteuerung nur bei
+gleichzeitiger Datenschutzrolle.
 
 Feiertage, Buchungszeiten und Monatsgrenzen richten sich nach dem gemeinsamen Kalenderkontext der AD-Suite. Land, Region und fachliche Zeitzone werden zentral durch die Administration gepflegt; ohne Änderung gilt Deutschland/Berlin.
 

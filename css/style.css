@@ -32,6 +32,15 @@
 .adr-notice { margin:8px 0; padding:8px 10px; border:1px solid var(--color-border); border-radius:var(--border-radius); }
 .adr-notice.is-error { border-color:var(--color-error); }
 .adr-notice.is-success { border-color:var(--color-success); }
+.adr-notice.is-warning { border-color:var(--color-warning); }
+.adr-admin-access { flex:0 1 auto; max-height:45vh; margin:0 0 12px; padding:12px; overflow:auto; border:1px solid var(--color-border); border-radius:var(--border-radius-large); }
+.adr-admin-access h2 { margin-top:0; }
+.adr-admin-access form { display:flex; align-items:end; gap:10px; flex-wrap:wrap; }
+.adr-admin-access form label { display:grid; gap:4px; font-weight:600; }
+.adr-admin-access .adr-table-wrap { max-height:240px; margin-top:8px; }
+.adr-admin-access table { width:max-content; min-width:100%; border-collapse:collapse; }
+.adr-admin-access th,.adr-admin-access td { padding:5px; border:1px solid var(--color-border); text-align:left; vertical-align:top; }
+.adr-admin-access :is(button,input,select,a):focus-visible { outline:2px solid var(--color-primary-element); outline-offset:2px; }
 #adr-calendar-view { min-width:0; min-height:0; display:flex; flex:1 1 auto; overflow:hidden; }
 .adr-table-wrap { min-width:0; min-height:0; max-width:100%; flex:1 1 auto; overflow:auto; overscroll-behavior:contain; }
 .adr-calendar,.adr-room-table { width:max-content; min-width:100%; border-collapse:collapse; table-layout:auto; }

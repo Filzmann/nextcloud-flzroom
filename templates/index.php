@@ -11,6 +11,7 @@
 \OCP\Util::addScript('adroom','modules/booking-workflow');
 \OCP\Util::addScript('adroom','components/month-calendar');
 \OCP\Util::addScript('adroom','components/booking-dialog');
+\OCP\Util::addScript('adroom','admin-access');
 \OCP\Util::addScript('adroom','main');
 \OCP\Util::addStyle('adroom','style');
 ?>
@@ -25,6 +26,40 @@
         </nav>
     </header>
     <div id="adr-notice" class="adr-notice" role="status" aria-live="polite" hidden></div>
+    <?php if ($_['showMissingAdminGrant'] ?? false): ?>
+        <section class="adr-admin-access adr-notice is-warning" aria-labelledby="adr-admin-access-required-heading">
+            <h2 id="adr-admin-access-required-heading">Kein fachlicher Admin-Vollzugriff</h2>
+            <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Für geschützte Raumverwaltung und Fremdbuchungen fehlt eine aktive app-lokale Freigabe.</p>
+            <?php if ($_['showAdminAccessLink'] ?? false): ?>
+                <p><a href="#adr-full-access">Zur app-lokalen Freigabesteuerung</a></p>
+            <?php endif; ?>
+        </section>
+    <?php endif; ?>
+    <?php if ($_['canManageAdminAccess'] ?? false): ?>
+        <section id="adr-full-access" class="adr-admin-access" aria-labelledby="adr-full-access-heading">
+            <h2 id="adr-full-access-heading">Zeitlich begrenzter Admin-Vollzugriff</h2>
+            <p>Ausschließlich Mitglieder von Datenschutzbeauftragte dürfen einem aktuellen Nextcloud-Administrationskonto fachlichen Vollzugriff erteilen oder ihn widerrufen. Maximal 24 Stunden sind zulässig.</p>
+            <form id="adr-full-access-form">
+                <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
+                <label>Dauer
+                    <select name="durationMinutes" required>
+                        <option value="60">1 Stunde</option>
+                        <option value="240">4 Stunden</option>
+                        <option value="480">8 Stunden</option>
+                        <option value="1440">24 Stunden</option>
+                    </select>
+                </label>
+                <label><input id="adr-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
+                <button type="submit" class="primary">Freigabe aktivieren</button>
+            </form>
+            <p id="adr-full-access-status" role="status" aria-live="polite"></p>
+            <div class="adr-table-wrap"><table>
+                <caption>Protokollierte Admin-Vollzugriffszeiträume</caption>
+                <thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead>
+                <tbody id="adr-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody>
+            </table></div>
+        </section>
+    <?php endif; ?>
     <section id="adr-calendar-view" aria-label="Raumkalender">
         <div class="adr-table-wrap">
             <table class="adr-calendar">

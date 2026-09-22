@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OCP { interface IRequest {} }
 namespace OCP\AppFramework { class Controller { public function __construct(string $appId,\OCP\IRequest $request){} } final class Http { public const STATUS_BAD_REQUEST=400;public const STATUS_FORBIDDEN=403;public const STATUS_INTERNAL_SERVER_ERROR=500; } }
 namespace OCP\AppFramework\Http { final class JSONResponse { public function __construct(private array $data=[],private int $status=200){}public function getData():array{return $this->data;}public function getStatus():int{return $this->status;} } }
-namespace OCP\AppFramework\Http\Attribute { #[\Attribute(\Attribute::TARGET_METHOD)] final class NoCSRFRequired {} }
+namespace OCP\AppFramework\Http\Attribute { #[\Attribute(\Attribute::TARGET_METHOD)] final class NoCSRFRequired {} #[\Attribute(\Attribute::TARGET_METHOD)] final class NoAdminRequired {} }
 namespace Psr\Log { interface LoggerInterface { public function error(string $message,array $context=[]):void; } }
 namespace OCA\AdRoom\Service {
     final class TemporaryAdminAccessService {

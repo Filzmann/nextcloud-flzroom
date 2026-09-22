@@ -40,6 +40,17 @@ datensparsame Benachrichtigung: alter und, soweit anwendbar, neuer Raum und
 Zeitraum sowie die Begründung. Namen oder Inhalte anderer Personen und
 Buchungen und weitere Buchungsdaten werden nicht mitgeteilt.
 
+Der temporäre fachliche Admin-Vollzugriff wird ausschließlich von Mitgliedern
+der kanonischen Nextcloud-Gruppe `Datenschutzbeauftragte` erteilt und
+widerrufen. Nativer Adminstatus allein erteilt weder Vollzugriff noch Zugriff
+auf Freigabehistorie oder -steuerung. Ziel ist immer ein aktuell von
+Nextcloud bestätigtes Administrationskonto; die app-lokale Freigabe gilt
+höchstens 24 Stunden und wird bei Ablauf, Widerruf, Verlust des nativen
+Adminstatus oder Prüffehlern deny by default unwirksam. Die Steuerung liegt
+rollenabhängig in der Hauptoberfläche. Der Eintrittshinweis erscheint nur für
+native Administrationskonten ohne aktive Freigabe; ein Direktlink wird nur
+bei zusätzlicher Datenschutzrolle gerendert.
+
 Für die direkte Abstimmung sind buchende Person und frei eingegebener Zweck
 erforderlich und für berechtigte Organisationskräfte sichtbar. Zweck und
 Titel bleiben freie Eingaben, weil ein abschließender Zweckkatalog den

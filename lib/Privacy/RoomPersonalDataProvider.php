@@ -97,8 +97,8 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
             $subjectUid = $request->subject()->subjectId();
             $roles = [];
             if ($grant['targetUid'] === $subjectUid) $roles[] = 'Ziel der Vollzugriffsfreigabe';
-            if ($grant['grantedBy'] === $subjectUid) $roles[] = 'Freigebende Administration';
-            if ($grant['revokedBy'] === $subjectUid) $roles[] = 'Widerrufende Administration';
+            if ($grant['grantedBy'] === $subjectUid) $roles[] = 'Freigebendes Mitglied von Datenschutzbeauftragte';
+            if ($grant['revokedBy'] === $subjectUid) $roles[] = 'Widerrufendes Mitglied von Datenschutzbeauftragte';
             $actualEnd = $grant['revokedAt'] ?? $grant['endsAt'];
             $items[] = new PersonalDataEntry(
                 categoryId: 'admin-access',
@@ -106,8 +106,8 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
                 reference: 'admin-access:' . (string)$grant['id'],
                 summary: sprintf('%s bis %s', self::germanDateTime($grant['startsAt']->setTimezone($timezone)), self::germanDateTime($actualEnd->setTimezone($timezone))),
                 purpose: 'Nachweis einer zeitlich begrenzten administrativen Fachfreigabe',
-                source: 'App-lokale Freigabe im Nextcloud-Adminbereich',
-                recipientCategories: ['Berechtigte Nextcloud-Administrator*innen und prüfberechtigte Stellen'],
+                source: 'App-lokale Freigabesteuerung im AD Raumplaner',
+                recipientCategories: ['Betroffene Person und ausdrücklich berechtigte Datenschutz-Prüfrolle'],
                 retention: 'Keine feste Löschfrist festgelegt; die sicherheitsrelevante Freigabehistorie bleibt bis zu einer gesonderten Aufbewahrungsentscheidung erhalten.',
                 thirdCountryTransfer: 'Durch AD Raumplaner sind keine Drittlandübermittlungen vorgesehen.',
                 automatedDecision: 'Der Server beendet den Vollzugriff spätestens nach 24 Stunden automatisch; es findet keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung statt.',
