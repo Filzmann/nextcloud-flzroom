@@ -26,8 +26,8 @@ namespace {
     $before = $config->values;
     foreach ([
         ['enabled' => true, 'reviewAfterDays' => -1, 'action' => 'REVIEW'],
-        ['enabled' => true, 'reviewAfterDays' => 30, 'action' => 'DELETE'],
-        ['enabled' => true, 'reviewAfterDays' => 30, 'action' => 'REVIEW', 'extra' => true],
+        ['enabled' => true, 'reviewAfterDays' => 365, 'action' => 'DELETE'],
+        ['enabled' => true, 'reviewAfterDays' => 365, 'action' => 'REVIEW', 'extra' => true],
     ] as $invalid) {
         try {
             $service->save($invalid);
@@ -39,6 +39,8 @@ namespace {
 
     $config->values['adroom']['retention_policy'] = '{kaputt';
     if ($service->policy()['enabled'] !== false) throw new RuntimeException('Defekte Bestandskonfiguration fällt nicht deny by default zurück.');
+    $config->values['adroom']['retention_policy'] = json_encode(['enabled' => true, 'reviewAfterDays' => 365, 'action' => 'REVIEW'], JSON_THROW_ON_ERROR);
+    if ($service->policy() !== ['enabled' => true, 'reviewAfterDays' => 365, 'action' => 'REVIEW']) throw new RuntimeException('Die bestehende app-lokale Fristkonfiguration wird nicht unverändert gelesen.');
 
     echo "AD Raumplaner retention policy test passed\n";
 }

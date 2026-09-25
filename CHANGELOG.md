@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Retention-Dry-Run vom LocalBase-Pilot auf den öffentlichen
+  V1-Providervertrag des Datenschutz-Centers migriert; globale Vorschauen sind
+  paginiert, datenminimiert und weiterhin strikt `REVIEW`-only.
 - Temporären fachlichen Admin-Vollzugriff auf höchstens 24 Stunden begrenzt:
   Nur `Datenschutzbeauftragte` dürfen aktuelle Nextcloud-Administrationskonten
   in der Hauptoberfläche freigeben oder widerrufen; native Administration

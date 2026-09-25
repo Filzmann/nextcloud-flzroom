@@ -101,6 +101,14 @@ Sperrdurchsetzung, Auditvollständigkeit, Fehlerrückbau und
 Provider-/Consumer-Verhalten freigegeben und getestet sind, bleibt Retention
 ausschließlich eine lesende `REVIEW`-Vorschau.
 
+Diese Vorschau registriert sich lazy über den öffentlichen
+V1-`RegisterRetentionProvidersEvent` von `filzmann_data_protection`.
+Die app-eigene Abfrage bleibt Eigentum des Raumplaners und liefert globale
+Treffer seitenweise mit opaker Fortsetzung; UID, freier Titel und Zweck
+verlassen diesen Retentionpfad nicht. Ein fehlendes, deaktiviertes oder
+inkompatibles Datenschutz-Center ist ein expliziter Standalone-Zustand und
+kein Anlass für einen LocalBase-, SQL- oder Reflection-Fallback.
+
 Die Katalogwerte sind die künftige kanonische Policyquelle. Die bestehenden
 Projektionen in `RoomPersonalDataProvider` und `RoomRetentionProvider` bleiben
 im ersten Consumer-Schritt unverändert; ihre Ableitung aus dem Katalog ist ein

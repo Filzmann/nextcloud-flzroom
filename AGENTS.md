@@ -44,12 +44,14 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - AD Raumplaner registriert seinen app-lokalen `PersonalDataProvider` lazy
   über den öffentlichen V1-Registry-Event der optionalen App
   `filzmann_data_protection`. Fehlt oder ist diese App deaktiviert, bleibt der
-  Raumplaner einschließlich seines LocalBase-basierten
-  `RetentionProvider`-Dry-Runs funktionsfähig und instanziiert den
-  PersonalDataProvider nicht. Auskünfte fragen Buchungen ausschließlich nach
+  Raumplaner funktionsfähig und instanziiert die Datenschutzprovider nicht.
+  Der app-lokale `RetentionProvider` registriert sich ebenfalls lazy über den
+  öffentlichen V1-Vertrag des Datenschutz-Centers; seine globale,
+  fortsetzbare Vorschau liefert ausschließlich datenminimierte
+  `REVIEW`-Kandidaten und verändert keine Buchungen. Auskünfte fragen
+  Buchungen ausschließlich nach
   der typisierten Subject-UID ab; die Datenschutz-App greift nie direkt auf
-  Raumtabellen oder Repositorys zu. Retention liefert im Pilot nur
-  `REVIEW`-Kandidaten und verändert keine Buchung. Aktivierung und Frist nach
+  Raumtabellen oder Repositorys zu. Aktivierung und Frist nach
   Buchungsende sind im eigenen Adminbereich bearbeitbar; andere Maßnahmen
   werden serverseitig abgelehnt.
 - Der app-eigene Processing-Katalog liegt ausschließlich unter

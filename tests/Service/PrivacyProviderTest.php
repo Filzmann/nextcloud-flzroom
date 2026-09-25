@@ -35,6 +35,11 @@ namespace OCA\AdRoom\Repository {
         public function findEndedByUserUid(string $uid, \DateTimeImmutable $cutoff, int $limit): array {
             return array_slice(array_values(array_filter($this->items, static fn(Booking $booking): bool => $booking->userUid() === $uid && $booking->endsAt() <= $cutoff)), 0, $limit);
         }
+        public function findEndedBefore(\DateTimeImmutable $cutoff, int $limit, int $offset = 0): array {
+            $items = array_values(array_filter($this->items, static fn(Booking $booking): bool => $booking->endsAt() <= $cutoff));
+            usort($items, static fn(Booking $left, Booking $right): int => [$left->endsAt(), $left->id()] <=> [$right->endsAt(), $right->id()]);
+            return array_slice($items, $offset, $limit);
+        }
         public function delete(int $id): void { $this->deleteCalls++; }
     }
     class RoomRepository {
@@ -66,9 +71,8 @@ namespace {
     use OCA\AdRoom\Service\RoomAdminLayoutService;
     use OCA\AdRoom\Service\RoomRetentionPolicyService;
     use OCA\LocalBase\Calendar\CalendarContextSettingsService;
-    use OCA\LocalBase\Privacy\RetentionPreviewRequest;
-    use OCA\LocalBase\Privacy\RetentionProviderRegistryEvent;
-    use OCA\LocalBase\Privacy\PersonalDataSubject;
+    use OCA\FilzmannDataProtection\PublicApi\V1\RetentionPreviewRequest;
+    use OCA\FilzmannDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
     use OCA\FilzmannDataProtection\PublicApi\V1\DataSubjectRef;
     use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataRequest;
     use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
@@ -153,21 +157,38 @@ namespace {
     if ($limitedReport->status() !== 'partial' || $limitedReport->restrictions() === []) throw new RuntimeException('Begrenzter Raumbuchungsbericht behauptet Vollständigkeit oder begründet die Einschränkung nicht.');
     array_pop($repository->items);
 
-    $retention = new RoomRetentionProvider($repository, $policy, $clock);
-    $retentionSubject = new PersonalDataSubject(PersonalDataSubject::NEXTCLOUD_USER, 'user-17');
-    $preview = $retention->preview(new RetentionPreviewRequest($retentionSubject, 20));
-    if (count($preview->candidates()) !== 1 || $preview->candidates()[0]->toArray()['action'] !== 'REVIEW') throw new RuntimeException('Retention-Dry-Run fehlt.');
+    $repository->items[] = Booking::get(['id' => 4, 'roomId' => 2, 'userUid' => 'foreign', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-01-01T08:00:00+00:00', 'endsAt' => '2025-01-01T09:00:00+00:00']);
+    $repository->items[] = Booking::get(['id' => 5, 'roomId' => 2, 'userUid' => 'user-17', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-02-01T08:00:00+00:00', 'endsAt' => '2025-02-01T09:00:00+00:00']);
+    $retention = new RoomRetentionProvider($repository, $policy);
+    $preview = $retention->preview(new RetentionPreviewRequest('room_booking_review', '2025-02-10T12:00:00+00:00', 1));
+    if ($preview->status() !== 'partial' || count($preview->candidates()) !== 1 || $preview->candidates()[0]->toArray()['action'] !== 'REVIEW' || $preview->nextCursor() === null) throw new RuntimeException('Globale Retention-Vorschau oder Pagination fehlt.');
+    $continued = $retention->preview(new RetentionPreviewRequest('room_booking_review', '2025-02-10T12:00:00+00:00', 1, $preview->nextCursor()));
+    if ($continued->status() !== 'complete' || count($continued->candidates()) !== 1 || str_contains(json_encode($continued->candidates()[0]->toArray(), JSON_THROW_ON_ERROR), 'user-17')) throw new RuntimeException('Retention-Folgeseite ist unvollständig oder legt personenbezogene Inhalte offen.');
+    if ($retention->preview(new RetentionPreviewRequest('unknown_policy', '2026-08-12T12:00:00+00:00', 20))->status() !== 'not_applicable') throw new RuntimeException('Eine unbekannte Retention-Policy wird nicht kontrolliert abgelehnt.');
+    try {
+        $retention->preview(new RetentionPreviewRequest('room_booking_review', '2025-02-10T12:00:00+00:00', 20, 'manipulated'));
+        throw new RuntimeException('Ein manipulierter Provider-Cursor wurde akzeptiert.');
+    } catch (InvalidArgumentException) {
+    }
     if ($repository->deleteCalls !== 0) throw new RuntimeException('Retention-Preview verändert Buchungen.');
-    $policy->save(['enabled' => false, 'reviewAfterDays' => 0, 'action' => 'REVIEW']);
-    if ($retention->preview(new RetentionPreviewRequest($retentionSubject, 20))->candidates() !== []) throw new RuntimeException('Deaktivierte Retention liefert Kandidaten.');
 
     $personalListener = new RoomPersonalDataProviderListener($personal);
     $personalRegistry = new RegisterPersonalDataProvidersEvent();
     $personalListener->handle($personalRegistry);
     $retentionListener = new RoomPrivacyProviderListener($retention);
-    $retentionRegistry = new RetentionProviderRegistryEvent();
+    $retentionRegistry = new RegisterRetentionProvidersEvent();
     $retentionListener->handle($retentionRegistry);
     if (array_keys($personalRegistry->providers()) !== ['adroom'] || array_keys($retentionRegistry->providers()) !== ['adroom']) throw new RuntimeException('AD Raumplaner registriert seine Privacy-Provider nicht.');
+    $policy->save(['enabled' => false, 'reviewAfterDays' => 0, 'action' => 'REVIEW']);
+    $disabledRegistry = new RegisterRetentionProvidersEvent();
+    $retentionListener->handle($disabledRegistry);
+    if ($disabledRegistry->providers() !== []) throw new RuntimeException('Eine deaktivierte Retention-Regel registriert fälschlich einen Provider.');
+
+    $application = (string)file_get_contents(dirname(__DIR__, 2) . '/lib/AppInfo/Application.php');
+    if (!str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
+        || str_contains($application, 'RetentionProviderRegistryEvent')) {
+        throw new RuntimeException('Der Bootstrap verwendet nicht ausschließlich den Standalone-V1-Retention-Vertrag.');
+    }
 
     echo "AD Raumplaner privacy provider test passed\n";
 }

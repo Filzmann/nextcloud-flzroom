@@ -34,7 +34,12 @@ Feiertage, Buchungszeiten und Monatsgrenzen richten sich nach dem gemeinsamen Ka
 
 AD Raumplaner registriert bei aktivem, kompatiblem Datenschutz-Center seinen
 subjectgebundenen `PersonalDataProvider` und zusätzlich einen versionierten
-`ProcessingMetadataProvider`. Der app-eigene Katalog beschreibt
+`ProcessingMetadataProvider` sowie den ausschließlich lesenden
+V1-`RetentionProvider`. Die globale Retention-Vorschau ist paginiert,
+liefert nur datenminimierte `REVIEW`-Kandidaten und verändert keine
+Buchungen. Fehlt das Datenschutz-Center oder ist es inkompatibel, bleibt der
+Raumplaner eigenständig nutzbar und der fehlende Provider wird nicht
+verschleiert. Der app-eigene Katalog beschreibt
 Raumbuchungen, temporäre Adminfreigaben und die persönliche Adminanordnung,
 ohne personenbezogene Laufzeitdaten zu enthalten. Offene fachliche
 Entscheidungen bleiben ausdrücklich `PRIVACY-DECISION-REQUIRED`; insbesondere

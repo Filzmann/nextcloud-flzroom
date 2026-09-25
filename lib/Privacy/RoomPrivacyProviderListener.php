@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\AdRoom\Privacy;
 
-use OCA\LocalBase\Privacy\RetentionProviderRegistryEvent;
+use OCA\FilzmannDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 
@@ -12,6 +12,6 @@ final class RoomPrivacyProviderListener implements IEventListener {
     public function __construct(private RoomRetentionProvider $retention) {}
 
     public function handle(Event $event): void {
-        if ($event instanceof RetentionProviderRegistryEvent) $event->register($this->retention);
+        if ($event instanceof RegisterRetentionProvidersEvent && $this->retention->isEnabled()) $event->register($this->retention);
     }
 }
