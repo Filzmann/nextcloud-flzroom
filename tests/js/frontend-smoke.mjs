@@ -7,6 +7,8 @@ const dialogSource=readFileSync(new URL('../../js/components/booking-dialog.js',
 const wallTimeSource=readFileSync(new URL('../../js/modules/booking-wall-time.js',import.meta.url),'utf8');
 const timelineSource=readFileSync(new URL('../../js/modules/booking-timeline.js',import.meta.url),'utf8');
 const workflowSource=readFileSync(new URL('../../js/modules/booking-workflow.js',import.meta.url),'utf8');
+const indexTemplate=readFileSync(new URL('../../templates/index.php',import.meta.url),'utf8');
+const styleSource=readFileSync(new URL('../../css/style.css',import.meta.url),'utf8');
 const roomWorkflowSource=readFileSync(new URL('../../js/modules/room-workflow.js',import.meta.url),'utf8');
 const adminTemplate=readFileSync(new URL('../../templates/admin.php',import.meta.url),'utf8');
 const sources=['models/room.js','models/booking.js','repositories/room-repository.js','components/booking-dialog.js','components/room-settings.js','main.js','admin.js'].map((file)=>readFileSync(new URL(`../../js/${file}`,import.meta.url),'utf8')).join('\n')+calendarSource+wallTimeSource+timelineSource+workflowSource+roomWorkflowSource;
@@ -50,4 +52,6 @@ for(const removed of ['adr-tab-settings',"showView('settings')"]) if(sources.inc
 const adminBookingModel=adminTemplate.indexOf("\\OCP\\Util::addScript('adroom', 'models/booking');");
 const adminRepository=adminTemplate.indexOf("\\OCP\\Util::addScript('adroom', 'repositories/room-repository');");
 if(adminBookingModel<0||adminRepository<0||adminBookingModel>adminRepository) throw new Error('Der Raum-Adminbereich lädt das Buchungsmodell nicht vor dem gemeinsamen Monats-Repository.');
+for(const contract of ['adr-admin-grant-warning','<details','Datenschutzbeauftragte','target="_blank"']) if(!indexTemplate.includes(contract)) throw new Error(`Titelwarnung für fehlenden Admin-Vollzugriff fehlt: ${contract}`);
+if(!styleSource.includes('.adr-admin-grant-warning')) throw new Error('Titelwarnung für fehlenden Admin-Vollzugriff ist nicht als kleines Floating-Icon gestaltet.');
 console.log('AD Raumplaner frontend smoke test passed');

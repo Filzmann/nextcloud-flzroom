@@ -18,7 +18,7 @@
 <main id="adroom-app" class="adr-app">
     <div class="orgsuite-host" data-orgsuite data-suite="ad" data-current-app="adroom"></div>
     <header class="adr-header">
-        <div><h1>AD Raumplaner</h1><p>Räume und Buchungen im Monatsüberblick</p></div>
+        <div class="adr-title-row"><h1>AD Raumplaner</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="adr-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="adr-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#adr-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?><p>Räume und Buchungen im Monatsüberblick</p></div>
         <nav class="adr-month-navigation" aria-label="Monat auswählen">
             <button type="button" id="adr-previous">Vorheriger Monat</button>
             <label>Monat <input id="adr-month" type="month"></label>
@@ -27,7 +27,7 @@
     </header>
     <div id="adr-notice" class="adr-notice" role="status" aria-live="polite" hidden></div>
     <?php if ($_['showMissingAdminGrant'] ?? false): ?>
-        <section class="adr-admin-access adr-notice is-warning" aria-labelledby="adr-admin-access-required-heading">
+        <section hidden class="adr-admin-access adr-notice is-warning" aria-labelledby="adr-admin-access-required-heading">
             <h2 id="adr-admin-access-required-heading">Kein fachlicher Admin-Vollzugriff</h2>
             <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Für geschützte Raumverwaltung und Fremdbuchungen fehlt eine aktive app-lokale Freigabe.</p>
             <?php if ($_['showAdminAccessLink'] ?? false): ?>
