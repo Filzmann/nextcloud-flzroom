@@ -16,9 +16,7 @@ return [
             OCA\FilzmannPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent::class,
         ],
     ],
-    'providerSetup' => static fn(): array => OCP\Server::get(RoomRetentionPolicyService::class)->save([
-        'enabled' => true, 'reviewAfterDays' => 365, 'action' => 'REVIEW',
-    ]),
+    'providerSetup' => static fn(): array => OCP\Server::get(RoomRetentionPolicyService::class)->policy(),
     'uiPath' => '/index.php/apps/adroom/',
     'preGrantUiStatuses' => [200],
     'postGrantUiStatuses' => [200],

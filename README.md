@@ -17,6 +17,13 @@ AD Raumplaner funktioniert einzeln; Buchungen bleiben ohne Kalender oder Assiste
 
 Räume werden nach der Aktivierung im eigenen Nextcloud-Adminabschnitt `AD Raumplaner` eingerichtet. `adroom:demo:seed` ist ausschließlich für synthetische Testdaten bestimmt.
 
+Der Raumplan ist serverseitig auf Mitglieder der von
+`Datenschutzbeauftragte` konfigurierten, bestehenden Nextcloud-Gruppen
+begrenzt. Die Gruppenmitgliedschaften selbst bleiben Nextcloud-eigen. Eine
+leere Konfiguration sperrt den regulären Zugriff. Berechtigte
+Organisationskräfte sehen Raum, Zeitraum, Zweck und buchende Person; den
+Freititel erhalten nur die buchende Person und `ad-Sekretariat`.
+
 Native Nextcloud-Administration besitzt keinen automatischen Vollzugriff auf
 Raumdaten. Ausschließlich Mitglieder der kanonischen Nextcloud-Gruppe
 `Datenschutzbeauftragte` können in der Hauptoberfläche ein aktuelles
@@ -37,7 +44,11 @@ subjectgebundenen `PersonalDataProvider` und zusätzlich einen versionierten
 `ProcessingMetadataProvider` sowie den ausschließlich lesenden
 V1-`RetentionProvider`. Die globale Retention-Vorschau ist paginiert,
 liefert nur datenminimierte `REVIEW`-Kandidaten und verändert keine
-Buchungen. Fehlt das Datenschutz-Center oder ist es inkompatibel, bleibt der
+Buchungen oder Adminfreigaben. Die von `Datenschutzbeauftragte` versioniert
+konfigurierten Standardfristen betragen ein Jahr ab Buchungsende und sechs
+Monate ab tatsächlichem Ende einer Adminfreigabe; jede Änderung wird bei der
+nächsten Vorschau anhand des ursprünglichen Endes neu berechnet. Fehlt das
+Datenschutz-Center oder ist es inkompatibel, bleibt der
 Raumplaner eigenständig nutzbar und der fehlende Provider wird nicht
 verschleiert. Der app-eigene Katalog beschreibt
 Raumbuchungen, temporäre Adminfreigaben und die persönliche Adminanordnung,

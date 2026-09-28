@@ -12,18 +12,22 @@
 \OCP\Util::addScript('adroom','components/month-calendar');
 \OCP\Util::addScript('adroom','components/booking-dialog');
 \OCP\Util::addScript('adroom','admin-access');
-\OCP\Util::addScript('adroom','main');
+\OCP\Util::addScript('adroom','retention-policy');
+\OCP\Util::addScript('adroom','organization-groups');
+if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('adroom','main');
 \OCP\Util::addStyle('adroom','style');
 ?>
 <main id="adroom-app" class="adr-app">
     <div class="orgsuite-host" data-orgsuite data-suite="ad" data-current-app="adroom"></div>
     <header class="adr-header">
         <div class="adr-title-row"><h1>AD Raumplaner</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="adr-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="adr-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#adr-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?><p>Räume und Buchungen im Monatsüberblick</p></div>
+        <?php if ($_['canViewRoomPlan'] ?? false): ?>
         <nav class="adr-month-navigation" aria-label="Monat auswählen">
             <button type="button" id="adr-previous">Vorheriger Monat</button>
             <label>Monat <input id="adr-month" type="month"></label>
             <button type="button" id="adr-next">Nächster Monat</button>
         </nav>
+        <?php endif; ?>
     </header>
     <div id="adr-notice" class="adr-notice" role="status" aria-live="polite" hidden></div>
     <?php if ($_['showMissingAdminGrant'] ?? false): ?>
@@ -33,6 +37,36 @@
             <?php if ($_['showAdminAccessLink'] ?? false): ?>
                 <p><a href="#adr-full-access">Zur app-lokalen Freigabesteuerung</a></p>
             <?php endif; ?>
+        </section>
+    <?php endif; ?>
+    <?php if ($_['canConfigureOrganizationGroups'] ?? false): ?>
+        <section id="adr-organization-groups" class="adr-admin-access" aria-labelledby="adr-organization-groups-heading">
+            <h2 id="adr-organization-groups-heading">Organisationsgruppen</h2>
+            <p>Nur Mitglieder der hier eingetragenen Nextcloud-Gruppen erhalten Zugriff auf Raumplan und eigene Buchungen. Eine Gruppen-ID je Zeile; eine leere Liste sperrt den regulären Zugriff.</p>
+            <form id="adr-organization-groups-form">
+                <label>Nextcloud-Gruppen-IDs
+                    <textarea name="organizationGroupIds" rows="5" maxlength="25600" aria-describedby="adr-organization-groups-hint"></textarea>
+                </label>
+                <small id="adr-organization-groups-hint">Es können ausschließlich bereits vorhandene Nextcloud-Gruppen gespeichert werden.</small>
+                <button type="submit" class="primary">Organisationsgruppen speichern</button>
+            </form>
+            <p id="adr-organization-groups-status" role="status" aria-live="polite"></p>
+        </section>
+    <?php endif; ?>
+    <?php if ($_['canConfigureRetention'] ?? false): ?>
+        <section id="adr-retention-policy" class="adr-admin-access" aria-labelledby="adr-retention-policy-heading">
+            <h2 id="adr-retention-policy-heading">Aufbewahrungsprüfung</h2>
+            <p>Standard sind ein Jahr ab Buchungsende und sechs Monate ab tatsächlichem Ende einer Adminfreigabe. Die Versionierung ändert nur die REVIEW-Vorschau; automatische Löschung oder Anonymisierung bleibt deaktiviert.</p>
+            <form id="adr-retention-policy-form">
+                <label>Kalenderfrist <input name="durationPeriod" value="P1Y" pattern="P[1-9][0-9]*[YMD]" required aria-describedby="adr-retention-period-hint"></label>
+                <small id="adr-retention-period-hint">ISO-8601, zum Beispiel P1Y, P6M oder P180D.</small>
+                <label>Adminfreigabehistorie <input name="adminHistoryDurationPeriod" value="P6M" pattern="P[1-9][0-9]*[YMD]" required aria-describedby="adr-admin-history-retention-period-hint"></label>
+                <small id="adr-admin-history-retention-period-hint">Standardmäßig sechs Monate ab dem tatsächlichen Ende der Freigabe.</small>
+                <input name="expectedRevision" type="hidden" value="0">
+                <button type="submit" class="primary">Frist als neue Version speichern</button>
+                <button type="button" data-retention-review>Jährliche Prüfung protokollieren</button>
+            </form>
+            <p id="adr-retention-policy-status" role="status" aria-live="polite"></p>
         </section>
     <?php endif; ?>
     <?php if ($_['canManageAdminAccess'] ?? false): ?>
@@ -60,6 +94,7 @@
             </table></div>
         </section>
     <?php endif; ?>
+    <?php if ($_['canViewRoomPlan'] ?? false): ?>
     <section id="adr-calendar-view" aria-label="Raumkalender">
         <div class="adr-table-wrap">
             <table class="adr-calendar">
@@ -82,9 +117,10 @@
             <label>Zweck <input name="purpose" list="adr-purpose-options" maxlength="255" required></label>
             <datalist id="adr-purpose-options"><option value="AT"><option value="Sitzung"><option value="BQ"><option value="Fortbildung"><option value="SV"><option value="HB"><option value="LG"></datalist>
             <label>Titel <input name="title" maxlength="255" aria-describedby="adr-title-hint" required></label>
-            <small id="adr-title-hint">Zum Beispiel ASN, Gremium oder Thema.</small>
+            <small id="adr-title-hint">Nur notwendige Sachangaben, zum Beispiel Gremium oder Thema. Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben.</small>
             <div id="adr-booking-error" class="adr-notice is-error" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
             <footer><button type="button" data-dialog-close>Abbrechen</button><button type="submit" class="primary">Speichern</button></footer>
         </form>
     </dialog>
+    <?php endif; ?>
 </main>

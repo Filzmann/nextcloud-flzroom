@@ -92,6 +92,26 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
         return array_map([$this,'mapRow'],$rows);
     }
 
+    public function endedBefore(DateTimeImmutable $cutoff, int $limit, int $offset): array {
+        $qb = $this->db->getQueryBuilder();
+        $rows = $qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')
+            ->from('adr_admin_access')
+            ->where($qb->expr()->orX(
+                $qb->expr()->lte('revoked_at',$qb->createNamedParameter($cutoff,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)),
+                $qb->expr()->andX(
+                    $qb->expr()->isNull('revoked_at'),
+                    $qb->expr()->lte('ends_at',$qb->createNamedParameter($cutoff,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)),
+                ),
+            ))
+            ->orderBy('ends_at','ASC')
+            ->addOrderBy('id','ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->executeQuery()
+            ->fetchAllAssociative();
+        return array_map([$this,'mapRow'],$rows);
+    }
+
     private function mapRow(array $row): array {
         return ['id'=>(int)$row['id'],'targetUid'=>(string)$row['target_uid'],'grantedBy'=>(string)$row['granted_by'],'startsAt'=>$this->date($row['starts_at']),'endsAt'=>$this->date($row['ends_at']),'revokedAt'=>$row['revoked_at']===null?null:$this->date($row['revoked_at']),'revokedBy'=>$row['revoked_by']===null?null:(string)$row['revoked_by']];
     }

@@ -58,6 +58,7 @@ namespace OCA\AdRoom\Service {
     final class BookingService {
         public string $mode = 'success';
         public ?int $deleted = null;
+        public int $creates = 0;
 
         public function month(string $month, RoomAccessService $access): array {
             if ($this->mode === 'generic') throw new \RuntimeException('intern');
@@ -65,6 +66,7 @@ namespace OCA\AdRoom\Service {
         }
 
         public function create(int $roomId, string $start, string $end, string $purpose, string $title, string $uid): int {
+            $this->creates++;
             $this->throwConfigured();
             return 17;
         }
@@ -138,6 +140,7 @@ namespace {
     $access->view = false;
     $assert($status($controller->month('2026-07')) === Http::STATUS_FORBIDDEN, 'Monatsansicht ignoriert das Leserecht.');
     $assert($status($controller->createBooking(1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A')) === Http::STATUS_FORBIDDEN, 'Buchungsanlage ignoriert das Leserecht.');
+    $assert($bookings->creates === 0, 'Eine verweigerte Buchungsanlage hat den Schreibservice erreicht.');
     $access->view = true;
 
     $assert($data($controller->month('2026-07'))['month'] === '2026-07', 'Monatsdaten werden nicht durchgereicht.');

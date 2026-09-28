@@ -27,18 +27,6 @@
                 <form id="adr-admin-room-form" class="adr-room-form"><label>Name <input name="name" required maxlength="255"></label><label>Beschreibung <input name="description" maxlength="500"></label><label>Reihenfolge <input name="sortOrder" type="number" min="0" value="0"></label><button type="submit" class="primary">Raum anlegen</button></form>
             </div>
         </section>
-        <section class="orgs-panel orgs-dashboard-widget" data-dashboard-widget data-widget-id="retention" aria-labelledby="adr-retention-heading">
-            <header class="orgs-dashboard-header"><h3 id="adr-retention-heading" data-dashboard-title>Aufbewahrung und Prüfung</h3><div class="orgs-dashboard-actions"><button type="button" data-dashboard-move="-1" aria-label="Aufbewahrung eine Position zurück verschieben">↑</button><button type="button" data-dashboard-handle draggable="true" aria-label="Aufbewahrung per Drag-and-drop verschieben">⠿</button><button type="button" data-dashboard-move="1" aria-label="Aufbewahrung eine Position weiter verschieben">↓</button><button type="button" data-dashboard-toggle aria-expanded="true" aria-controls="adr-retention-content" aria-label="Aufbewahrung ein- oder ausklappen"><span aria-hidden="true">▾</span></button></div></header>
-            <div id="adr-retention-content" data-dashboard-content>
-                <p>Die Regel markiert ausreichend alte Buchungen nur zur manuellen Prüfung. Es findet keine automatische Löschung oder Anonymisierung statt.</p>
-                <form id="adr-retention-form">
-                    <label><input name="enabled" type="checkbox"> Retention-Vorschau aktivieren</label>
-                    <label>Prüfung nach Buchungsende in Tagen <input name="reviewAfterDays" type="number" min="0" max="3650" required></label>
-                    <label>Maßnahme <select name="action"><option value="REVIEW">REVIEW – manuell prüfen</option></select></label>
-                    <button type="submit" class="primary">Retention-Regel speichern</button>
-                </form>
-            </div>
-        </section>
         <section class="orgs-panel orgs-dashboard-widget" data-dashboard-widget data-widget-id="demo" aria-labelledby="adr-demo-heading">
             <header class="orgs-dashboard-header"><h3 id="adr-demo-heading" data-dashboard-title>Demo-Pack</h3><div class="orgs-dashboard-actions"><button type="button" data-dashboard-move="-1" aria-label="Demo-Pack eine Position zurück verschieben">↑</button><button type="button" data-dashboard-handle draggable="true" aria-label="Demo-Pack per Drag-and-drop verschieben">⠿</button><button type="button" data-dashboard-move="1" aria-label="Demo-Pack eine Position weiter verschieben">↓</button><button type="button" data-dashboard-toggle aria-expanded="true" aria-controls="adr-demo-content" aria-label="Demo-Pack ein- oder ausklappen"><span aria-hidden="true">▾</span></button></div></header>
             <div id="adr-demo-content" data-dashboard-content>

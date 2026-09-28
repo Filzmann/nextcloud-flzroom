@@ -2,9 +2,18 @@
 
 ## Unreleased
 
+- Raumplan und eigene Buchungen serverseitig auf von `Datenschutzbeauftragte`
+  konfigurierte Nextcloud-Gruppen begrenzt; eine leere Konfiguration sperrt
+  reguläre Zugriffe. Freie Buchungstitel werden nur Besitzer*in und
+  `ad-Sekretariat` ausgegeben.
 - Retention-Dry-Run vom LocalBase-Pilot auf den öffentlichen
   V1-Providervertrag des Datenschutz-Centers migriert; globale Vorschauen sind
   paginiert, datenminimiert und weiterhin strikt `REVIEW`-only.
+- Fristen für Raumbuchungen und Adminfreigabehistorien ausschließlich für
+  `Datenschutzbeauftragte` gemeinsam versioniert, mit Wirksamkeitszeitpunkt,
+  optimistischer Revision und jährlichem Review geführt; die Vorschau wertet
+  vorhandene Datensätze vom ursprünglichen Ende mit der aktuellen Version neu
+  aus und bietet weiterhin keinen Ausführungspfad.
 - Temporären fachlichen Admin-Vollzugriff auf höchstens 24 Stunden begrenzt:
   Nur `Datenschutzbeauftragte` dürfen aktuelle Nextcloud-Administrationskonten
   in der Hauptoberfläche freigeben oder widerrufen; native Administration

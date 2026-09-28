@@ -9,6 +9,12 @@ namespace OCP {
 }
 namespace OCA\AdRoom\Service {
     interface TemporaryAdminAccessChecker { public function hasActiveGrant(string $uid): bool; }
+    class OrganizationGroupPolicyService {
+        public bool $organizationMember=false;
+        public bool $secretariat=false;
+        public function isOrganizationMember(string $uid): bool { return $this->organizationMember && $uid === 'anna'; }
+        public function isSecretariat(string $uid): bool { return $this->secretariat && $uid === 'anna'; }
+    }
 }
 namespace {
     $user=new class implements OCP\IUser { public function getUID(): string { return 'anna'; } };
@@ -18,14 +24,23 @@ namespace {
         public bool $active=false;
         public function hasActiveGrant(string $uid): bool { return $this->active && $uid === 'anna'; }
     };
-    $access=new OCA\AdRoom\Service\RoomAccessService($session,$groups,$grants);
+    $organizationGroups=new OCA\AdRoom\Service\OrganizationGroupPolicyService();
+    $access=new OCA\AdRoom\Service\RoomAccessService($session,$groups,$grants,$organizationGroups);
     $own=OCA\AdRoom\Model\Booking::get(['roomId'=>1,'userUid'=>'anna','purpose'=>'AT','title'=>'ASN Nordost','startsAt'=>'2026-07-13T08:00:00+00:00','endsAt'=>'2026-07-13T09:00:00+00:00']);
     $foreign=OCA\AdRoom\Model\Booking::get(['roomId'=>1,'userUid'=>'bea','purpose'=>'AT','title'=>'ASN West','startsAt'=>'2026-07-13T08:00:00+00:00','endsAt'=>'2026-07-13T09:00:00+00:00']);
-    if (!$access->canView() || !$access->canManageBooking($own) || $access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Eigenrechte sind fehlerhaft.');
+    if ($access->canView() || $access->canManageBooking($own) || $access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Nicht konfigurierte Konten müssen vollständig ausgeschlossen bleiben.');
+    $organizationGroups->organizationMember=true;
+    if (!$access->canView() || !$access->canManageBooking($own) || $access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Eigenrechte einer Organisationskraft sind fehlerhaft.');
+    if (!$access->canViewBookingTitle($own) || $access->canViewBookingTitle($foreign)) throw new RuntimeException('Der Freititel ist nicht auf die buchende Person begrenzt.');
+    $organizationGroups->secretariat=true;
+    if (!$access->canViewBookingTitle($foreign)) throw new RuntimeException('Das Sekretariat kann fremde Freititel nicht sehen.');
+    $organizationGroups->secretariat=false;
     $groups->admin=true;
     if ($access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Native Nextcloud-Administration darf ohne app-lokale Freigabe keinen Vollzugriff erhalten.');
     $grants->active=true;
-    if (!$access->canManageBooking($foreign) || !$access->canManageRooms()) throw new RuntimeException('Zeitweise freigegebene Nextcloud-Administration muss app-lokalen Vollzugriff erhalten.');
+    $organizationGroups->organizationMember=false;
+    if (!$access->canView() || !$access->canManageBooking($foreign) || !$access->canManageRooms()) throw new RuntimeException('Zeitweise freigegebene Nextcloud-Administration muss app-lokalen Vollzugriff erhalten.');
+    if ($access->canViewBookingTitle($foreign)) throw new RuntimeException('Technischer Admin-Vollzugriff darf den Freititel nicht ohne Besitzer- oder Sekretariatsrolle offenlegen.');
     $groups->admin=false;
     if ($access->canManageBooking($foreign) || $access->canManageRooms()) throw new RuntimeException('Eine gespeicherte Freigabe darf ohne aktuellen Nextcloud-Adminstatus keinen Vollzugriff erteilen.');
     echo "AD Raumplaner access tests passed\n";

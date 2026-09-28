@@ -58,6 +58,7 @@ final class BookingService {
             $item['endsAt'] = $booking->endsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
             $item['userName'] = $this->users->get($booking->userUid())?->getDisplayName() ?: $booking->userUid();
             $item['canManage'] = $access->canManageBooking($booking);
+            if (!$access->canViewBookingTitle($booking)) unset($item['title']);
             $bookingItems[] = $item;
         }
 

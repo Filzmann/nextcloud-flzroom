@@ -11,7 +11,8 @@ use Psr\Log\LoggerInterface;
 
 final class RoomAdminLayoutService {
     private const KEY = 'admin_dashboard_layout';
-    private const BLOCKS = ['rooms', 'retention', 'demo'];
+    private const BLOCKS = ['rooms', 'demo'];
+    private const LEGACY_BLOCKS = ['retention'];
 
     public function __construct(private IUserConfig $config, private LoggerInterface $logger) {}
 
@@ -66,7 +67,8 @@ final class RoomAdminLayoutService {
         if (!is_array($value) || !array_is_list($value)) throw new InvalidArgumentException('Adminlayout-Liste ist ungültig.');
         $result=[];
         foreach ($value as $id) {
-            if (!is_string($id) || !in_array($id,self::BLOCKS,true) || in_array($id,$result,true)) throw new InvalidArgumentException('Adminlayout enthält unbekannte oder doppelte Karten.');
+            if (!is_string($id) || (!in_array($id,self::BLOCKS,true) && !in_array($id,self::LEGACY_BLOCKS,true)) || in_array($id,$result,true)) throw new InvalidArgumentException('Adminlayout enthält unbekannte oder doppelte Karten.');
+            if (in_array($id,self::LEGACY_BLOCKS,true)) continue;
             $result[]=$id;
         }
         return $result;

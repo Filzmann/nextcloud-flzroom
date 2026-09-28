@@ -25,19 +25,20 @@
         "Nachvollziehbare Verwaltung eigener und ausdrücklich administrierbarer Buchungen"
       ],
       "access_roles": [
-        "Angemeldete Nutzer*innen für die gemeinsame Monatsansicht",
+        "Mitglieder der durch Datenschutzbeauftragte konfigurierten Nextcloud-Organisationsgruppen für die gemeinsame Monatsansicht",
+        "Buchende Person und Mitglieder von ad-Sekretariat für den freien Buchungstitel",
         "Buchende Person für Änderungen der eigenen Buchung",
         "Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte ausschließlich für fachliche Datenschutzkonfiguration",
         "Native Nextcloud-Administration mit aktiver app-lokaler Freigabe von höchstens 24 Stunden"
       ],
       "recipients": [
         {
-          "category": "Angemeldete Nutzer*innen der Nextcloud-Instanz",
+          "category": "Mitglieder konfigurierter Nextcloud-Organisationsgruppen",
           "allowed_disclosures": [
-            "Raum, Zeitraum, Zweck, Titel und aktuell aufgelöster Anzeigename in der gemeinsamen Belegungsansicht"
+            "Raum, Zeitraum, Zweck und aktuell aufgelöster Anzeigename in der gemeinsamen Belegungsansicht; Freititel nur für buchende Person und ad-Sekretariat"
           ],
           "conditions": [
-            "Authentifizierte Sitzung",
+            "Serverseitig geprüfte Mitgliedschaft in mindestens einer konfigurierten Organisationsgruppe",
             "Keine daraus abgeleitete Änderungsberechtigung"
           ]
         },
@@ -59,9 +60,9 @@
       "legal_basis": {
         "status": "PRIVACY-DECISION-REQUIRED",
         "affected_data": "Personenbezug und möglicher Drittpersoneninhalt einer Raumbuchung",
-        "planned_processing": "Instanzweite Anzeige und Verwaltung von Raumbuchungen",
-        "missing_decision": "Anwendbare Rechtsgrundlage und verbindliche Dokumentation der Sichtbarkeit",
-        "reason": "Die Rechtsgrundlage und Erforderlichkeit der instanzweiten Titelsichtbarkeit sind fachlich zu entscheiden.",
+        "planned_processing": "Gruppenbezogene Anzeige und Verwaltung von Raumbuchungen mit begrenzter Freititelsichtbarkeit",
+        "missing_decision": "Anwendbare Rechtsgrundlage und fachlich verantwortliche Stelle",
+        "reason": "Die technische Sichtbarkeit ist minimiert; Rechtsgrundlage und Verantwortung bleiben fachlich zu entscheiden.",
         "technical_impact": "Der Katalog kann keine freigegebene Rechtsgrundlage behaupten.",
         "privacy_preserving_alternative": "Nur erforderliche Buchungsfelder anzeigen und Freititel in der persönlichen Auskunft redigieren.",
         "responsible_party": "ungeklärt",
@@ -106,7 +107,7 @@
       "exports_and_reports": {
         "article_15_relevance": "Eigene Buchungen werden subjectgebunden ausgegeben; der mögliche Drittpersonen-Freititel wird durch einen neutralen Platzhalter ersetzt.",
         "other_outputs": [
-          "Gemeinsame Monatsansicht für angemeldete Nutzer*innen",
+          "Gemeinsame Monatsansicht für Mitglieder konfigurierter Organisationsgruppen mit serverseitig begrenztem Freititel",
           "Administrative REVIEW-Vorschau ohne automatische Maßnahme"
         ],
         "minimization": "Art.-15-Ausgabe auf Raum, Zweck und Zeitraum begrenzen und Freititel redigieren."
@@ -122,6 +123,8 @@
       "special_safeguards": [
         "Serverseitige Bindung der Besitzer-UID aus der Sitzung",
         "Deny-by-default für fremde Änderungen",
+        "Serverseitige Organisationsgruppenprüfung mit deny by default bei leerer oder fehlerhafter Konfiguration",
+        "Freititel ausschließlich für buchende Person und ad-Sekretariat",
         "Redaktion möglicher Drittpersonenangaben in der Art.-15-Auskunft",
         "Fachliche Datenschutzkonfiguration ausschließlich durch die Nextcloud-Gruppe Datenschutzbeauftragte",
         "Keine automatische Retention-Ausführung"

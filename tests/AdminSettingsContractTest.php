@@ -20,8 +20,10 @@ foreach (['<admin>OCA\AdRoom\Settings\Admin</admin>', '<admin-section>OCA\AdRoom
 foreach (['return Application::APP_ID;', "return 'AD Raumplaner';", 'IIconSection'] as $contract) {
     if (!str_contains($admin . $section, $contract)) throw new RuntimeException("Eigener Raumplaner-Adminabschnitt fehlt: {$contract}");
 }
-foreach (['data-dashboard-scope="main"', 'data-widget-id="rooms"', 'data-widget-id="retention"', 'data-widget-id="demo"', 'data-dashboard-toggle', 'data-dashboard-move'] as $contract) if (!str_contains((string)$template,$contract)) throw new RuntimeException("Admin-Kartenvertrag fehlt: {$contract}");
-foreach (['OrganizationDashboard','/api/admin/settings','/api/admin/retention-policy','/api/admin/layout'] as $contract) if (!str_contains((string)$script.(string)$routes,$contract)) throw new RuntimeException("Admin-Kartenanbindung fehlt: {$contract}");
+foreach (['data-dashboard-scope="main"', 'data-widget-id="rooms"', 'data-widget-id="demo"', 'data-dashboard-toggle', 'data-dashboard-move'] as $contract) if (!str_contains((string)$template,$contract)) throw new RuntimeException("Admin-Kartenvertrag fehlt: {$contract}");
+foreach (['OrganizationDashboard','/api/admin/settings','/api/admin/layout'] as $contract) if (!str_contains((string)$script.(string)$routes,$contract)) throw new RuntimeException("Admin-Kartenanbindung fehlt: {$contract}");
+foreach (['data-widget-id="retention"','adr-retention-form','/api/admin/retention-policy'] as $obsolete) if (str_contains((string)$template.(string)$script.(string)$routes,$obsolete)) throw new RuntimeException("Technische Admin-Retention ist noch aktiv: {$obsolete}");
+foreach (['/api/privacy/retention-policy','/api/privacy/retention-policy/review'] as $contract) if (!str_contains((string)$routes,$contract)) throw new RuntimeException("DPO-Retention-Route fehlt: {$contract}");
 if (str_contains($admin, "return 'orgsuite';")) throw new RuntimeException('Raumverwaltung darf nicht im Suite-Adminabschnitt hängen.');
 
 echo "AdminSettingsContractTest: OK\n";

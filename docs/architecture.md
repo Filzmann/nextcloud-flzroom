@@ -23,11 +23,12 @@ Zugriff auf Raumtabellen oder private Assets.
 ## Rechte und Datenschutz
 
 Eigene Buchungen werden aus der Session-UID serverseitig gebunden. Der
-beschlossene Zielvertrag gewährt nur Organisationskräften Zugriff auf den
-Raumplaner; reine Assistenzkräfte erhalten keinen Zugriff. Organisationskräfte
-verwalten ausschließlich eigene Buchungen. Die Zuordnung muss aus der
-kanonischen Organisationsstruktur abgeleitet und auf jedem Lese- und
-Schreibpfad serverseitig durchgesetzt werden.
+Raumplaner gewährt nur Mitgliedern der von `Datenschutzbeauftragte`
+konfigurierten, bestehenden Nextcloud-Gruppen Zugriff; eine leere oder
+fehlerhafte Liste sperrt reguläre Zugriffe. Nextcloud bleibt Quelle der
+Gruppen und Mitgliedschaften. Organisationskräfte verwalten ausschließlich
+eigene Buchungen; der höchstens 24 Stunden freigegebene Adminpfad bleibt die
+ausdrücklich dokumentierte Ausnahme.
 
 Die kanonische LocalBase-Gruppe `ad-Sekretariat` bildet eine dauerhafte,
 app-lokale Fachrolle. Sie ist ausdrücklich kein Ersatz für den getrennten,
@@ -52,19 +53,18 @@ native Administrationskonten ohne aktive Freigabe; ein Direktlink wird nur
 bei zusätzlicher Datenschutzrolle gerendert.
 
 Für die direkte Abstimmung sind buchende Person und frei eingegebener Zweck
-erforderlich und für berechtigte Organisationskräfte sichtbar. Zweck und
-Titel bleiben freie Eingaben, weil ein abschließender Zweckkatalog den
-Planungsbedarf nicht abbildet. Die Oberfläche muss deshalb sichtbar zur
+erforderlich und für berechtigte Organisationskräfte sichtbar. Der Freititel
+wird serverseitig nur der buchenden Person und `ad-Sekretariat` ausgegeben.
+Zweck und Titel bleiben freie Eingaben, weil ein abschließender Zweckkatalog
+den Planungsbedarf nicht abbildet. Die Oberfläche muss deshalb sichtbar zur
 Datenminimierung auffordern und Namen, Gesundheits-, Fall- sowie andere
 unnötige Drittpersonenangaben ausdrücklich ausschließen.
 
-Dieser Zielvertrag ist noch nicht in der Laufzeit umgesetzt. Die bestehende
-Laufzeit erlaubt weiterhin allen angemeldeten Konten das Lesen und Verwalten
-eigener Buchungen und verwendet für fremde Buchungen sowie Raumverwaltung den
-temporären Adminpfad. Bis Organisationszuordnung, Sekretariatsrolle,
+Organisationszuordnung, Seiten-/API-Zugriff und Freititelprojektion sind in
+der Laufzeit serverseitig umgesetzt. Bis Sekretariatsverwaltung,
 Begründungs- und Auditpflicht sowie Benachrichtigung mit positiven und
-negativen Servertests umgesetzt sind, ist der Zielvertrag nicht als wirksame
-Berechtigungsgrenze oder produktionsreif zu behandeln. Der
+negativen Servertests umgesetzt sind, ist dieser verbleibende Teil des
+Zielvertrags nicht als produktionsreif zu behandeln. Der
 Datenschutzprovider liefert weiterhin nur app-eigene, typisierte
 Buchungsbezüge und redigiert freie Titel.
 
@@ -81,8 +81,13 @@ Für beendete Raumbuchungen gilt ein Jahr ab Buchungsende als administrativ
 konfigurierbarer Standardwert. Mitglieder der Nextcloud-Gruppe
 `Datenschutzbeauftragte` dürfen die Frist verkürzen oder verlängern; eine
 Änderung wird anhand des ursprünglichen Buchungsendes auch auf bereits
-vorhandene Buchungen angewendet. Die Policyänderung wird 24 Monate
-auditierbar gehalten und mindestens jährlich durch diese Gruppe überprüft.
+vorhandene Buchungen angewendet. Derselbe versionierte Konfigurationsvertrag
+führt für die Adminfreigabehistorie sechs Monate ab ihrem tatsächlichen Ende
+als Standardwert. Jede Änderung enthält Revision, Wirksamkeitszeitpunkt und
+Akteur; abgewiesene, veraltete oder beschädigte Änderungen verändern die
+Historie nicht. Die Policyänderung wird mindestens 24 Monate auditierbar
+gehalten und mindestens jährlich durch diese Gruppe überprüft. Bis zur ersten
+dokumentierten Konfiguration oder Prüfung gilt der Review als fällig.
 Nach Fristablauf wird die Buchung vollständig gelöscht; es verbleibt weder
 ein anonymisierter Rest noch eine Statistik. Eine aktive rechtliche oder
 datenschutzrechtliche Sperre blockiert die Löschung, begrenzt die Nutzung auf
@@ -91,7 +96,10 @@ begründet und auditiert aufgehoben werden. Nach einem Restore wird die Frist
 vom ursprünglichen Buchungsende neu bewertet und eine abgelaufene ungesperrte
 Buchung erneut zur Löschung eingeplant.
 
-Dies ist noch kein ausführender Runtimevertrag. Die spätere Löschung läuft
+Der öffentliche V1-Provider projiziert beide Datenklassen mit der aktuellen
+Policyrevision, berechnet den Stichtag bei jeder Vorschau aus dem
+ursprünglichen Ende und liefert ausschließlich `REVIEW`; er besitzt keine
+`execute()`-Methode. Dies ist noch kein ausführender Runtimevertrag. Die spätere Löschung läuft
 automatisch ohne manuelle Einzelfreigabe. Nach automatischen
 Wiederholungsversuchen erhält `Datenschutzbeauftragte` nur App, Datenklasse,
 Zeitpunkt und technische Referenz; der inhaltsarme Fehlernachweis wird nach
@@ -99,7 +107,10 @@ Zeitpunkt und technische Referenz; der inhaltsarme Fehlernachweis wird nach
 Atomarität, Nebenläufigkeit, Idempotenz, betriebliche Backupgrenze,
 Sperrdurchsetzung, Auditvollständigkeit, Fehlerrückbau und
 Provider-/Consumer-Verhalten freigegeben und getestet sind, bleibt Retention
-ausschließlich eine lesende `REVIEW`-Vorschau.
+ausschließlich eine lesende `REVIEW`-Vorschau. Insbesondere fehlen derzeit
+ein technisch durchgesetzter Hold-Datensatz samt Setzen/Aufheben/Audit und
+Prüftermin, die betriebliche Backupentscheidung sowie der nebenläufigkeits-
+und fehlerrückbaufeste Ausführungs- und Wiederholungsnachweis.
 
 Diese Vorschau registriert sich lazy über den öffentlichen
 V1-`RegisterRetentionProvidersEvent` von `filzmann_data_protection`.

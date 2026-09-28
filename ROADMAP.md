@@ -2,19 +2,17 @@
 
 ## Offene Fachberechtigung für Organisationskräfte und Sekretariat
 
-Der Zielvertrag ist entschieden, aber technisch noch nicht umgesetzt: Nur
-Organisationskräfte erhalten Zugriff auf den Raumplaner, reine
-Assistenzkräfte keinen. Organisationskräfte verwalten eigene Buchungen. Die
-kanonische LocalBase-Gruppe `ad-Sekretariat` erhält davon getrennte
+Der Zugriff ist serverseitig auf die von `Datenschutzbeauftragte`
+konfigurierten Nextcloud-Gruppen begrenzt; Organisationskräfte verwalten eigene
+Buchungen. Freie Titel sehen nur die buchende Person und `ad-Sekretariat`. Die
+kanonische Gruppe `ad-Sekretariat` erhält davon getrennte
 app-lokale Fachrechte zur Raumverwaltung und zur Konfliktlösung durch
 begründete Änderung oder Löschung fremder Buchungen; diese Rolle ist kein
 temporärer technischer Admin-Vollzugriff.
 
-Offen sind die Ableitung der Organisationszuordnung, die zentralisierte
-serverseitige Rechteprüfung, die verpflichtende Begründung und app-lokale
-Auditierung, die datensparsame Nextcloud-Benachrichtigung an die betroffene
-buchende Person sowie Allow-/Deny-, Fremdobjekt-, Manipulations- und
-Nebenwirkungstests. Die Benachrichtigung darf nur alten und, soweit
+Offen sind die verpflichtende Begründung und app-lokale Auditierung, die
+datensparsame Nextcloud-Benachrichtigung an die betroffene buchende Person
+sowie Fremdobjekt-, Manipulations- und Nebenwirkungstests. Sie darf nur alten und, soweit
 anwendbar, neuen Raum und Zeitraum sowie die Begründung enthalten; andere
 Personen, Buchungen und weitere Buchungsdaten bleiben ausgeschlossen.
 Processing-Katalog, PersonalDataProvider, PermissionProvider, Retention und
@@ -31,9 +29,9 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - App-lokalen temporären Admin-Vollzugriff und seine rollenabhängige
   Freigabesteuerung in DDEV und auf Staging abnehmen.
-- Zugriff für Organisationskräfte und die Fachrolle `ad-Sekretariat`
-  einschließlich fremder Eingriffe, Audit und datensparsamer Benachrichtigung
-  nach dem entschiedenen Zielvertrag testgetrieben umsetzen.
+- Verbleibende Fachrechte von `ad-Sekretariat` für fremde Eingriffe,
+  Begründung, Audit und datensparsame Benachrichtigung nach dem entschiedenen
+  Zielvertrag testgetrieben umsetzen.
 - Die manuellen Prüfungen werden im ausfüllbaren
   [`docs/manual-acceptance.md`](docs/manual-acceptance.md) dokumentiert.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
@@ -43,12 +41,6 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - Fachliche Verantwortlichkeit und Rechtsgrundlage für Raumbuchungen,
   temporäre Adminfreigaben und die persönliche Adminanordnung entscheiden.
-- Den konfigurierbaren Standardwert von einem Jahr ab Buchungsende
-  ausschließlich für Mitglieder der Nextcloud-Gruppe
-  `Datenschutzbeauftragte` administrierbar machen und Friständerungen anhand
-  des ursprünglichen Buchungsendes rückwirkend auf vorhandene Buchungen
-  anwenden. Policyänderungen 24 Monate auditierbar halten und mindestens
-  jährlich durch `Datenschutzbeauftragte` prüfen lassen.
 - Die entschiedene vollständige Löschung beendeter Buchungen nach Fristablauf
   sowie der Adminfreigabehistorie sechs Monate nach tatsächlichem Ende ohne
   Reststatistik umsetzen. Rechtliche oder datenschutzrechtliche Sperren

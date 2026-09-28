@@ -11,6 +11,9 @@ namespace OCP {
         public function getValueString(string $appId, string $key, string $default = ''): string;
         public function setValueString(string $appId, string $key, string $value): void;
     }
+    interface IUser { public function getUID(): string; }
+    interface IUserSession { public function getUser(): ?IUser; }
+    interface IGroupManager { public function isInGroup(string $uid, string $gid): bool; }
 }
 namespace OCP\Config {
     interface IUserConfig {
@@ -18,7 +21,7 @@ namespace OCP\Config {
         public function setValueArray(string $userId, string $appId, string $key, array $value, bool $lazy = false): void;
     }
 }
-namespace OCP\AppFramework\Utility { interface ITimeFactory { public function getTime(): int; } }
+namespace OCP\AppFramework\Utility { interface ITimeFactory { public function getTime(): int; public function now(): \DateTimeImmutable; } }
 namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
@@ -47,6 +50,8 @@ namespace OCA\AdRoom\Repository {
         public function findAll(): array { return [Room::get(['id' => 2, 'name' => 'Besprechung 1', 'description' => '', 'sortOrder' => 1])]; }
     }
     class TemporaryAdminAccessRepository {
+        public array $items = [];
+        public array $previewRequests = [];
         public function historyForUid(string $uid, int $limit): array {
             if ($uid !== 'user-17') return [];
             return [[
@@ -55,6 +60,10 @@ namespace OCA\AdRoom\Repository {
                 'endsAt'=>new \DateTimeImmutable('2026-08-05T11:00:00+00:00'),
                 'revokedAt'=>null,'revokedBy'=>null,
             ]];
+        }
+        public function endedBefore(\DateTimeImmutable $cutoff, int $limit, int $offset): array {
+            $this->previewRequests[] = [$cutoff->format(DATE_ATOM), $limit, $offset];
+            return array_slice($this->items, $offset, $limit);
         }
     }
 }
@@ -94,12 +103,17 @@ namespace {
     $config->userValues['user-17']['adroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['demo','rooms','retention'],'collapsed'=>['retention']]],'organigram'=>['zoom'=>100]];
     $config->userValues['foreign-user']['adroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['retention','rooms','demo'],'collapsed'=>['rooms']]],'organigram'=>['zoom'=>100]];
     $logger = new class implements Psr\Log\LoggerInterface { public function warning(string $message, array $context = []): void {} };
-    $policy = new RoomRetentionPolicyService($config);
-    $policy->save(['enabled' => true, 'reviewAfterDays' => 5, 'action' => 'REVIEW']);
-    $clock = new class implements OCP\AppFramework\Utility\ITimeFactory { public function getTime(): int { return strtotime('2026-08-12T12:00:00+00:00'); } };
+    $groups = new class implements OCP\IGroupManager { public function isInGroup(string $uid, string $gid): bool { return $uid === 'user-17' && $gid === 'Datenschutzbeauftragte'; } };
+    $session = new class implements OCP\IUserSession { public function getUser(): ?OCP\IUser { return new class implements OCP\IUser { public function getUID(): string { return 'user-17'; } }; } };
+    $clock = new class implements OCP\AppFramework\Utility\ITimeFactory {
+        public function getTime(): int { return strtotime('2026-08-12T12:00:00+00:00'); }
+        public function now(): DateTimeImmutable { return new DateTimeImmutable('2026-08-12T12:00:00+00:00'); }
+    };
+    $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock);
+    $policy->save(['durationPeriod' => 'P5D', 'adminHistoryDurationPeriod' => 'P9M', 'expectedRevision' => 0]);
     $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
-    if (count($report->entries()) !== 3 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie oder das persönliche Adminlayout der betroffenen UID aus.');
+    if (count($report->entries()) !== 4 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie, persönliche Adminlayouts oder Policybearbeitungen der betroffenen UID aus.');
     $item = $report->entries()[0]->toArray();
     if ($item['reference'] !== 'booking:1' || isset($item['attributes']['userUid']) || str_contains(json_encode($item, JSON_THROW_ON_ERROR), 'Fremd')) throw new RuntimeException('Providerbericht ist nicht referenzierbar, datensparsam oder nicht subjectgebunden.');
     if (($item['attributes']['Titel'] ?? null) !== '[Freitext mit möglichen Drittpersonenangaben entfernt]' || str_contains(json_encode($item, JSON_THROW_ON_ERROR), 'Team')) throw new RuntimeException('Mögliche Drittpersonenangaben im freien Titel wurden nicht kontextbewahrend entfernt.');
@@ -123,10 +137,17 @@ namespace {
     }
     $adminLayout = $report->entries()[2]->toArray();
     if ($adminLayout['reference'] !== 'admin-layout'
-        || ($adminLayout['attributes']['Reihenfolge'] ?? null) !== 'Demo-Daten, Räume, Aufbewahrung'
-        || ($adminLayout['attributes']['Eingeklappt'] ?? null) !== 'Aufbewahrung'
+        || ($adminLayout['attributes']['Reihenfolge'] ?? null) !== 'Demo-Daten, Räume'
+        || ($adminLayout['attributes']['Eingeklappt'] ?? null) !== 'Keine'
         || str_contains(json_encode($adminLayout, JSON_THROW_ON_ERROR), 'foreign-user')) {
         throw new RuntimeException('Das persönliche Adminlayout fehlt, ist nicht verständlich oder legt einen fremden UserConfig-Wert offen.');
+    }
+    $policyAudit = $report->entries()[3]->toArray();
+    if ($policyAudit['reference'] !== 'retention-policy:1'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Raumbuchungen'] ?? null) !== 'P5D'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Adminfreigaben'] ?? null) !== 'P9M'
+        || str_contains(json_encode($policyAudit, JSON_THROW_ON_ERROR), 'foreign-user')) {
+        throw new RuntimeException('Die eigene Policybearbeitung fehlt oder legt eine fremde Kennung offen.');
     }
     unset($config->userValues['user-17']['adroom']['admin_dashboard_layout']);
     $reportWithoutStoredLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
@@ -159,7 +180,21 @@ namespace {
 
     $repository->items[] = Booking::get(['id' => 4, 'roomId' => 2, 'userUid' => 'foreign', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-01-01T08:00:00+00:00', 'endsAt' => '2025-01-01T09:00:00+00:00']);
     $repository->items[] = Booking::get(['id' => 5, 'roomId' => 2, 'userUid' => 'user-17', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-02-01T08:00:00+00:00', 'endsAt' => '2025-02-01T09:00:00+00:00']);
-    $retention = new RoomRetentionProvider($repository, $policy);
+    $adminHistory = new TemporaryAdminAccessRepository();
+    $adminHistory->items = [[
+        'id'=>11,'targetUid'=>'admin-target','grantedBy'=>'dpo',
+        'startsAt'=>new DateTimeImmutable('2024-01-10T08:00:00+00:00'),
+        'endsAt'=>new DateTimeImmutable('2024-01-10T12:00:00+00:00'),
+        'revokedAt'=>new DateTimeImmutable('2024-01-10T09:00:00+00:00'),'revokedBy'=>'dpo',
+    ]];
+    $retention = new RoomRetentionProvider($repository, $adminHistory, $policy);
+    $policies = $retention->policies();
+    if (count($policies) !== 2
+        || ($policies[0]->toArray()['version'] ?? null) !== '1.1'
+        || ($policies[1]->toArray()['durationPeriod'] ?? null) !== 'P9M'
+        || ($policies[1]->toArray()['version'] ?? null) !== '1.1') {
+        throw new RuntimeException('Die beiden app-lokalen Retention-Policies sind nicht gemeinsam versioniert projiziert.');
+    }
     $preview = $retention->preview(new RetentionPreviewRequest('room_booking_review', '2025-02-10T12:00:00+00:00', 1));
     if ($preview->status() !== 'partial' || count($preview->candidates()) !== 1 || $preview->candidates()[0]->toArray()['action'] !== 'REVIEW' || $preview->nextCursor() === null) throw new RuntimeException('Globale Retention-Vorschau oder Pagination fehlt.');
     $continued = $retention->preview(new RetentionPreviewRequest('room_booking_review', '2025-02-10T12:00:00+00:00', 1, $preview->nextCursor()));
@@ -171,6 +206,13 @@ namespace {
     } catch (InvalidArgumentException) {
     }
     if ($repository->deleteCalls !== 0) throw new RuntimeException('Retention-Preview verändert Buchungen.');
+    $adminPreview = $retention->preview(new RetentionPreviewRequest('temporary_admin_access_history_review', '2025-02-10T12:00:00+00:00', 20));
+    if (($adminHistory->previewRequests[0][0] ?? null) !== '2024-05-10T12:00:00+00:00'
+        || $adminPreview->status() !== 'complete'
+        || ($adminPreview->candidates()[0]->toArray()['occurredAt'] ?? null) !== '2024-01-10T09:00:00+00:00') {
+        throw new RuntimeException('Die Adminfreigabehistorie wird nicht ab ihrem tatsächlichen Ende mit der aktuellen Frist neu bewertet.');
+    }
+    if (method_exists($retention, 'execute')) throw new RuntimeException('Der V1-Provider darf vor Abschluss von DP-07 keinen Ausführungspfad anbieten.');
 
     $personalListener = new RoomPersonalDataProviderListener($personal);
     $personalRegistry = new RegisterPersonalDataProvidersEvent();
@@ -179,11 +221,6 @@ namespace {
     $retentionRegistry = new RegisterRetentionProvidersEvent();
     $retentionListener->handle($retentionRegistry);
     if (array_keys($personalRegistry->providers()) !== ['adroom'] || array_keys($retentionRegistry->providers()) !== ['adroom']) throw new RuntimeException('AD Raumplaner registriert seine Privacy-Provider nicht.');
-    $policy->save(['enabled' => false, 'reviewAfterDays' => 0, 'action' => 'REVIEW']);
-    $disabledRegistry = new RegisterRetentionProvidersEvent();
-    $retentionListener->handle($disabledRegistry);
-    if ($disabledRegistry->providers() !== []) throw new RuntimeException('Eine deaktivierte Retention-Regel registriert fälschlich einen Provider.');
-
     $application = (string)file_get_contents(dirname(__DIR__, 2) . '/lib/AppInfo/Application.php');
     if (!str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
         || str_contains($application, 'RetentionProviderRegistryEvent')) {

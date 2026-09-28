@@ -53,6 +53,10 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
         foreach ($this->rooms->findAll() as $room) $roomNames[$room->id()] = $room->name();
         $bookings = $this->bookings->findByUserUid($request->subject()->subjectId(), $request->pageLimit() + 1);
         $adminHistory = $this->adminAccess->historyForUid($request->subject()->subjectId(), $request->pageLimit() + 1);
+        $policyHistory = array_values(array_filter(
+            $this->retentionPolicy->history(),
+            static fn(array $entry): bool => $entry['changedBy'] === $request->subject()->subjectId(),
+        ));
         $restrictions = [];
         try {
             $adminLayout = $this->adminLayout->personalDataForUid($request->subject()->subjectId());
@@ -60,7 +64,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
             $adminLayout = null;
             $restrictions[] = 'Das gespeicherte persönliche Adminlayout konnte nicht sicher ausgegeben werden.';
         }
-        $limited = count($bookings) + count($adminHistory) + ($adminLayout === null ? 0 : 1) > $request->pageLimit();
+        $limited = count($bookings) + count($adminHistory) + count($policyHistory) + ($adminLayout === null ? 0 : 1) > $request->pageLimit();
         $items = array_map(
             static fn(Booking $booking): PersonalDataEntry => new PersonalDataEntry(
                 categoryId: 'booking',
@@ -122,7 +126,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
             );
         }
         if ($adminLayout !== null) {
-            $labels = ['rooms' => 'Räume', 'retention' => 'Aufbewahrung', 'demo' => 'Demo-Daten'];
+            $labels = ['rooms' => 'Räume', 'demo' => 'Demo-Daten'];
             $order = array_map(static fn(string $id): string => $labels[$id], $adminLayout['scopes']['main']['order']);
             $collapsed = array_map(static fn(string $id): string => $labels[$id], $adminLayout['scopes']['main']['collapsed']);
             $items[] = new PersonalDataEntry(
@@ -143,6 +147,27 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
                 ],
             );
         }
+        foreach ($policyHistory as $entry) {
+            $items[] = new PersonalDataEntry(
+                categoryId: 'retention-policy',
+                categoryLabel: 'Aufbewahrungsregel',
+                reference: 'retention-policy:' . (string)$entry['revision'],
+                summary: $entry['event'] === 'configured' ? 'Aufbewahrungsregel konfiguriert' : 'Aufbewahrungsregel geprüft',
+                purpose: 'Nachweis der Konfiguration und regelmäßigen Prüfung der Aufbewahrungsregel',
+                source: 'Eigene Eingabe in der Datenschutzkonfiguration des AD Raumplaners',
+                recipientCategories: ['Betroffene Person und ausdrücklich berechtigte Datenschutz-Prüfrolle'],
+                retention: 'Keine feste Löschfrist für die Policyhistorie festgelegt.',
+                thirdCountryTransfer: 'Durch AD Raumplaner sind keine Drittlandübermittlungen vorgesehen.',
+                automatedDecision: 'Die Regel erzeugt ausschließlich eine manuelle Prüfungsvorschau und keine automatische Löschung.',
+                thirdPartyContentNotice: 'Die Policyhistorie enthält in dieser Auskunft keine Kennungen anderer Personen.',
+                attributes: [
+                    'Aufbewahrungsfrist Raumbuchungen' => $entry['durationPeriod'],
+                    'Aufbewahrungsfrist Adminfreigaben' => $entry['adminHistoryDurationPeriod'],
+                    'Wirksam seit' => $entry['effectiveAt'] ?? 'noch nicht wirksam gesetzt',
+                    'Zuletzt geprüft' => $entry['reviewedAt'] ?? 'noch nicht geprüft',
+                ],
+            );
+        }
         if ($limited) {
             $items = array_slice($items, 0, $request->pageLimit());
             $restrictions[] = 'Ausgabelimit erreicht; weitere Raumbuchungen können vorhanden sein.';
@@ -160,8 +185,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
     }
 
     private static function retentionFor(Booking $booking, array $policy, \DateTimeZone $timezone): string {
-        if (!$policy['enabled']) return 'Keine feste Löschfrist festgelegt; die administrative Retention-Prüfung ist derzeit deaktiviert.';
-        $reviewAt = $booking->endsAt()->modify('+' . $policy['reviewAfterDays'] . ' days');
+        $reviewAt = $booking->endsAt()->add(new \DateInterval($policy['durationPeriod']));
         return sprintf('Keine feste Löschfrist festgelegt; ab %s zur administrativen Prüfung vorgesehen. Es erfolgt keine automatische Löschung.', self::germanDate($reviewAt->setTimezone($timezone)));
     }
 

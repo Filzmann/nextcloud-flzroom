@@ -12,4 +12,5 @@ interface TemporaryAdminAccessRepositoryInterface {
     public function activeFor(string $targetUid, DateTimeImmutable $at): ?array;
     public function history(): array;
     public function historyForUid(string $uid, int $limit): array;
+    public function endedBefore(DateTimeImmutable $cutoff, int $limit, int $offset): array;
 }

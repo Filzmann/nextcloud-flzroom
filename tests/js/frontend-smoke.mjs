@@ -11,6 +11,7 @@ const indexTemplate=readFileSync(new URL('../../templates/index.php',import.meta
 const styleSource=readFileSync(new URL('../../css/style.css',import.meta.url),'utf8');
 const roomWorkflowSource=readFileSync(new URL('../../js/modules/room-workflow.js',import.meta.url),'utf8');
 const adminTemplate=readFileSync(new URL('../../templates/admin.php',import.meta.url),'utf8');
+const retentionPolicySource=readFileSync(new URL('../../js/retention-policy.js',import.meta.url),'utf8');
 const sources=['models/room.js','models/booking.js','repositories/room-repository.js','components/booking-dialog.js','components/room-settings.js','main.js','admin.js'].map((file)=>readFileSync(new URL(`../../js/${file}`,import.meta.url),'utf8')).join('\n')+calendarSource+wallTimeSource+timelineSource+workflowSource+roomWorkflowSource;
 for(const contract of ['class Room extends BaseModel','class Booking extends BaseModel','class RoomRepository extends BaseRepository','this.post(\'/api/bookings\'','class MonthCalendar','class BookingDialog','class BookingWorkflow','class RoomSettings','class RoomWorkflow','adroom:add-booking','adr-admin-room-body','canManageRooms','window.confirm','this.title = String','title: String(values.get']) if(!sources.includes(contract)) throw new Error(`Frontendvertrag fehlt: ${contract}`);
 for(const contract of ['const sequence = ++loadSequence','if (sequence !== loadSequence) return;','if (sequence === loadSequence) notice.error','let month = formatMonth(new Date())']) if(!sources.includes(contract)) throw new Error(`Monatsladevertrag fehlt: ${contract}`);
@@ -54,4 +55,5 @@ const adminRepository=adminTemplate.indexOf("\\OCP\\Util::addScript('adroom', 'r
 if(adminBookingModel<0||adminRepository<0||adminBookingModel>adminRepository) throw new Error('Der Raum-Adminbereich lädt das Buchungsmodell nicht vor dem gemeinsamen Monats-Repository.');
 for(const contract of ['adr-admin-grant-warning','<details','Datenschutzbeauftragte','target="_blank"']) if(!indexTemplate.includes(contract)) throw new Error(`Titelwarnung für fehlenden Admin-Vollzugriff fehlt: ${contract}`);
 if(!styleSource.includes('.adr-admin-grant-warning')) throw new Error('Titelwarnung für fehlenden Admin-Vollzugriff ist nicht als kleines Floating-Icon gestaltet.');
+for(const contract of ['adminHistoryDurationPeriod','durationPeriod','expectedRevision']) if(!retentionPolicySource.includes(contract)||!indexTemplate.includes(contract)) throw new Error(`Retention-Konfigurationsfeld fehlt in Oberfläche oder Request: ${contract}`);
 console.log('AD Raumplaner frontend smoke test passed');
