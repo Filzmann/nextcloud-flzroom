@@ -6,7 +6,9 @@ namespace OCA\AdRoom\AppInfo;
 
 use OCA\AdRoom\Listener\IntegrationCapabilityQueryListener;
 use OCA\AdRoom\Listener\StandaloneNavigationListener;
+use OCA\AdRoom\Notification\Notifier;
 use OCA\AdRoom\Privacy\RoomPrivacyProviderListener;
+use OCA\AdRoom\Privacy\RoomRetentionExecutionProviderListener;
 use OCA\AdRoom\Privacy\RoomPersonalDataProviderListener;
 use OCA\AdRoom\Privacy\RoomProcessingMetadataProviderListener;
 use OCA\AdRoom\Permission\RoomPermissionProviderListener;
@@ -17,6 +19,7 @@ use OCA\AdRoom\Service\TemporaryAdminAccessService;
 use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
 use OCA\FilzmannDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
 use OCA\FilzmannDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
+use OCA\FilzmannDataProtection\PublicApi\V2\RegisterRetentionExecutionProvidersEvent;
 use OCA\FilzmannPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
 use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
 use OCP\AppFramework\App;
@@ -39,7 +42,9 @@ final class Application extends App implements IBootstrap {
         $context->registerEventListener(RegisterProcessingMetadataProvidersEvent::class, RoomProcessingMetadataProviderListener::class);
         $context->registerEventListener(RegisterPermissionProvidersEvent::class, RoomPermissionProviderListener::class);
         $context->registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class);
+        $context->registerEventListener(RegisterRetentionExecutionProvidersEvent::class, RoomRetentionExecutionProviderListener::class);
         $context->registerEventListener(LoadAdditionalEntriesEvent::class, StandaloneNavigationListener::class);
+        $context->registerNotifierService(Notifier::class);
         $context->registerServiceAlias(TemporaryAdminAccessChecker::class, TemporaryAdminAccessService::class);
         $context->registerServiceAlias(TemporaryAdminAccessRepositoryInterface::class, TemporaryAdminAccessRepository::class);
     }

@@ -7,7 +7,7 @@
       "name": "Verwaltung und Anzeige von Raumbuchungen",
       "controller": {
         "component": "AD Raumplaner",
-        "business_owner": "Sekretariat (kanonische LocalBase-Gruppe ad-Sekretariat)"
+        "business_owner": "Sekretariat"
       },
       "data_categories": [
         "Nextcloud-UID und daraus aktuell aufgelöster Anzeigename der buchenden Person",
@@ -61,11 +61,11 @@
         "status": "PRIVACY-DECISION-REQUIRED",
         "affected_data": "Personenbezug und möglicher Drittpersoneninhalt einer Raumbuchung",
         "planned_processing": "Gruppenbezogene Anzeige und Verwaltung von Raumbuchungen mit begrenzter Freititelsichtbarkeit",
-        "missing_decision": "Anwendbare Rechtsgrundlage und fachlich verantwortliche Stelle",
-        "reason": "Die technische Sichtbarkeit ist minimiert; Rechtsgrundlage und Verantwortung bleiben fachlich zu entscheiden.",
-        "technical_impact": "Der Katalog kann keine freigegebene Rechtsgrundlage behaupten.",
+        "missing_decision": "Kundenlokale Dokumentation der anwendbaren Rechtsgrundlage und des Verantwortlichen außerhalb des Produktpakets",
+        "reason": "Die technische Sichtbarkeit ist minimiert. Die konkrete Instanzentscheidung darf nicht als Produkt-Default oder in distributierbaren Metadaten gespeichert werden.",
+        "technical_impact": "Der auslieferbare Katalog behauptet keine instanzspezifische Rechtsgrundlage oder verantwortliche Organisation.",
         "privacy_preserving_alternative": "Nur erforderliche Buchungsfelder anzeigen und Freititel in der persönlichen Auskunft redigieren.",
-        "responsible_party": "ungeklärt",
+        "responsible_party": "kundenlokal außerhalb des Produktpakets zu dokumentieren",
         "blocking": false
       },
       "retention": {
@@ -74,14 +74,14 @@
         "duration_or_deadline": "P1Y als administrativ konfigurierbarer Standardwert",
         "action": "delete",
         "conditions_or_holds": [
-          "Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen den Standardwert verkürzen oder verlängern.",
-          "Der jeweils konfigurierte Wert wird anhand des ursprünglichen Buchungsendes auch auf bereits vorhandene Buchungen angewendet.",
+          "Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen den Standardwert innerhalb von 30 Tagen bis drei Jahren durch eine neue, nicht rückdatierte Revision ändern.",
+          "Für jede Buchung gilt die bei ihrem ursprünglichen Buchungsende wirksame Policyrevision.",
           "Policyänderungen werden 24 Monate auditierbar gehalten und mindestens jährlich durch Datenschutzbeauftragte überprüft.",
           "Nach Fristablauf wird die Buchung vollständig gelöscht; es verbleibt weder ein anonymisierter Restbestand noch eine Statistik.",
           "Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung und begrenzen die Nutzung auf den dokumentierten Sperrzweck.",
           "Nur Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen eine Sperre begründet und auditiert aufheben.",
           "Nach Restore wird die Frist aus dem ursprünglichen Buchungsende neu bewertet und eine bereits abgelaufene ungesperrte Buchung erneut zur Löschung eingeplant.",
-          "Keine destruktive Retention-Ausführung vor freigegebenem und getestetem Versions-, Wirksamkeitszeitpunkt-, Reihenfolge-, Atomaritäts-, Nebenläufigkeits-, Idempotenz-, Backupgrenz-, Sperr-, Audit-, Retry-, Fehlerdiagnostik-, Fehlerrückbau- und Provider-/Consumer-Vertrag."
+          "Die automatische Ausführung startet im Datenschutz-Center standardmäßig deaktiviert und benötigt dort ausschließlich die technische Operatoraktivierung mit gültigem Backup-/Restore-Status; kundenlokale Rechts-, BV-, DPO- oder Evidenzreferenzen sind keine technische Aktivierungsvoraussetzung."
         ]
       },
       "logging": {
@@ -95,11 +95,11 @@
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Persistierte Raumbuchungen in der Nextcloud-Datenbank",
           "planned_processing": "Einbeziehung in betriebliche Sicherung und Wiederherstellung",
-          "missing_decision": "Backup-Relevanz und Aufbewahrungsdauer",
-          "reason": "Der App-Code kennt den betrieblichen Backupzyklus nicht.",
-          "technical_impact": "Die App kann keinen Entfall aus Sicherungen behaupten.",
+          "missing_decision": "Kundenlokale Dokumentation des Sicherungsbetriebs außerhalb des Produktpakets",
+          "reason": "Der App-Code kann externe Sicherungsmedien nicht prüfen oder lokale Betriebsdokumentation rechtlich bewerten.",
+          "technical_impact": "Fehlende Kundenevidenz blockiert nicht. Der getrennte technische Operatorpfad des Datenschutz-Centers verlangt jedoch 1 bis 365 Tage reguläre Aufbewahrung, 0 bis 5 Tage Puffer sowie vergangene Backup-/Restore-Prüfzeitpunkte und einen spätestens jährlichen nächsten Prüftermin.",
           "privacy_preserving_alternative": "Keine separate app-eigene Sicherungskopie anlegen.",
-          "responsible_party": "ungeklärt",
+          "responsible_party": "kundenlokaler IT-Betrieb",
           "blocking": false
         },
         "restore_handling": "Nach Restore wird die Aufbewahrungsfrist aus dem ursprünglichen Buchungsende neu bewertet. Eine bereits abgelaufene ungesperrte Buchung wird erneut zur Löschung eingeplant."
@@ -116,7 +116,7 @@
         "article_15": "Subjectgebundene Ausgabe eigener Buchungen ist über den app-eigenen PersonalDataProvider implementiert.",
         "rectification": "Die buchende Person kann eine eigene Buchung innerhalb des geltenden Buchungsvertrags bearbeiten.",
         "restriction": "Eine aktive rechtliche oder datenschutzrechtliche Sperre blockiert die Löschung und begrenzt die Nutzung auf den dokumentierten Sperrzweck. Nur Datenschutzbeauftragte dürfen die Sperre begründet und auditiert aufheben.",
-        "erasure_or_anonymization": "Nach Ablauf der konfigurierten Frist wird die Buchung vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren verhindern die Löschung. Die automatische technische Ausführung bleibt bis zur Freigabe und Prüfung des Retention-Ausführungsvertrags deaktiviert."
+        "erasure_or_anonymization": "Nach Ablauf der konfigurierten Frist wird die Buchung bei technischer Operatoraktivierung vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren verhindern die Löschung. Kundenlokale Rechts-, BV-, DPO- oder Evidenzreferenzen werden außerhalb des Produkts verantwortet und blockieren den technischen Löschlauf nicht."
       },
       "international_transfers": "AD Raumplaner übermittelt selbst keine Buchungsdaten an Drittländer.",
       "automated_decisions": "Die Kollisionsprüfung verhindert Doppelbelegungen, trifft aber keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
@@ -127,13 +127,71 @@
         "Freititel ausschließlich für buchende Person und ad-Sekretariat",
         "Redaktion möglicher Drittpersonenangaben in der Art.-15-Auskunft",
         "Fachliche Datenschutzkonfiguration ausschließlich durch die Nextcloud-Gruppe Datenschutzbeauftragte",
-        "Keine automatische Retention-Ausführung"
+        "Automatische Retention standardmäßig deaktiviert; Aktivierung ausschließlich über den getrennten technischen Operatorpfad des Datenschutz-Centers"
       ],
       "systems": [
         "Nextcloud",
         "AD Raumplaner",
         "App-eigene Tabellen adr_bookings und adr_rooms"
       ]
+    },
+    {
+      "processing_id": "secretariat_foreign_booking_intervention",
+      "name": "Begründeter Eingriff des Sekretariats in eine fremde Raumbuchung",
+      "controller": {
+        "component": "AD Raumplaner",
+        "business_owner": {
+          "status": "PRIVACY-DECISION-REQUIRED",
+          "affected_data": "Eingriffsaudit und ausstehende beziehungsweise dauerhaft fehlgeschlagene Benachrichtigung",
+          "planned_processing": "Organisatorische Konfliktlösung mit Nachweis und Benachrichtigung",
+          "missing_decision": "Kundenlokale fachliche Verantwortlichkeit und Rechtsgrundlage",
+          "reason": "Das verkaufbare Produkt darf keine kundenspezifische Vereinbarung oder Organisation hardcodieren.",
+          "technical_impact": "Die neutrale technische Funktion bleibt bis zur kundenlokalen Risikoscope-Freigabe fail-closed.",
+          "privacy_preserving_alternative": "Fremde Buchungen unverändert lassen und außerhalb der App abstimmen.",
+          "responsible_party": "ungeklärt",
+          "blocking": false
+        }
+      },
+      "data_categories": [
+        "Audit: Aktion, handelnde Nextcloud-UID, Buchungs-ID, Zeitpunkt, alter und neuer Raum und Zeitraum sowie Begründung",
+        "Benachrichtigungsqueue: Empfänger-UID, derselbe minimierte Raum-/Zeit-/Begründungssnapshot, Zustellversuch, nächster Versuch und minimaler Fehlercode",
+        "Keine Buchungstitel, Zwecke, Namen anderer Personen oder Inhalte anderer Buchungen"
+      ],
+      "data_subjects": ["Handelnde Mitglieder von ad-Sekretariat", "Betroffene buchende Person"],
+      "purposes": ["Nachvollziehbare organisatorische Konfliktlösung", "Information der betroffenen buchenden Person", "Technisch begrenzte Zustellwiederholung"],
+      "access_roles": [
+        "Eingriff ausschließlich ad-Sekretariat mit zusätzlicher aktiver neutraler Risikoscope-Freigabe",
+        "Auditansicht ausschließlich Datenschutzbeauftragte; ein Betriebsratszugriff wird nicht als App-Rolle hardcodiert und erfolgt nur im kundenlokal vereinbarten Prüfweg",
+        "Subjectgebundene Art.-15-Projektion für handelnde beziehungsweise empfangende Person"
+      ],
+      "recipients": [{"category":"Betroffene buchende Person","allowed_disclosures":["Alter und soweit anwendbar neuer Raum und Zeitraum sowie Begründung"],"conditions":["Erfolgreich autorisierter und atomar gespeicherter Fremdeingriff"]}],
+      "data_sources": ["Serverseitig autorisierter Sekretariatseingriff", "App-eigene Tabellen adr_booking_audit und adr_notify_queue", "Native Nextcloud-Benachrichtigung"],
+      "legal_basis": {
+        "status": "PRIVACY-DECISION-REQUIRED",
+        "affected_data": "Eingriffsaudit und Benachrichtigungsdaten",
+        "planned_processing": "Kundenlokal freizugebender risikoreicher Funktionsscope",
+        "missing_decision": "Anwendbare kundenlokale Rechtsgrundlage und Interessenabwägung beziehungsweise kollektivrechtliche Freigabe",
+        "reason": "Die neutrale Produktfunktion kennt den jeweiligen Kundenkontext nicht.",
+        "technical_impact": "Ohne kompatible aktive Scope-Freigabe ist der Fremdeingriff serverseitig gesperrt.",
+        "privacy_preserving_alternative": "Normale Eigenbuchungen und externe Abstimmung bleiben verfügbar.",
+        "responsible_party": "ungeklärt",
+        "blocking": false
+      },
+      "retention": {
+        "policy_id": "secretariat_intervention_fixed_retention",
+        "trigger": "Eingriffszeitpunkt beziehungsweise Zeitpunkt der dauerhaft fehlgeschlagenen Zustellung",
+        "duration_or_deadline": "Audit P1Y; dauerhaft fehlgeschlagene Queue P30D; erfolgreiche Queue sofort",
+        "action": "delete",
+        "conditions_or_holds": ["Audit nach zwölf Monaten vollständig löschen", "Erfolgreiche Queuezeile unmittelbar löschen", "Nach initialem Versuch genau nach 5 Minuten, 1 Stunde und 24 Stunden wiederholen", "Dauerhaft fehlgeschlagene Queue samt minimalem Fehlernachweis nach dreißig Tagen vollständig löschen"]
+      },
+      "logging": {"audit_requirements":["Schreib- und Zustellfehler ohne Begründung, Buchungstitel, Empfänger- oder Akteurs-UID diagnostizieren"],"personal_data_policy":"Nur technischer Fehlercode, Versuchszahl und Fehlerklasse; keine vollständigen Payloads."},
+      "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Audit und Queue in der Nextcloud-Datenbank","planned_processing":"Betriebliche Sicherung und Wiederherstellung","missing_decision":"Kundenlokale Backup-Aufbewahrung und Löschgrenze","reason":"Der App-Code kennt den betrieblichen Backupzyklus nicht.","technical_impact":"Die App kann keinen Entfall aus Sicherungen behaupten.","privacy_preserving_alternative":"Keine app-eigene Sicherungskopie anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":"Fristen aus ursprünglichem Eingriffs- beziehungsweise Fehlerzeitpunkt neu bewerten; abgelaufene Datensätze erneut löschen."},
+      "exports_and_reports": {"article_15_relevance":"Handelnde Person erhält eigene Auditeinträge; Empfänger*in erhält noch persistente Queuewerte subjectgebunden.","other_outputs":["DPO-geschützte Auditansicht", "Native Nextcloud-Benachrichtigung"],"minimization":"Keine Titel, Zwecke, anderen Personen oder Buchungen ausgeben."},
+      "data_subject_rights": {"article_15":"Subjectgebundene Projektion ist im app-eigenen PersonalDataProvider enthalten.","rectification":"Append-only Audit wird nicht überschrieben; Fehler brauchen einen gesondert zu entscheidenden Korrekturpfad.","restriction":"Keine kundenspezifische Sperrentscheidung wird technisch erfunden.","erasure_or_anonymization":"Feste vollständige Löschung nach P1Y beziehungsweise P30D; erfolgreiche Queue sofort."},
+      "international_transfers": "AD Raumplaner übermittelt diese Daten selbst nicht an Drittländer.",
+      "automated_decisions": "Die Scope-Prüfung und Zustellwiederholung treffen keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
+      "special_safeguards": ["Fail-closed Risikoscope", "Aktuelle Session, Fachrolle und Zielobjekt serverseitig prüfen", "Mutation, Audit und Outbox atomar", "Datenminimierte Pflichtbegründung mit 10 bis 500 Zeichen", "Keine Leistungs- oder Verhaltenskontrolle"],
+      "systems": ["Nextcloud", "AD Raumplaner", "App-eigene Tabellen adr_booking_audit und adr_notify_queue"]
     },
     {
       "processing_id": "temporary_admin_full_access",
@@ -194,11 +252,11 @@
         "status": "PRIVACY-DECISION-REQUIRED",
         "affected_data": "Personenbezogene Adminfreigabehistorie",
         "planned_processing": "Sicherheitsprüfung und Audit des fachlichen Vollzugriffs",
-        "missing_decision": "Anwendbare Rechtsgrundlage",
-        "reason": "Die Rechtsgrundlage ist fachlich und rechtlich zu entscheiden.",
-        "technical_impact": "Der Katalog kann keine freigegebene Rechtsgrundlage ausweisen.",
+        "missing_decision": "Kundenlokale Dokumentation der anwendbaren Rechtsgrundlage, Beteiligung und Verantwortlichkeit außerhalb des Produktpakets",
+        "reason": "Das auslieferbare Produkt darf keine kundenspezifische Vereinbarung, Interessenabwägung oder Rechtsgrundlagenauswahl enthalten.",
+        "technical_impact": "Der Katalog behauptet keine instanzspezifische Rechtsgrundlage; ihr Fehlen aktiviert oder blockiert die automatische Löschung nicht.",
         "privacy_preserving_alternative": "Nur minimale UIDs und Zeitpunkte speichern und subjectgebunden ausgeben.",
-        "responsible_party": "ungeklärt",
+        "responsible_party": "kundenlokal außerhalb des Produktpakets zu dokumentieren",
         "blocking": false
       },
       "retention": {
@@ -212,7 +270,7 @@
           "Nur Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte dürfen eine Sperre begründet und auditiert aufheben.",
           "Nach Restore wird die Frist aus dem ursprünglichen tatsächlichen Ende neu bewertet; bereits abgelaufene ungesperrte Historie wird erneut zur Löschung eingeplant.",
           "Ein Restore reaktiviert niemals eine fachliche Adminfreigabe.",
-          "Keine destruktive Retention-Ausführung vor freigegebenem und getestetem Versions-, Wirksamkeitszeitpunkt-, Reihenfolge-, Atomaritäts-, Nebenläufigkeits-, Idempotenz-, Backupgrenz-, Sperr-, Audit-, Retry-, Fehlerdiagnostik-, Fehlerrückbau- und Provider-/Consumer-Vertrag."
+          "Die automatische Ausführung startet im Datenschutz-Center standardmäßig deaktiviert und benötigt dort ausschließlich die technische Operatoraktivierung mit gültigem Backup-/Restore-Status; kundenlokale Rechts-, BV-, DPO- oder Evidenzreferenzen sind keine technische Aktivierungsvoraussetzung."
         ]
       },
       "logging": {
@@ -226,11 +284,11 @@
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Persistierte Adminfreigabehistorie",
           "planned_processing": "Einbeziehung in Sicherung und Wiederherstellung der Nextcloud-Datenbank",
-          "missing_decision": "Backup-Relevanz und Aufbewahrungsdauer",
-          "reason": "Der App-Code kennt den betrieblichen Backupzyklus nicht.",
-          "technical_impact": "Die App kann keinen Entfall aus Sicherungen behaupten.",
+          "missing_decision": "Kundenlokale Dokumentation des Sicherungsbetriebs außerhalb des Produktpakets",
+          "reason": "Der App-Code kann externe Sicherungsmedien nicht prüfen oder lokale Betriebsdokumentation rechtlich bewerten.",
+          "technical_impact": "Fehlende Kundenevidenz blockiert nicht. Der getrennte technische Operatorpfad des Datenschutz-Centers verlangt jedoch eine gültige Backupgrenze, vergangene Backup-/Restore-Prüfzeitpunkte und einen spätestens jährlichen nächsten Prüftermin.",
           "privacy_preserving_alternative": "Keine separate app-eigene Backupkopie anlegen.",
-          "responsible_party": "ungeklärt",
+          "responsible_party": "kundenlokaler IT-Betrieb",
           "blocking": false
         },
         "restore_handling": "Nach Restore wird die Aufbewahrungsfrist aus dem ursprünglichen tatsächlichen Ende der Adminfreigabe neu bewertet. Bereits abgelaufene ungesperrte Historie wird erneut zur Löschung eingeplant; eine fachliche Adminfreigabe wird niemals reaktiviert."
@@ -266,7 +324,7 @@
           "responsible_party": "ungeklärt",
           "blocking": true
         },
-        "erasure_or_anonymization": "Die Adminfreigabehistorie wird sechs Monate nach ihrem tatsächlichen Ende vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung. Die automatische technische Ausführung bleibt bis zur Freigabe und Prüfung des Retention-Ausführungsvertrags deaktiviert."
+        "erasure_or_anonymization": "Die Adminfreigabehistorie wird bei technischer Operatoraktivierung sechs Monate nach ihrem tatsächlichen Ende vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung. Kundenlokale Rechts-, BV-, DPO- oder Evidenzreferenzen blockieren den technischen Löschlauf nicht."
       },
       "international_transfers": "AD Raumplaner übermittelt die Freigabehistorie nicht an Drittländer.",
       "automated_decisions": "Der Server beendet die Freigabe spätestens nach 24 Stunden; es findet keine automatisierte Entscheidung über eine Person statt.",

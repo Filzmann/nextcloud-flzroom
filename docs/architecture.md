@@ -41,6 +41,27 @@ datensparsame Benachrichtigung: alter und, soweit anwendbar, neuer Raum und
 Zeitraum sowie die Begründung. Namen oder Inhalte anderer Personen und
 Buchungen und weitere Buchungsdaten werden nicht mitgeteilt.
 
+Der Fremdeingriff besitzt zusätzlich einen serverseitigen
+`SecretariatForeignBookingInterventionGuard`. Er kombiniert die aktuelle
+Session, eine tatsächlich fremde Zielbuchung, die app-lokale
+Sekretariatsrolle und den öffentlichen V1-Risikoscope
+`adroom.secretariat_foreign_booking_intervention` des optionalen
+Datenschutz-Centers. Fehlender oder deaktivierter Provider, ausbleibende
+Antwort, Deny, Vertragsinkompatibilität und Providerfehler bleiben
+fail-closed. Das Datenschutz-Center liefert dabei weder Kunden-, Policy-,
+Vereinbarungs- noch DPO-Details. Die Buchungsänderung beziehungsweise
+-löschung, der append-only Nachweis und die persistente Outbox werden in einer
+Datenbanktransaktion gespeichert. Audit- oder Outbox-Schreibfehler rollen die
+Fachmutation zurück; ein Fehler der erst nach dem Commit versuchten nativen
+Benachrichtigung lässt die Änderung bestehen und wird aus der Queue genau nach
+5 Minuten, 1 Stunde und 24 Stunden wiederholt. Erfolgreiche Queuezeilen werden
+sofort gelöscht, dauerhaft fehlgeschlagene samt minimalem Fehlercode nach 30
+Tagen. Das Audit enthält weder Titel noch Zweck oder Eigentümer-UID und wird
+zwölf Monate nach dem Eingriff vollständig gelöscht. Seine API ist nur für
+`Datenschutzbeauftragte` lesbar; ein Betriebsratszugriff wird nicht als
+Produktrolle hardcodiert. Normale Raumansicht, eigene Buchungen und der
+getrennte temporäre Admin-Vollzugriff verwenden den Scopevertrag nicht.
+
 Der temporäre fachliche Admin-Vollzugriff wird ausschließlich von Mitgliedern
 der kanonischen Nextcloud-Gruppe `Datenschutzbeauftragte` erteilt und
 widerrufen. Nativer Adminstatus allein erteilt weder Vollzugriff noch Zugriff
@@ -60,13 +81,12 @@ den Planungsbedarf nicht abbildet. Die Oberfläche muss deshalb sichtbar zur
 Datenminimierung auffordern und Namen, Gesundheits-, Fall- sowie andere
 unnötige Drittpersonenangaben ausdrücklich ausschließen.
 
-Organisationszuordnung, Seiten-/API-Zugriff und Freititelprojektion sind in
-der Laufzeit serverseitig umgesetzt. Bis Sekretariatsverwaltung,
-Begründungs- und Auditpflicht sowie Benachrichtigung mit positiven und
-negativen Servertests umgesetzt sind, ist dieser verbleibende Teil des
-Zielvertrags nicht als produktionsreif zu behandeln. Der
-Datenschutzprovider liefert weiterhin nur app-eigene, typisierte
-Buchungsbezüge und redigiert freie Titel.
+Organisationszuordnung, Seiten-/API-Zugriff, Freititelprojektion,
+Sekretariatsverwaltung, Begründungs- und Auditpflicht sowie persistente
+Benachrichtigungswiederholung sind serverseitig umgesetzt. Die reale
+Nextcloud-Runtimeabnahme von Migration, nativer Benachrichtigung und Jobs
+bleibt ein Release-Gate. Der Datenschutzprovider liefert weiterhin nur
+app-eigene, typisierte Buchungsbezüge und redigiert freie Titel.
 
 Der kanonische Policykatalog liegt unter
 `resources/privacy-processing.json`. Der optionale
@@ -75,19 +95,25 @@ Datei und registriert sie lazy über den öffentlichen V1-Vertrag von
 `filzmann_data_protection`. Der Katalog umfasst die Verarbeitung von
 Raumbuchungen, der temporären Adminfreigabehistorie und der persönlichen
 Admin-Kartenanordnung. Er enthält keine Laufzeitdatensätze und führt keine
-Retention-Maßnahme aus.
+Retention-Maßnahme aus. Als auslieferbare Metadatenquelle enthält er keine
+kunden- oder instanzspezifische Rechtsgrundlage, verantwortliche Organisation,
+Vereinbarung oder Evidenz. Diese Zuordnung wird je Installation außerhalb des
+Produktpakets dokumentiert; ihr Fehlen wird nicht durch technische Defaults
+ersetzt.
 
 Für beendete Raumbuchungen gilt ein Jahr ab Buchungsende als administrativ
 konfigurierbarer Standardwert. Mitglieder der Nextcloud-Gruppe
-`Datenschutzbeauftragte` dürfen die Frist verkürzen oder verlängern; eine
-Änderung wird anhand des ursprünglichen Buchungsendes auch auf bereits
-vorhandene Buchungen angewendet. Derselbe versionierte Konfigurationsvertrag
-führt für die Adminfreigabehistorie sechs Monate ab ihrem tatsächlichen Ende
-als Standardwert. Jede Änderung enthält Revision, Wirksamkeitszeitpunkt und
-Akteur; abgewiesene, veraltete oder beschädigte Änderungen verändern die
-Historie nicht. Die Policyänderung wird mindestens 24 Monate auditierbar
-gehalten und mindestens jährlich durch diese Gruppe überprüft. Bis zur ersten
-dokumentierten Konfiguration oder Prüfung gilt der Review als fällig.
+`Datenschutzbeauftragte` dürfen die Buchungsfrist innerhalb von 30 Tagen bis
+drei Jahren verkürzen oder verlängern; eine neue, nicht rückdatierte Revision
+wird für Buchungen anhand der bei ihrem ursprünglichen Buchungsende wirksamen
+Policy ausgewertet. Derselbe versionierte Konfigurationsvertrag führt für die
+Adminfreigabehistorie unveränderlich sechs Monate ab ihrem tatsächlichen Ende
+als empfohlenen Standardwert. Jede Änderung enthält Revision,
+Wirksamkeitszeitpunkt und Akteur; abgewiesene, veraltete oder beschädigte
+Änderungen verändern die Historie nicht. Die Policyänderung wird mindestens
+24 Monate auditierbar gehalten und mindestens jährlich durch diese Gruppe
+überprüft. Bis zur ersten dokumentierten Konfiguration oder Prüfung gilt der
+Review als fällig.
 Nach Fristablauf wird die Buchung vollständig gelöscht; es verbleibt weder
 ein anonymisierter Rest noch eine Statistik. Eine aktive rechtliche oder
 datenschutzrechtliche Sperre blockiert die Löschung, begrenzt die Nutzung auf
@@ -96,29 +122,38 @@ begründet und auditiert aufgehoben werden. Nach einem Restore wird die Frist
 vom ursprünglichen Buchungsende neu bewertet und eine abgelaufene ungesperrte
 Buchung erneut zur Löschung eingeplant.
 
-Der öffentliche V1-Provider projiziert beide Datenklassen mit der aktuellen
-Policyrevision, berechnet den Stichtag bei jeder Vorschau aus dem
-ursprünglichen Ende und liefert ausschließlich `REVIEW`; er besitzt keine
-`execute()`-Methode. Dies ist noch kein ausführender Runtimevertrag. Die spätere Löschung läuft
-automatisch ohne manuelle Einzelfreigabe. Nach automatischen
-Wiederholungsversuchen erhält `Datenschutzbeauftragte` nur App, Datenklasse,
-Zeitpunkt und technische Referenz; der inhaltsarme Fehlernachweis wird nach
-30 Tagen gelöscht. Bis Policyversion und Wirksamkeitszeitpunkt, Reihenfolge,
-Atomarität, Nebenläufigkeit, Idempotenz, betriebliche Backupgrenze,
-Sperrdurchsetzung, Auditvollständigkeit, Fehlerrückbau und
-Provider-/Consumer-Verhalten freigegeben und getestet sind, bleibt Retention
-ausschließlich eine lesende `REVIEW`-Vorschau. Insbesondere fehlen derzeit
-ein technisch durchgesetzter Hold-Datensatz samt Setzen/Aufheben/Audit und
-Prüftermin, die betriebliche Backupentscheidung sowie der nebenläufigkeits-
-und fehlerrückbaufeste Ausführungs- und Wiederholungsnachweis.
+Der öffentliche V1-Provider bleibt eine read-only Vorschau ohne
+`execute()`-Methode. Der getrennte V2-Provider bietet die beiden ausdrücklich
+versionierten DELETE-Policies `room_booking_delete` und
+`temporary_admin_access_history_delete` an. Er ermittelt Kandidaten aus den
+app-eigenen Repositories, prüft Policyversion, Fälligkeit, Ausführungstoken,
+aktuellen Datensatz und Hold unmittelbar vor der Mutation erneut und löscht
+nur innerhalb der app-eigenen Transaktionsgrenze. Veraltete, manipulierte,
+zwischenzeitlich geänderte oder gesperrte Kandidaten werden ohne verbotene
+Nebenwirkung abgewiesen.
 
-Diese Vorschau registriert sich lazy über den öffentlichen
-V1-`RegisterRetentionProvidersEvent` von `filzmann_data_protection`.
-Die app-eigene Abfrage bleibt Eigentum des Raumplaners und liefert globale
-Treffer seitenweise mit opaker Fortsetzung; UID, freier Titel und Zweck
-verlassen diesen Retentionpfad nicht. Ein fehlendes, deaktiviertes oder
-inkompatibles Datenschutz-Center ist ein expliziter Standalone-Zustand und
-kein Anlass für einen LocalBase-, SQL- oder Reflection-Fallback.
+Die Ausführung startet im Datenschutz-Center standardmäßig deaktiviert. Nur
+native Nextcloud-Administration kann sie über die dortige technische
+Aktivierungsrevision ein- oder ausschalten. Kundenlokale Rechtsgrundlagen,
+Betriebs- oder Dienstvereinbarungen, DPO-/Betriebsratsbestätigungen und
+Evidenzreferenzen sind weder Felder dieser Aktivierung noch technische
+DELETE-Gates. Fail-closed bleiben dagegen fehlende, deaktivierte, zukünftige,
+fällige oder beschädigte Aktivierung, nicht aktuelle Backup-/Restore-
+Prüfzeitpunkte, unzulässige Backupgrenzen, Policy- oder
+Providerinkompatibilität, Holds, Integritäts- und Nebenläufigkeitskonflikte
+sowie nicht atomar ausführbare Löschungen. Die technische Backupgrenze liegt
+bei 1 bis 365 Tagen plus 0 bis 5 Tagen Puffer; der nächste technische
+Prüftermin darf höchstens ein Jahr entfernt liegen.
+
+V1 und V2 registrieren sich lazy über die öffentlichen Verträge von
+`filzmann_data_protection`. Die app-eigene Abfrage und Löschung bleiben
+Eigentum des Raumplaners; UID, freier Titel und Zweck verlassen den
+Retentionpfad nicht. Ein fehlendes, deaktiviertes oder inkompatibles
+Datenschutz-Center ist ein expliziter Standalone-Zustand, in dem keine
+automatische Löschung läuft, und kein Anlass für einen LocalBase-, SQL- oder
+Reflection-Fallback. Die reale Datenbank-, Migrations-, Job-,
+Nebenläufigkeits- und Restore-Abnahme des V2-Piloten steht noch aus; aus den
+lokalen Unit- und Contract-Tests folgt kein Releaseurteil.
 
 Die Katalogwerte sind die künftige kanonische Policyquelle. Die bestehenden
 Projektionen in `RoomPersonalDataProvider` und `RoomRetentionProvider` bleiben

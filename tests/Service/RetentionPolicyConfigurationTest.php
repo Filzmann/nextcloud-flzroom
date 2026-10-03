@@ -46,8 +46,8 @@ namespace {
     }
     if (!$service->canConfigure()) throw new RuntimeException('Datenschutzbeauftragte können die Policy nicht konfigurieren.');
 
-    $saved = $service->save(['durationPeriod' => 'P18M', 'adminHistoryDurationPeriod' => 'P9M', 'expectedRevision' => 0]);
-    if ($saved['revision'] !== 1 || $saved['durationPeriod'] !== 'P18M' || $saved['adminHistoryDurationPeriod'] !== 'P9M' || $saved['changedBy'] !== 'dpo') {
+    $saved = $service->save(['durationPeriod' => 'P18M', 'adminHistoryDurationPeriod' => 'P6M', 'expectedRevision' => 0]);
+    if ($saved['revision'] !== 1 || $saved['durationPeriod'] !== 'P18M' || $saved['adminHistoryDurationPeriod'] !== 'P6M' || $saved['changedBy'] !== 'dpo') {
         throw new RuntimeException('Eine gültige Policyänderung wird nicht versioniert und akteursgebunden gespeichert.');
     }
     if (count($service->history()) !== 1 || $service->reviewDue()) {

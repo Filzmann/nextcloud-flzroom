@@ -16,6 +16,7 @@ final class RoomAccessService {
         private IGroupManager $groups,
         private TemporaryAdminAccessChecker $temporaryAdminAccess,
         private OrganizationGroupPolicyService $organizationGroups,
+        private ?SecretariatForeignBookingInterventionGuard $foreignIntervention = null,
     ) {}
     public function currentUser(): ?IUser { return $this->session->getUser(); }
     public function currentUid(): string { return $this->currentUser()?->getUID() ?? ''; }
@@ -32,6 +33,13 @@ final class RoomAccessService {
     public function canManageBooking(Booking $booking): bool {
         $uid = $this->currentUid();
         return $this->canManageRooms() || ($this->canView() && $uid !== '' && hash_equals($booking->userUid(), $uid));
+    }
+    public function isOwnBooking(Booking $booking): bool {
+        $uid = $this->currentUid();
+        return $uid !== '' && hash_equals($booking->userUid(), $uid);
+    }
+    public function canInterveneInBooking(Booking $booking): bool {
+        return $this->foreignIntervention?->allows($booking) ?? false;
     }
     public function canViewBookingTitle(Booking $booking): bool {
         $uid = $this->currentUid();

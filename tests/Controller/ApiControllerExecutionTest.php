@@ -48,11 +48,30 @@ namespace OCA\AdRoom\Service {
     final class RoomAccessService {
         public bool $view = true;
         public bool $manageBooking = true;
+        public bool $ownBooking = true;
         public bool $manageRooms = true;
         public function canView(): bool { return $this->view; }
         public function currentUid(): string { return 'anna'; }
         public function canManageBooking(object $booking): bool { return $this->manageBooking; }
+        public function isOwnBooking(object $booking): bool { return $this->ownBooking; }
         public function canManageRooms(): bool { return $this->manageRooms; }
+    }
+
+    final class SecretariatBookingInterventionService {
+        public bool $allowed = false;
+        public array $updates = [];
+        public array $deletes = [];
+        public function update(int $id, int $roomId, string $start, string $end, string $purpose, string $title, string $reason): int {
+            if (!$this->allowed) throw new \DomainException('Keine Berechtigung.');
+            if (strlen(trim($reason)) < 10) throw new \InvalidArgumentException('Die Begründung muss 10 bis 500 Zeichen enthalten.');
+            $this->updates[] = [$id, $roomId, $start, $end, $purpose, $title, $reason];
+            return $id;
+        }
+        public function delete(int $id, string $reason): void {
+            if (!$this->allowed) throw new \DomainException('Keine Berechtigung.');
+            if (strlen(trim($reason)) < 10) throw new \InvalidArgumentException('Die Begründung muss 10 bis 500 Zeichen enthalten.');
+            $this->deletes[] = [$id, $reason];
+        }
     }
 
     final class BookingService {
@@ -117,19 +136,21 @@ namespace {
     use OCA\AdRoom\Service\BookingService;
     use OCA\AdRoom\Service\RoomAccessService;
     use OCA\AdRoom\Service\RoomService;
+    use OCA\AdRoom\Service\SecretariatBookingInterventionService;
     use OCP\AppFramework\Http;
 
     $request = new class implements OCP\IRequest {};
     $access = new RoomAccessService();
     $bookings = new BookingService();
     $rooms = new RoomService();
+    $interventions = new SecretariatBookingInterventionService();
     $logger = new class implements Psr\Log\LoggerInterface {
         public array $errors = [];
         public array $warnings = [];
         public function error(string $message, array $context = []): void { $this->errors[] = $message; }
         public function warning(string $message, array $context = []): void { $this->warnings[] = $message; }
     };
-    $controller = new ApiController($request, $access, $bookings, $rooms, $logger);
+    $controller = new ApiController($request, $access, $bookings, $interventions, $rooms, $logger);
 
     $assert = static function (bool $condition, string $message): void {
         if (!$condition) throw new RuntimeException($message);
@@ -160,6 +181,13 @@ namespace {
     $access->manageBooking = false;
     $assert($status($controller->updateBooking(3, 1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A')) === Http::STATUS_FORBIDDEN, 'Fremde Buchung kann geändert werden.');
     $assert($status($controller->deleteBooking(3)) === Http::STATUS_FORBIDDEN, 'Fremde Buchung kann gelöscht werden.');
+    $assert($interventions->updates === [] && $interventions->deletes === [], 'Verweigerter Fremdeingriff hatte eine Nebenwirkung.');
+    $interventions->allowed = true;
+    $reason = 'Organisatorischer Raumkonflikt wurde abgestimmt.';
+    $assert($data($controller->updateBooking(3, 2, '2026-07-13T10:00', '2026-07-13T11:00', 'AT', 'Team A', $reason))['id'] === 3, 'Freigegebener Sekretariatseingriff wurde nicht geändert.');
+    $assert($data($controller->deleteBooking(3, $reason))['deleted'] === true, 'Freigegebener Sekretariatseingriff wurde nicht gelöscht.');
+    $assert($status($controller->updateBooking(3, 2, '2026-07-13T10:00', '2026-07-13T11:00', 'AT', 'Team A', 'zu kurz')) === Http::STATUS_BAD_REQUEST, 'Ungültige Eingriffsbegründung wurde akzeptiert.');
+    $interventions->allowed = false;
     $access->manageBooking = true;
     $assert($data($controller->updateBooking(3, 1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A'))['id'] === 23, 'Buchungsänderung liefert falsche ID.');
     foreach (['conflict' => Http::STATUS_CONFLICT, 'missing' => Http::STATUS_NOT_FOUND, 'generic' => Http::STATUS_BAD_REQUEST] as $mode => $expected) {

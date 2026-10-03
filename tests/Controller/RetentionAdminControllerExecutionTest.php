@@ -29,8 +29,8 @@ namespace {
     $access->allowed=true;
     if(isset($controller->settings()->getData()['retentionPolicy']))throw new RuntimeException('Technische Admin-Einstellungen legen DPO-Retention offen.');
     $policy->allowed=true;
-    $savedPolicy=$controller->savePolicy('P18M','P9M',0)->getData()['retentionPolicy'];
-    if($savedPolicy['durationPeriod']!=='P18M'||$savedPolicy['adminHistoryDurationPeriod']!=='P9M'||$policy->saves!==1)throw new RuntimeException('DPO kann gültige Retention nicht speichern.');
+    $savedPolicy=$controller->savePolicy('P18M','P6M',0)->getData()['retentionPolicy'];
+    if($savedPolicy['durationPeriod']!=='P18M'||$savedPolicy['adminHistoryDurationPeriod']!=='P6M'||$policy->saves!==1)throw new RuntimeException('DPO kann gültige Retention nicht speichern.');
     if($controller->savePolicy('invalid','P6M',1)->getStatus()!==Http::STATUS_BAD_REQUEST||$policy->saves!==2)throw new RuntimeException('Ungültige Retention wird nicht sicher abgelehnt.');
     $newLayout=['version'=>1,'scopes'=>['main'=>['order'=>['rooms','demo'],'collapsed'=>[]]],'organigram'=>['zoom'=>100]];
     if($controller->saveLayout($newLayout)->getData()['dashboardLayout']!==$newLayout||$layout->saves!==1)throw new RuntimeException('Persönliches Kartenlayout wird nicht gespeichert.');

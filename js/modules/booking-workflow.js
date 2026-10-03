@@ -28,8 +28,16 @@
 
         async remove(booking) {
             if (!window.confirm('Diese Raumbuchung löschen?')) return;
+            let reason = '';
+            if (booking.requiresInterventionReason) {
+                reason = window.prompt('Begründung (10–500 Zeichen). Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben:') ?? '';
+                if (reason.trim().length < 10 || reason.trim().length > 500) {
+                    this.notice.error(new Error('Die Begründung muss 10 bis 500 Zeichen enthalten.'), 'Die Buchung konnte nicht gelöscht werden.');
+                    return;
+                }
+            }
             try {
-                await this.repository.deleteBooking(booking.id);
+                await this.repository.deleteBooking(booking.id, { reason });
                 this.notice.success('Buchung gelöscht.');
                 await this.reload();
             } catch (error) {

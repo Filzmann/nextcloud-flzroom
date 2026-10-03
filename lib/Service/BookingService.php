@@ -57,7 +57,10 @@ final class BookingService {
             $item['startsAt'] = $booking->startsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
             $item['endsAt'] = $booking->endsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
             $item['userName'] = $this->users->get($booking->userUid())?->getDisplayName() ?: $booking->userUid();
-            $item['canManage'] = $access->canManageBooking($booking);
+            $canManageNormally = $access->canManageBooking($booking);
+            $canIntervene = !$canManageNormally && $access->canInterveneInBooking($booking);
+            $item['canManage'] = $canManageNormally || $canIntervene;
+            $item['requiresInterventionReason'] = $canIntervene;
             if (!$access->canViewBookingTitle($booking)) unset($item['title']);
             $bookingItems[] = $item;
         }

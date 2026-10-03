@@ -13,7 +13,8 @@ const roomWorkflowSource=readFileSync(new URL('../../js/modules/room-workflow.js
 const adminTemplate=readFileSync(new URL('../../templates/admin.php',import.meta.url),'utf8');
 const retentionPolicySource=readFileSync(new URL('../../js/retention-policy.js',import.meta.url),'utf8');
 const sources=['models/room.js','models/booking.js','repositories/room-repository.js','components/booking-dialog.js','components/room-settings.js','main.js','admin.js'].map((file)=>readFileSync(new URL(`../../js/${file}`,import.meta.url),'utf8')).join('\n')+calendarSource+wallTimeSource+timelineSource+workflowSource+roomWorkflowSource;
-for(const contract of ['class Room extends BaseModel','class Booking extends BaseModel','class RoomRepository extends BaseRepository','this.post(\'/api/bookings\'','class MonthCalendar','class BookingDialog','class BookingWorkflow','class RoomSettings','class RoomWorkflow','adroom:add-booking','adr-admin-room-body','canManageRooms','window.confirm','this.title = String','title: String(values.get']) if(!sources.includes(contract)) throw new Error(`Frontendvertrag fehlt: ${contract}`);
+for(const contract of ['class Room extends BaseModel','class Booking extends BaseModel','class RoomRepository extends BaseRepository','this.post(\'/api/bookings\'','class MonthCalendar','class BookingDialog','class BookingWorkflow','class RoomSettings','class RoomWorkflow','adroom:add-booking','adr-admin-room-body','canManageRooms','window.confirm','this.title = String','title: String(values.get','requiresInterventionReason','reason: String(values.get']) if(!sources.includes(contract)) throw new Error(`Frontendvertrag fehlt: ${contract}`);
+for(const contract of ['name="reason"','minlength="10"','maxlength="500"','Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben']) if(!indexTemplate.includes(contract)) throw new Error(`Datenminimierter Begründungsvertrag fehlt: ${contract}`);
 for(const contract of ['const sequence = ++loadSequence','if (sequence !== loadSequence) return;','if (sequence === loadSequence) notice.error','let month = formatMonth(new Date())']) if(!sources.includes(contract)) throw new Error(`Monatsladevertrag fehlt: ${contract}`);
 for(const contract of ['class BookingTimeline','adr-day-schedule','gridTemplateRows = this.timeline.rows(points)','gridRow = `${this.timeline.line','points(bookings)','rows(points)']) if(!sources.includes(contract)) throw new Error(`Gemeinsamer Zeitachsenvertrag fehlt: ${contract}`);
 for(const contract of ['this.opener = document.activeElement','this.errorNode','showError(error, fallback)','this.opener?.focus()']) if(!sources.includes(contract)) throw new Error(`Dialogvertrag fehlt: ${contract}`);
@@ -32,13 +33,14 @@ if(calculator.minute(offsetTimestamp)!==185) throw new Error('Die Zeitachse vers
 if(calendar.dateKey(offsetTimestamp)!=='2026-08-02'||calendar.time(offsetTimestamp)!=='03:05') throw new Error('Der Kalender verschiebt fachliche Buchungszeiten in die Browserzeitzone.');
 const localParts=dialog.localParts(offsetTimestamp);
 if(localParts.date!=='2026-08-02'||localParts.time!=='03:05') throw new Error('Der Bearbeitungsdialog verschiebt fachliche Buchungszeiten in die Browserzeitzone.');
-const workflowContext={window:{confirm:()=>true}}; runInNewContext(workflowSource,workflowContext,{filename:fileURLToPath(new URL('../../js/modules/booking-workflow.js',import.meta.url))}); const calls=[];
+const workflowContext={window:{confirm:()=>true,prompt:()=> 'Abgestimmter organisatorischer Raumkonflikt.'}}; runInNewContext(workflowSource,workflowContext,{filename:fileURLToPath(new URL('../../js/modules/booking-workflow.js',import.meta.url))}); const calls=[];
 const workflow=new workflowContext.window.AdRoom.BookingWorkflow({
-    repository:{createBooking:async(payload)=>calls.push(['create',payload]),updateBooking:async(id,payload)=>calls.push(['update',id,payload]),deleteBooking:async(id)=>calls.push(['delete',id])},
+    repository:{createBooking:async(payload)=>calls.push(['create',payload]),updateBooking:async(id,payload)=>calls.push(['update',id,payload]),deleteBooking:async(id,payload)=>calls.push(['delete',id,payload])},
     notice:{success:(message)=>calls.push(['success',message]),error:(error,message)=>calls.push(['error',message])},dialog:{close:()=>calls.push(['close']),showError:(error,message)=>calls.push(['dialog-error',message])},reload:async()=>calls.push(['reload']),
 });
-await workflow.save({id:0,payload:{title:'Team'}}); await workflow.save({id:7,payload:{title:'Sitzung'}}); await workflow.remove({id:7});
+await workflow.save({id:0,payload:{title:'Team'}}); await workflow.save({id:7,payload:{title:'Sitzung',reason:'Abgestimmter organisatorischer Raumkonflikt.'}}); await workflow.remove({id:7,requiresInterventionReason:true});
 if(calls.filter(call=>call[0]==='create').length!==1||calls.filter(call=>call[0]==='update').length!==1||calls.filter(call=>call[0]==='delete').length!==1) throw new Error('Buchungsworkflow unterscheidet Anlegen, Bearbeiten und Löschen nicht korrekt.');
+if(calls.find(call=>call[0]==='delete')?.[2]?.reason!=='Abgestimmter organisatorischer Raumkonflikt.') throw new Error('Löschender Sekretariatseingriff übermittelt keine Pflichtbegründung.');
 workflow.repository.createBooking=async()=>{throw new Error('belegt');};
 await workflow.save({id:0,payload:{title:'Konflikt'}});
 if(calls.filter(call=>call[0]==='dialog-error').length!==1||calls.some(call=>call[0]==='error')) throw new Error('Fehler beim Speichern wird nicht im aktiven Buchungsdialog angezeigt.');

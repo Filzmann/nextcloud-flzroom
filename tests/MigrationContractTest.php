@@ -14,4 +14,14 @@ foreach (['adr_admin_access', 'target_uid', 'granted_by', 'starts_at', 'ends_at'
 }
 if (!str_contains($adminAccess, "if (!\$schema->hasTable('adr_admin_access'))")) throw new RuntimeException('Admin-Auditmigration muss wiederholbar additiv sein.');
 
+$intervention = file_get_contents(__DIR__ . '/../lib/Migration/Version000003Date202609290001.php');
+if ($intervention === false) throw new RuntimeException('Additive Migration für Sekretariatseingriffe fehlt.');
+foreach (['adr_booking_audit', 'actor_uid', 'booking_id', 'old_room_name', 'new_room_name', 'reason', 'adr_notify_queue', 'recipient_uid', 'attempt_count', 'next_attempt_at', 'failed_at', 'error_code'] as $contract) {
+    if (!str_contains($intervention, $contract)) throw new RuntimeException("Sekretariatseingriffsmigration ist unvollständig: {$contract}");
+}
+foreach (['adr_booking_audit', 'adr_notify_queue'] as $table) {
+    if (!str_contains($intervention, "if (!\$schema->hasTable('{$table}'))")) throw new RuntimeException("Migration ist für {$table} nicht wiederholbar additiv.");
+}
+if (!str_contains($intervention, 'InterventionNotificationJob::class')) throw new RuntimeException('Wiederholbarer Queue-/Retention-Job wird nicht registriert.');
+
 echo "AD Raumplaner migration contract test passed\n";

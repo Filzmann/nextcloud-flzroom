@@ -110,7 +110,7 @@ namespace {
         public function now(): DateTimeImmutable { return new DateTimeImmutable('2026-08-12T12:00:00+00:00'); }
     };
     $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock);
-    $policy->save(['durationPeriod' => 'P5D', 'adminHistoryDurationPeriod' => 'P9M', 'expectedRevision' => 0]);
+    $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'expectedRevision' => 0]);
     $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     if (count($report->entries()) !== 4 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie, persönliche Adminlayouts oder Policybearbeitungen der betroffenen UID aus.');
@@ -122,9 +122,9 @@ namespace {
     foreach (['02.08.26', '03:05 bis 03:10 Uhr', 'Planung der Raumnutzung'] as $expected) {
         if (!str_contains(json_encode($item, JSON_THROW_ON_ERROR), $expected)) throw new RuntimeException("Menschenlesbare Raumbuchung fehlt: {$expected}");
     }
-    if (!str_contains($item['retention'] ?? '', '07.08.26')) throw new RuntimeException('Datensatzbezogenes Retention-Datum fehlt.');
+    if (!str_contains($item['retention'] ?? '', '01.09.26')) throw new RuntimeException('Datensatzbezogenes Retention-Datum fehlt.');
     if (!in_array('Alle angemeldeten Nutzer*innen der Instanz', $item['recipientCategories'], true)
-        || !str_contains($item['retention'], '07.08.26')
+        || !str_contains($item['retention'], '01.09.26')
         || !str_contains($item['automatedDecision'], 'Kollisionsprüfung')
         || !str_contains((string)$item['thirdPartyContentNotice'], 'Freitext')) {
         throw new RuntimeException('Art.-15-Verarbeitungsangaben des Raumplaners fehlen oder sind unzutreffend.');
@@ -144,8 +144,8 @@ namespace {
     }
     $policyAudit = $report->entries()[3]->toArray();
     if ($policyAudit['reference'] !== 'retention-policy:1'
-        || ($policyAudit['attributes']['Aufbewahrungsfrist Raumbuchungen'] ?? null) !== 'P5D'
-        || ($policyAudit['attributes']['Aufbewahrungsfrist Adminfreigaben'] ?? null) !== 'P9M'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Raumbuchungen'] ?? null) !== 'P30D'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Adminfreigaben'] ?? null) !== 'P6M'
         || str_contains(json_encode($policyAudit, JSON_THROW_ON_ERROR), 'foreign-user')) {
         throw new RuntimeException('Die eigene Policybearbeitung fehlt oder legt eine fremde Kennung offen.');
     }
@@ -179,7 +179,7 @@ namespace {
     array_pop($repository->items);
 
     $repository->items[] = Booking::get(['id' => 4, 'roomId' => 2, 'userUid' => 'foreign', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-01-01T08:00:00+00:00', 'endsAt' => '2025-01-01T09:00:00+00:00']);
-    $repository->items[] = Booking::get(['id' => 5, 'roomId' => 2, 'userUid' => 'user-17', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-02-01T08:00:00+00:00', 'endsAt' => '2025-02-01T09:00:00+00:00']);
+    $repository->items[] = Booking::get(['id' => 5, 'roomId' => 2, 'userUid' => 'user-17', 'purpose' => 'Alt', 'title' => 'Nicht ausgeben', 'startsAt' => '2025-01-05T08:00:00+00:00', 'endsAt' => '2025-01-05T09:00:00+00:00']);
     $adminHistory = new TemporaryAdminAccessRepository();
     $adminHistory->items = [[
         'id'=>11,'targetUid'=>'admin-target','grantedBy'=>'dpo',
@@ -191,7 +191,7 @@ namespace {
     $policies = $retention->policies();
     if (count($policies) !== 2
         || ($policies[0]->toArray()['version'] ?? null) !== '1.1'
-        || ($policies[1]->toArray()['durationPeriod'] ?? null) !== 'P9M'
+        || ($policies[1]->toArray()['durationPeriod'] ?? null) !== 'P6M'
         || ($policies[1]->toArray()['version'] ?? null) !== '1.1') {
         throw new RuntimeException('Die beiden app-lokalen Retention-Policies sind nicht gemeinsam versioniert projiziert.');
     }
@@ -207,7 +207,7 @@ namespace {
     }
     if ($repository->deleteCalls !== 0) throw new RuntimeException('Retention-Preview verändert Buchungen.');
     $adminPreview = $retention->preview(new RetentionPreviewRequest('temporary_admin_access_history_review', '2025-02-10T12:00:00+00:00', 20));
-    if (($adminHistory->previewRequests[0][0] ?? null) !== '2024-05-10T12:00:00+00:00'
+    if (($adminHistory->previewRequests[0][0] ?? null) !== '2024-08-10T12:00:00+00:00'
         || $adminPreview->status() !== 'complete'
         || ($adminPreview->candidates()[0]->toArray()['occurredAt'] ?? null) !== '2024-01-10T09:00:00+00:00') {
         throw new RuntimeException('Die Adminfreigabehistorie wird nicht ab ihrem tatsächlichen Ende mit der aktuellen Frist neu bewertet.');

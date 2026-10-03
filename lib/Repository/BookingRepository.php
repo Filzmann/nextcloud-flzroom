@@ -191,6 +191,23 @@ final class BookingRepository {
             ->executeStatement();
     }
 
+    public function findForUpdate(int $id): ?Booking {
+        $qb=$this->db->getQueryBuilder();
+        $query=$qb->select('id','room_id','user_uid','purpose','title','starts_at','ends_at')->from('adr_bookings')
+            ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)));
+        if (method_exists($query,'forUpdate')) $query->forUpdate();
+        $row=$query->executeQuery()->fetchAssociative();
+        return$row===false?null:Booking::get($this->mapRow($row));
+    }
+
+    public function deleteIfEndedAt(int $id, DateTimeImmutable $endedAt): bool {
+        $qb=$this->db->getQueryBuilder();
+        return$qb->delete('adr_bookings')
+            ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)))
+            ->andWhere($qb->expr()->eq('ends_at',$qb->createNamedParameter($endedAt,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
+            ->executeStatement()>0;
+    }
+
     private function mapRow(array $row): array {
         $utc = new DateTimeZone('UTC');
 

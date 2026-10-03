@@ -22,8 +22,8 @@
             return this.request(`/api/bookings/${this.encode(id)}`, { method: 'PUT', body: JSON.stringify(payload) });
         }
 
-        deleteBooking(id) {
-            return this.request(`/api/bookings/${this.encode(id)}`, { method: 'DELETE' });
+        deleteBooking(id, payload = {}) {
+            return this.request(`/api/bookings/${this.encode(id)}`, { method: 'DELETE', body: JSON.stringify(payload) });
         }
 
         createRoom(payload) {

@@ -118,6 +118,12 @@ if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('adroom','main');
             <datalist id="adr-purpose-options"><option value="AT"><option value="Sitzung"><option value="BQ"><option value="Fortbildung"><option value="SV"><option value="HB"><option value="LG"></datalist>
             <label>Titel <input name="title" maxlength="255" aria-describedby="adr-title-hint" required></label>
             <small id="adr-title-hint">Nur notwendige Sachangaben, zum Beispiel Gremium oder Thema. Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben.</small>
+            <div id="adr-intervention-reason-group" hidden>
+                <label>Begründung des Sekretariatseingriffs
+                    <textarea name="reason" minlength="10" maxlength="500" aria-describedby="adr-intervention-reason-hint"></textarea>
+                </label>
+                <small id="adr-intervention-reason-hint">10–500 Zeichen. Nur den organisatorischen Grund angeben. Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben.</small>
+            </div>
             <div id="adr-booking-error" class="adr-notice is-error" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
             <footer><button type="button" data-dialog-close>Abbrechen</button><button type="submit" class="primary">Speichern</button></footer>
         </form>

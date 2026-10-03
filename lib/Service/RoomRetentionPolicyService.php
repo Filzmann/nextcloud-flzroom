@@ -52,10 +52,21 @@ final class RoomRetentionPolicyService {
         ];
     }
 
+    /** Policy active when the record's retention trigger occurred; later revisions never shorten older records retroactively. */
+    public function policyFor(DateTimeImmutable $triggerAt): array {
+        $selected=['revision'=>0,'durationPeriod'=>self::DEFAULT_PERIOD,'adminHistoryDurationPeriod'=>self::DEFAULT_ADMIN_HISTORY_PERIOD,'effectiveAt'=>null];
+        foreach($this->history() as $entry){
+            if(($entry['event']??null)!=='configured'||!is_string($entry['effectiveAt']??null))continue;
+            if(new DateTimeImmutable($entry['effectiveAt'])<=$triggerAt)$selected=$entry;
+        }
+        return$selected;
+    }
+
     public function save(array $policy): array {
         $uid = $this->requireConfigurator();
         $period = $this->validatePeriod($policy['durationPeriod'] ?? null);
         $adminHistoryPeriod = $this->validatePeriod($policy['adminHistoryDurationPeriod'] ?? null);
+        if($adminHistoryPeriod!==self::DEFAULT_ADMIN_HISTORY_PERIOD)throw new InvalidArgumentException('Die Adminfreigabehistorie hat die feste Frist P6M.');
         $expected = $this->validateExpectedRevision($policy['expectedRevision'] ?? null);
         $history = $this->history();
         $this->assertRevision($history, $expected);
@@ -137,8 +148,9 @@ final class RoomRetentionPolicyService {
     private function validatePeriod(mixed $period): string {
         if(!is_string($period)||!preg_match('/^P([1-9][0-9]*)([YMD])$/',$period,$matches)) throw new InvalidArgumentException('Retention-Frist ist ungültig.');
         $amount=(int)$matches[1];
-        $valid=match($matches[2]){'Y'=>$amount<=10,'M'=>$amount<=120,'D'=>$amount<=3650};
-        if(!$valid) throw new InvalidArgumentException('Retention-Frist ist ungültig.');
+        try{$days=(new DateTimeImmutable('2024-01-01T00:00:00+00:00'))->diff((new DateTimeImmutable('2024-01-01T00:00:00+00:00'))->add(new DateInterval($period)))->days;}
+        catch(Throwable){$days=false;}
+        if($days===false||$days<30||$days>1096) throw new InvalidArgumentException('Retention-Frist muss zwischen 30 Tagen und 3 Jahren liegen.');
         return $period;
     }
     private function validateExpectedRevision(mixed $revision): int {

@@ -16,6 +16,7 @@
             this.startsAt = String(data.startsAt || '');
             this.endsAt = String(data.endsAt || '');
             this.canManage = Boolean(data.canManage);
+            this.requiresInterventionReason = Boolean(data.requiresInterventionReason);
         }
 
         toArray() {
@@ -29,6 +30,7 @@
                 startsAt: this.startsAt,
                 endsAt: this.endsAt,
                 canManage: this.canManage,
+                requiresInterventionReason: this.requiresInterventionReason,
             };
         }
     }

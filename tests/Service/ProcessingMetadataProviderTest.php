@@ -18,7 +18,7 @@ namespace {
     if ($provider->descriptor()->appId() !== 'adroom' || $catalog->appId() !== 'adroom') {
         throw new RuntimeException('Processing-Metadata-Provider und Katalog verwenden nicht die kanonische App-ID.');
     }
-    if ($catalog->processingIds() !== ['room_booking_management', 'temporary_admin_full_access', 'personal_admin_layout']) {
+    if ($catalog->processingIds() !== ['room_booking_management', 'secretariat_foreign_booking_intervention', 'temporary_admin_full_access', 'personal_admin_layout']) {
         throw new RuntimeException('Der app-lokale Processing-Katalog ist unvollständig.');
     }
     if (array_key_exists('personal_runtime_data', $catalog->toArray())) {

@@ -35,6 +35,20 @@ gesperrt. Der sichere Eintrittshinweis ist nur für betroffene native
 Administrationskonten sichtbar und verlinkt die Freigabesteuerung nur bei
 gleichzeitiger Datenschutzrolle.
 
+Der technische Guard für den begründeten Sekretariatseingriff in
+fremde Buchungen fragt optional den neutralen V1-Risikoscope des
+Datenschutz-Centers ab. Fehlende, deaktivierte, abgelaufene oder inkompatible
+Freigaben sperren fail-closed; der Raumplaner erhält keine kundenlokalen
+Policy-, Vereinbarungs- oder DPO-Daten. Mitglieder von `ad-Sekretariat`
+können bei aktiver Freigabe fremde Buchungen mit einer Begründung von 10 bis
+500 Zeichen ändern oder löschen. Mutation, minimiertes Audit und persistente
+Benachrichtigungsqueue werden atomar gespeichert. Das Audit wird nach zwölf
+Monaten gelöscht; Zustellungen werden nach fünf Minuten, einer Stunde und 24
+Stunden wiederholt, erfolgreiche Queuezeilen sofort und dauerhaft
+fehlgeschlagene Einträge nach 30 Tagen gelöscht. Eigene Buchungen, normale
+Raumfunktionen und der getrennte temporäre Admin-Vollzugriff bleiben davon
+unabhängig.
+
 Feiertage, Buchungszeiten und Monatsgrenzen richten sich nach dem gemeinsamen Kalenderkontext der AD-Suite. Land, Region und fachliche Zeitzone werden zentral durch die Administration gepflegt; ohne Änderung gilt Deutschland/Berlin.
 
 ## Datenschutz
@@ -55,6 +69,9 @@ Raumbuchungen, temporäre Adminfreigaben und die persönliche Adminanordnung,
 ohne personenbezogene Laufzeitdaten zu enthalten. Offene fachliche
 Entscheidungen bleiben ausdrücklich `PRIVACY-DECISION-REQUIRED`; insbesondere
 werden daraus keine automatische Löschung oder Anonymisierung abgeleitet.
+Das Produktpaket enthält außerdem keine kunden- oder instanzspezifische
+Rechtsgrundlage, verantwortliche Organisation, Vereinbarung oder Evidenz;
+diese Zuordnung ist je Installation außerhalb des Pakets zu dokumentieren.
 
 ## Roadmap
 

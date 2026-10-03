@@ -10,15 +10,10 @@ app-lokale Fachrechte zur Raumverwaltung und zur Konfliktlösung durch
 begründete Änderung oder Löschung fremder Buchungen; diese Rolle ist kein
 temporärer technischer Admin-Vollzugriff.
 
-Offen sind die verpflichtende Begründung und app-lokale Auditierung, die
-datensparsame Nextcloud-Benachrichtigung an die betroffene buchende Person
-sowie Fremdobjekt-, Manipulations- und Nebenwirkungstests. Sie darf nur alten und, soweit
-anwendbar, neuen Raum und Zeitraum sowie die Begründung enthalten; andere
-Personen, Buchungen und weitere Buchungsdaten bleiben ausgeschlossen.
-Processing-Katalog, PersonalDataProvider, PermissionProvider, Retention und
-Betroffenenrechte sind für die neu gespeicherten Audit- und
-Benachrichtigungsdaten im selben Implementierungsauftrag nachzuführen. Bis
-dahin darf die Dokumentation keine bereits wirksame Einschränkung behaupten.
+Der begründete Fremdeingriff einschließlich neutralem Risikoscope, Audit,
+Benachrichtigungsqueue, festen Fristen sowie Providerprojektionen ist
+umgesetzt. Offen bleibt ausschließlich die Runtime-/Staging-Abnahme mit
+echter Nextcloud-Benachrichtigung und installierter Datenbankmigration.
 
 Diese Datei enthält ausschließlich offene Arbeit, zurückgestellte Vorhaben
 und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
@@ -29,33 +24,31 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - App-lokalen temporären Admin-Vollzugriff und seine rollenabhängige
   Freigabesteuerung in DDEV und auf Staging abnehmen.
-- Verbleibende Fachrechte von `ad-Sekretariat` für fremde Eingriffe,
-  Begründung, Audit und datensparsame Benachrichtigung nach dem entschiedenen
-  Zielvertrag testgetrieben umsetzen.
+- Fremdeingriffe, Audit und Benachrichtigungswiederholung in DDEV und auf
+  Staging mit realen Rollen und nativen Nextcloud-Benachrichtigungen abnehmen.
 - Die manuellen Prüfungen werden im ausfüllbaren
   [`docs/manual-acceptance.md`](docs/manual-acceptance.md) dokumentiert.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
 - Löschbestätigung, Zeitraster, Wochenenden und die Feiertage der administrativ gewählten Organisationsregion sichtbar und barrierefrei prüfen.
 
-## Offene Datenschutzentscheidungen
+## Offene Datenschutz- und Runtime-Nachweise
 
-- Fachliche Verantwortlichkeit und Rechtsgrundlage für Raumbuchungen,
-  temporäre Adminfreigaben und die persönliche Adminanordnung entscheiden.
-- Die entschiedene vollständige Löschung beendeter Buchungen nach Fristablauf
-  sowie der Adminfreigabehistorie sechs Monate nach tatsächlichem Ende ohne
-  Reststatistik umsetzen. Rechtliche oder datenschutzrechtliche Sperren
-  blockieren die Löschung und dürfen nur durch `Datenschutzbeauftragte`
-  begründet und auditiert aufgehoben werden. Nach Restore Fristen aus dem
-  ursprünglichen Trigger neu bewerten, abgelaufene ungesperrte Daten erneut
-  einplanen und keine Adminfreigabe reaktivieren.
-- Retention-Ausführung bis zu einem freigegebenen und getesteten Versions-,
-  Wirksamkeitszeitpunkt-, Reihenfolge-, Atomaritäts-, Nebenläufigkeits-,
-  Idempotenz-, Backupgrenz-, Sperr-, Audit-, Retry-, Fehlerdiagnostik-,
-  Fehlerrückbau- und Provider-/Consumer-Vertrag blockieren. Die spätere
-  Ausführung läuft automatisch ohne manuelle Einzelfreigabe; nach Retries
-  erhält `Datenschutzbeauftragte` nur App, Datenklasse, Zeitpunkt und
-  technische Referenz, der inhaltsarme Fehlernachweis bleibt 30 Tage. Bis
-  dahin bleibt es bei der lesenden `REVIEW`-Vorschau.
+- Den implementierten V2-DELETE-Provider für Buchungen und
+  Adminfreigabehistorien gemeinsam mit der technischen Aktivierung des
+  Datenschutz-Centers auf der unterstützten realen Datenbank- und
+  Nextcloud-Runtime abnehmen. Nachzuweisen sind frische Installation
+  beziehungsweise Reinstall, Migration, Job-Wiederanlauf, echte
+  Transaktionsgrenze, Nebenläufigkeit, Hold-Rennen, Rollback vor Commit,
+  Provider-/Consumer-Versionen und Restore-Quarantäne. Bis dahin besteht kein
+  Releaseurteil für automatische Löschung.
+- In der Runtime-Abnahme positiv und negativ belegen, dass der technische
+  Operatorpfad standardmäßig deaktiviert ist, nur native
+  Nextcloud-Administration zulässt und bei fehlender, zukünftiger, fälliger,
+  beschädigter oder veralteter Konfiguration sowie ungültiger
+  Backup-/Restore-Prüfung fail-closed bleibt. Rechtsgrundlage,
+  Betriebsvereinbarung, DPO-/Betriebsratsbestätigung und Kundenevidenz bleiben
+  außerhalb des Produktpakets und sind keine Aktivierungsfelder oder
+  technischen DELETE-Gates.
 - Den entschiedenen Lifecycle für den bereits subjectgebunden ausgegebenen
   Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umsetzen: nur der
   jeweilige Kontoinhaber darf den eigenen Wert zurücksetzen; der Wert ist beim
@@ -69,9 +62,10 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 - Persönliche Einstellungen erhalten erst bei einem konkreten dauerhaften Nutzerwert einen eigenen App-Tab.
 - Optionale Direktbuchungen aus Kalender oder Assistenzplanung können nach einem konkreten Anwendungsfall ergänzt werden; der manuelle Standalone-Betrieb bleibt erhalten.
 - Änderungswünsche zu fremden Buchungen werden vorerst weiterhin direkt
-  außerhalb der App zwischen den Beteiligten abgestimmt. Nach Umsetzung der
-  beschlossenen Fachrolle darf das Sekretariat den abgestimmten Eingriff in
-  der App ausführen; dies ist kein In-App-Anfrageworkflow. Ein späterer
+  außerhalb der App zwischen den Beteiligten abgestimmt. Das Sekretariat darf
+  den abgestimmten Eingriff über den implementierten begründeten und
+  auditierten Pfad in der App ausführen; dies ist kein In-App-Anfrageworkflow.
+  Ein späterer
   Anfrageworkflow wird erst bei einem konkreten Bedarf und nach einem eigenen
   Vertrag für Akteur*innen, Empfänger*innen, erforderliche Daten und
   Datenschutz, Zustände, Wiederholungen, Ablauf, Auditierung sowie

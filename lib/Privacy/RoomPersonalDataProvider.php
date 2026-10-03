@@ -7,6 +7,8 @@ namespace OCA\AdRoom\Privacy;
 use OCA\AdRoom\AppInfo\AppId;
 use OCA\AdRoom\Model\Booking;
 use OCA\AdRoom\Repository\BookingRepository;
+use OCA\AdRoom\Repository\BookingInterventionAuditRepository;
+use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
 use OCA\AdRoom\Repository\RoomRepository;
 use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
 use OCA\AdRoom\Service\RoomRetentionPolicyService;
@@ -27,6 +29,8 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
         private CalendarContextSettingsService $calendarContext,
         private TemporaryAdminAccessRepository $adminAccess,
         private RoomAdminLayoutService $adminLayout,
+        private ?BookingInterventionAuditRepository $interventionAudit = null,
+        private ?InterventionNotificationQueueRepository $interventionQueue = null,
     ) {}
     public function descriptor(): ProviderDescriptor {
         return new ProviderDescriptor(
@@ -57,6 +61,8 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
             $this->retentionPolicy->history(),
             static fn(array $entry): bool => $entry['changedBy'] === $request->subject()->subjectId(),
         ));
+        $interventionAudit = $this->interventionAudit?->byActor($request->subject()->subjectId(), $request->pageLimit() + 1) ?? [];
+        $interventionQueue = $this->interventionQueue?->byRecipient($request->subject()->subjectId(), $request->pageLimit() + 1) ?? [];
         $restrictions = [];
         try {
             $adminLayout = $this->adminLayout->personalDataForUid($request->subject()->subjectId());
@@ -64,7 +70,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
             $adminLayout = null;
             $restrictions[] = 'Das gespeicherte persönliche Adminlayout konnte nicht sicher ausgegeben werden.';
         }
-        $limited = count($bookings) + count($adminHistory) + count($policyHistory) + ($adminLayout === null ? 0 : 1) > $request->pageLimit();
+        $limited = count($bookings) + count($adminHistory) + count($policyHistory) + count($interventionAudit) + count($interventionQueue) + ($adminLayout === null ? 0 : 1) > $request->pageLimit();
         $items = array_map(
             static fn(Booking $booking): PersonalDataEntry => new PersonalDataEntry(
                 categoryId: 'booking',
@@ -168,6 +174,50 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
                 ],
             );
         }
+        foreach ($interventionAudit as $entry) {
+            $items[] = new PersonalDataEntry(
+                categoryId: 'secretariat-intervention-audit',
+                categoryLabel: 'Sekretariatseingriff',
+                reference: 'intervention-audit:' . $entry['id'],
+                summary: ($entry['action'] === 'delete' ? 'Löschung' : 'Änderung') . ' einer fremden Raumbuchung am ' . self::germanDateTime($entry['occurredAt']->setTimezone($timezone)),
+                purpose: 'Nachweis eines begründeten organisatorischen Eingriffs in eine fremde Raumbuchung',
+                source: 'Eigene Eingabe als Mitglied von ad-Sekretariat',
+                recipientCategories: ['Betroffene handelnde Person', 'Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte im autorisierten Prüfpfad'],
+                retention: 'Zwölf Monate ab dem Eingriff; anschließend vollständige Löschung.',
+                thirdCountryTransfer: 'Durch AD Raumplaner sind keine Drittlandübermittlungen vorgesehen.',
+                automatedDecision: 'Es findet keine automatisierte Entscheidung statt.',
+                thirdPartyContentNotice: 'Buchungstitel, Zweck, Eigentümerkennung und weitere Buchungsinhalte werden im Audit nicht gespeichert.',
+                attributes: [
+                    'Aktion' => $entry['action'] === 'delete' ? 'Löschen' : 'Ändern',
+                    'Buchungsreferenz' => (string)$entry['bookingId'],
+                    'Alter Raum und Zeitraum' => self::slot($entry['oldRoom'], $entry['oldStartsAt'], $entry['oldEndsAt'], $timezone),
+                    'Neuer Raum und Zeitraum' => $entry['newRoom'] === null ? 'entfällt' : self::slot($entry['newRoom'], $entry['newStartsAt'], $entry['newEndsAt'], $timezone),
+                    'Begründung' => $entry['reason'],
+                ],
+            );
+        }
+        foreach ($interventionQueue as $entry) {
+            $items[] = new PersonalDataEntry(
+                categoryId: 'intervention-notification-queue',
+                categoryLabel: 'Benachrichtigung zu einer Raumbuchung',
+                reference: 'intervention-notification:' . $entry['id'],
+                summary: 'Noch gespeicherter Zustellnachweis zu einer ' . ($entry['action'] === 'delete' ? 'gelöschten' : 'geänderten') . ' Raumbuchung',
+                purpose: 'Zustellung der Information über einen begründeten Sekretariatseingriff',
+                source: 'Automatisch nach einem autorisierten Sekretariatseingriff erzeugt',
+                recipientCategories: ['Betroffene buchende Person'],
+                retention: $entry['state'] === 'failed' ? 'Dreißig Tage ab dauerhaft fehlgeschlagener Zustellung; anschließend vollständige Löschung.' : 'Bei erfolgreicher Zustellung sofort löschen.',
+                thirdCountryTransfer: 'Durch AD Raumplaner sind keine Drittlandübermittlungen vorgesehen.',
+                automatedDecision: 'Die Zustellung wird nach 5 Minuten, 1 Stunde und 24 Stunden wiederholt; es findet keine automatisierte Entscheidung über eine Person statt.',
+                thirdPartyContentNotice: 'Buchungstitel, Zweck, handelnde UID und Angaben zu anderen Buchungen werden nicht gespeichert.',
+                attributes: [
+                    'Aktion' => $entry['action'] === 'delete' ? 'Löschen' : 'Ändern',
+                    'Alter Raum und Zeitraum' => self::slot($entry['oldRoom'], $entry['oldStartsAt'], $entry['oldEndsAt'], $timezone),
+                    'Neuer Raum und Zeitraum' => $entry['newRoom'] === null ? 'entfällt' : self::slot($entry['newRoom'], $entry['newStartsAt'], $entry['newEndsAt'], $timezone),
+                    'Begründung' => $entry['reason'],
+                    'Zustellstatus' => $entry['state'] === 'failed' ? 'dauerhaft fehlgeschlagen' : 'ausstehend',
+                ],
+            );
+        }
         if ($limited) {
             $items = array_slice($items, 0, $request->pageLimit());
             $restrictions[] = 'Ausgabelimit erreicht; weitere Raumbuchungen können vorhanden sein.';
@@ -186,12 +236,16 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
 
     private static function retentionFor(Booking $booking, array $policy, \DateTimeZone $timezone): string {
         $reviewAt = $booking->endsAt()->add(new \DateInterval($policy['durationPeriod']));
-        return sprintf('Keine feste Löschfrist festgelegt; ab %s zur administrativen Prüfung vorgesehen. Es erfolgt keine automatische Löschung.', self::germanDate($reviewAt->setTimezone($timezone)));
+        return sprintf('Löschfrist %s; automatische Löschung nur bei technischer Operatoraktivierung im Datenschutz-Center, sonst REVIEW.', self::germanDate($reviewAt->setTimezone($timezone)));
     }
 
     private static function germanDate(\DateTimeImmutable $date): string { return $date->format('d.m.y'); }
 
     private static function germanDateTime(\DateTimeImmutable $date): string {
         return self::germanDate($date) . ', ' . $date->format('H:i') . ' Uhr';
+    }
+
+    private static function slot(string $room, \DateTimeImmutable $start, \DateTimeImmutable $end, \DateTimeZone $timezone): string {
+        return sprintf('%s, %s bis %s', $room, self::germanDateTime($start->setTimezone($timezone)), $end->setTimezone($timezone)->format('H:i') . ' Uhr');
     }
 }

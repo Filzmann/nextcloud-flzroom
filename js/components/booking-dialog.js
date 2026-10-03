@@ -8,6 +8,7 @@
             this.form = form;
             this.onSubmit = onSubmit;
             this.errorNode = this.dialog.querySelector('#adr-booking-error');
+            this.reasonGroup = this.dialog.querySelector('#adr-intervention-reason-group');
             this.opener = null;
             this.form.addEventListener('submit', event => this.submit(event));
             this.dialog.addEventListener('cancel', event => { event.preventDefault(); this.close(); });
@@ -31,6 +32,7 @@
             this.form.elements.date.value = date;
             this.form.elements.startTime.value = '08:00';
             this.form.elements.endTime.value = '09:00';
+            this.configureReason(false);
             this.open('Raumbuchung anlegen');
         }
 
@@ -44,6 +46,7 @@
             this.form.elements.endTime.value = end.time;
             this.form.elements.purpose.value = booking.purpose;
             this.form.elements.title.value = booking.title;
+            this.configureReason(booking.requiresInterventionReason);
             this.open('Raumbuchung bearbeiten');
         }
 
@@ -84,12 +87,21 @@
                     end: `${date}T${values.get('endTime')}`,
                     purpose: String(values.get('purpose') || ''),
                     title: String(values.get('title') || ''),
+                    reason: String(values.get('reason') || ''),
                 },
             });
         }
 
         localParts(value) {
             return window.AdRoom.BookingWallTime.parts(value);
+        }
+
+        configureReason(required) {
+            const input = this.form.elements.reason;
+            this.reasonGroup.hidden = !required;
+            input.required = required;
+            input.disabled = !required;
+            input.value = '';
         }
     }
 
