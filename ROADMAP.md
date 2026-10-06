@@ -31,6 +31,31 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
 - Löschbestätigung, Zeitraster, Wochenenden und die Feiertage der administrativ gewählten Organisationsregion sichtbar und barrierefrei prüfen.
 
+## Zeitnah: Rebranding zu Filzmann Rooms und App-Store-Vorbereitung
+
+Ziel ist die spätere erste öffentliche Veröffentlichung der bestehenden
+Raumbuchungs-/Ressourcen-App als **Filzmann Rooms** im offiziellen Nextcloud
+App Store. Dieser Plan gibt weder eine Veröffentlichung noch eine
+Store-Registrierung, einen Zertifikatsantrag, eine Signierung oder einen Upload
+frei. Die Umsetzung erfolgt in getrennten, jeweils ausdrücklich beauftragten
+Arbeitsschritten.
+
+| Reihenfolge | Arbeitspaket | `execution_class` | Ziel und Abschlussgate |
+| --- | --- | --- | --- |
+| ROOM-STORE-01 | Aktuelle Store-Anforderungen und Produktfreigabe prüfen | `COMPLEX` | Zu Beginn die dann aktuellen offiziellen Nextcloud-Vorgaben für Store-Zulassung, `info.xml`, erlaubte APIs und Abhängigkeiten, Lizenz/Urheberrecht/Marken, Paketaufbau, Kompatibilität, Code Signing und Releaseprozess neu erheben. App-ID und öffentliche Namen erst nach Verfügbarkeits-, Konflikt- und Eignungsprüfung festschreiben; die zeitabhängigen Vorgaben werden vor dem Release Candidate erneut verifiziert. |
+| ROOM-STORE-02 | Zielidentität und Umbenennungsmatrix festlegen | `COMPLEX` | Den sichtbaren Namen **Filzmann Rooms** sowie die technischen Zielwerte für App-ID, PHP-Namespace, interne Identifier, Routen-/Asset-/Konfigurationsschlüssel, Übersetzungsdomäne, Paket-, Archiv- und Repository-Namen in einer einzigen Umbenennungsmatrix festhalten. Alle heutigen `adroom`-/`AdRoom`-/AD-Raumplaner-Bezüge und ihre Consumer werden inventarisiert. Erhaltungsbedarf, Fresh-Install-/Reinstall-Weg und Rückbau werden vor jeder technischen Umbenennung entschieden; andere Repositories werden nur in jeweils separat freigegebenen Aufträgen angepasst. |
+| ROOM-STORE-03 | Standalone-Migrationsgrenze festlegen | `COMPLEX` | Eine Abhängigkeitsmanifestation aller PHP-Klassen, Browser-Assets, Templates, Events, Konfigurations-/Datenquellen und Testhilfen erstellen und nach ADR 0001 einordnen. Filzmann Rooms muss mit allein seinem Store-Paket auf einer sauberen Nextcloud-Installation vollständig nutzbar sein. Für heute kernfunktionsrelevante Kategorie-B-Bezüge wird eine Nextcloud-native oder app-eigene führende Standalone-Quelle entschieden; gebündelte Kategorie-A-Bestandteile liegen reproduzierbar und isoliert im eigenen Paket. Andere Filzmann-Apps einschließlich LocalBase, OrgSuite, Kalender, Assistenzplanung und Datenschutz-Center bleiben ausschließlich optionale, aktivierungs- und versionsgeprüfte Integrationen. Direkte heutige LocalBase-Klassen- und Assetbezüge sind bis zum positiven Standalone-Nachweis Releaseblocker. |
+| ROOM-STORE-04 | Rebranding und Standalone-Umstellung umsetzen | `COMPLEX` | Nach Freigabe von Umbenennungs- und Migrationsmatrix die App-ID-/Namespace-/Identifier-Umstellung, App-/Admin-/Kommando- und UI-Namen, Repository-/Buildprojektionen sowie die Entkopplung der Kernfunktion in einem kontrollierten Breaking-Change-Lauf konsistent umsetzen. Provider, Processing-Metadaten, Berechtigungsprojektionen, Tests, Fixtures und Consumer-Verträge werden auf semantische Gleichheit geprüft; technische Identifier werden nicht allein wegen ihres alten Namens ungeprüft geändert. Das Ergebnis besitzt keine gemischte alte und neue Produktidentität und ist per sauberer Installation beziehungsweise dem zuvor belegten Erhaltungsweg nachgewiesen. |
+| ROOM-STORE-05 | Zweisprachige Produkt- und Store-Dokumentation erstellen | `STANDARD` | `info.xml`, README, Dokumentationsindex und fachliche Dokumentation, About-/Info-Bereich sowie die erforderlichen Store-Metadaten auf Filzmann Rooms ausrichten. Die Store-Beschreibung wird vollständig auf Deutsch und Englisch erstellt; Deutsch ist die primäre Fassung für den deutschen Markt, Englisch die vollständige internationale Fassung. Die bereits zurückgestellte vollständige UI-Lokalisierung `ROOM-L10N` wird dadurch nicht vorgezogen. |
+| ROOM-STORE-06 | Qualitätsdarstellung und Release Evidence vervollständigen | `STANDARD` | Einen datensparsamen Nachweisindex aus den bestehenden Tests, Harness-Regeln und Release-Evidence-Quellen ableiten, statt parallele Nachweisstrukturen aufzubauen. Belegbar darzustellen sind insbesondere serverseitige Berechtigungen, Least Privilege, Privacy/Security by Design, der vollständige Standalone-Betrieb sowie versionsbezogene Tests. Übergreifende Qualitätsinformationen verweisen auf [Filzmann](https://simonbeyer.de/filzmann/) und [Qualität, Sicherheit und Nachweise](https://simonbeyer.de/filzmann/qualitaet-sicherheit-nachweise/). |
+| ROOM-STORE-07 | Paket- und Release-Candidate-Gate ausführen | `COMPLEX` | Den bestehenden Packaging-, Kompatibilitäts- und Release-Evidence-Weg für genau eine korrekte App-Wurzel wiederverwenden und nur um noch nicht abgedeckte Store-Fehlerklassen erweitern. Zu belegen sind unter anderem reproduzierbarer Build, vollständige Produktionsartefakte, Lizenzinventar, Ausschluss von Entwicklungsdateien/Secrets/Schlüsseln, saubere Installation ohne andere Filzmann-App, Deaktivierung optionaler Provider sowie die dann freigegebene Nextcloud-Versionsmatrix. Signing wird nur ohne Zertifikatsantrag oder Zugriff auf private Schlüssel vorbereitet. |
+| ROOM-STORE-08 | Externe Freigaben getrennt einholen | `COMPLEX` | Erst nach grünem internem Release Candidate werden Store-Registrierung, Zertifikatsantrag, tatsächliche Signierung, externe Veröffentlichung und Upload jeweils als eigene spätere Freigabeschritte beauftragt. Keiner dieser Schritte ist durch die Aufnahme in diese Roadmap autorisiert. |
+
+Andere Filzmann-Produkte werden nur dezent in Store-Beschreibung, README,
+Dokumentation und gegebenenfalls im About-/Info-Bereich erwähnt. Der normale
+Buchungs-, Administrations- und Einstellungsablauf bleibt frei von
+produktübergreifender Werbung.
+
 ## Offene Datenschutz- und Runtime-Nachweise
 
 - Den implementierten V2-DELETE-Provider für Buchungen und
