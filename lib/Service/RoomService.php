@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
-use OCA\AdRoom\Model\Room;
-use OCA\AdRoom\Repository\RoomRepository;
+use OCA\FlzRoom\Model\Room;
+use OCA\FlzRoom\Repository\RoomRepository;
 
 /** Zweck: Validiert Raumstammdaten und delegiert ihre Persistenz. */
 final class RoomService {

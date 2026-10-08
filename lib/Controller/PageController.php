@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Controller;
+namespace OCA\FlzRoom\Controller;
 
-use OCA\AdRoom\AppInfo\Application;
-use OCA\AdRoom\Service\OrganizationGroupPolicyService;
-use OCA\AdRoom\Service\RoomAccessService;
-use OCA\AdRoom\Service\TemporaryAdminAccessService;
-use OCA\AdRoom\Service\RoomRetentionPolicyService;
+use OCA\FlzRoom\AppInfo\Application;
+use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
+use OCA\FlzRoom\Service\RoomAccessService;
+use OCA\FlzRoom\Service\TemporaryAdminAccessService;
+use OCA\FlzRoom\Service\RoomRetentionPolicyService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use InvalidArgumentException;
-use OCA\AdRoom\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\FlzRoom\Repository\TemporaryAdminAccessRepositoryInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IGroupManager;
 use OCP\IUserSession;

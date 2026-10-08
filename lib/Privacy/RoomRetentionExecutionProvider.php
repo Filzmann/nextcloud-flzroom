@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Privacy;
+namespace OCA\FlzRoom\Privacy;
 
 use DateInterval;
 use DateTimeImmutable;
-use OCA\AdRoom\AppInfo\AppId;
-use OCA\AdRoom\Model\Booking;
-use OCA\AdRoom\Repository\BookingRepository;
-use OCA\AdRoom\Repository\RetentionHoldRepository;
-use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
-use OCA\AdRoom\Service\RoomRetentionPolicyService;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionBatch;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionCandidate;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionPage;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionPolicy;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionProvider;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionProviderDescriptor;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionRequest;
-use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionResult;
+use OCA\FlzRoom\AppInfo\AppId;
+use OCA\FlzRoom\Model\Booking;
+use OCA\FlzRoom\Repository\BookingRepository;
+use OCA\FlzRoom\Repository\RetentionHoldRepository;
+use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+use OCA\FlzRoom\Service\RoomRetentionPolicyService;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionBatch;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionCandidate;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionPage;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionPolicy;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionProvider;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionProviderDescriptor;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionRequest;
+use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionResult;
 use OCP\IDBConnection;
 use Throwable;
 
@@ -27,7 +27,7 @@ final class RoomRetentionExecutionProvider implements RetentionExecutionProvider
     public const BOOKING_POLICY_ID='room_booking_delete';
     public const ADMIN_HISTORY_POLICY_ID='temporary_admin_access_history_delete';
     public function __construct(private BookingRepository $bookings,private TemporaryAdminAccessRepository $adminHistory,private RetentionHoldRepository $holds,private RoomRetentionPolicyService $policy,private IDBConnection $db){}
-    public function descriptor():RetentionExecutionProviderDescriptor{return new RetentionExecutionProviderDescriptor(AppId::VALUE,'AD Raumplaner','2.0',100);}
+    public function descriptor():RetentionExecutionProviderDescriptor{return new RetentionExecutionProviderDescriptor(AppId::VALUE,'Filzmann Raumplaner','2.0',100);}
     public function policies():array{$current=$this->policy->policy();$version='2.'.(int)$current['revision'];return[
         new RetentionExecutionPolicy(self::BOOKING_POLICY_ID,'Raumbuchungen','Vollständige Löschung nach app-lokaler Frist','COMPLETED_AT',$current['durationPeriod'],'DELETE',$version),
         new RetentionExecutionPolicy(self::ADMIN_HISTORY_POLICY_ID,'Adminfreigabehistorie','Vollständige Löschung sechs Monate nach tatsächlichem Ende','COMPLETED_AT','P6M','DELETE',$version),

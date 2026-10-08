@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateInterval;
 use DateTimeImmutable;
 use DomainException;
 use InvalidArgumentException;
-use OCA\AdRoom\Privacy\RoomRetentionExecutionProvider;
-use OCA\AdRoom\Repository\BookingRepository;
-use OCA\AdRoom\Repository\RetentionHoldRepository;
-use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
+use OCA\FlzRoom\Privacy\RoomRetentionExecutionProvider;
+use OCA\FlzRoom\Repository\BookingRepository;
+use OCA\FlzRoom\Repository\RetentionHoldRepository;
+use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IDBConnection;
 use OCP\IGroupManager;

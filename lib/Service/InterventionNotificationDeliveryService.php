@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateInterval;
 use DateTime;
-use OCA\AdRoom\AppInfo\AppId;
-use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
+use OCA\FlzRoom\AppInfo\AppId;
+use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Notification\IManager;
 use Psr\Log\LoggerInterface;

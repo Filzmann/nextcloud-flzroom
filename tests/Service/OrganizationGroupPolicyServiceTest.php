@@ -16,7 +16,7 @@ namespace OCP {
 }
 
 namespace {
-    use OCA\AdRoom\Service\OrganizationGroupPolicyService;
+    use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
 
     $config = new class implements OCP\IAppConfig {
         /** @var array<string,string> */ public array $values = [];
@@ -25,11 +25,11 @@ namespace {
         public function setValueString(string $appId, string $key, string $value): void { $this->writes++; $this->values[$key] = $value; }
     };
     $groups = new class implements OCP\IGroupManager {
-        /** @var list<string> */ public array $existing = ['Organisation Nord', 'Organisation Süd', 'Datenschutzbeauftragte', 'ad-Sekretariat'];
+        /** @var list<string> */ public array $existing = ['Organisation Nord', 'Organisation Süd', 'Datenschutzbeauftragte', 'flz-Sekretariat'];
         /** @var array<string,list<string>> */ public array $memberships = [
             'dpo' => ['Datenschutzbeauftragte'],
             'orga-user' => ['Organisation Nord'],
-            'secretariat' => ['Organisation Süd', 'ad-Sekretariat'],
+            'secretariat' => ['Organisation Süd', 'flz-Sekretariat'],
         ];
         public bool $failMembershipLookup = false;
         public function groupExists(string $gid): bool { return in_array($gid, $this->existing, true); }
@@ -82,5 +82,5 @@ namespace {
         throw new RuntimeException('Ein Gruppenprüffehler muss fail closed wirken.');
     }
 
-    echo "AD Raumplaner organization group policy tests passed\n";
+    echo "Filzmann Raumplaner organization group policy tests passed\n";
 }

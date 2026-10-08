@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DomainException;
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
+use OCA\FlzRoom\AppInfo\AppId;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -14,7 +14,7 @@ use Throwable;
 
 /** Kanonische app-lokale Zuordnung der Nextcloud-Gruppen zur Organisation. */
 final class OrganizationGroupPolicyService {
-    public const SECRETARIAT_GROUP = 'ad-Sekretariat';
+    public const SECRETARIAT_GROUP = 'flz-Sekretariat';
     private const CONFIG_KEY = 'organization_group_ids_v1';
     private const MAX_GROUPS = 100;
     private const MAX_GROUP_ID_LENGTH = 255;

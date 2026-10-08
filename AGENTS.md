@@ -1,16 +1,16 @@
-# AGENTS.md - AD Raumplaner
+# AGENTS.md - Filzmann Raumplaner
 
 ## Projekt
 
-Nextcloud-App `adroom` fuer die gemeinsame Buchung und Verwaltung von Besprechungsraeumen.
+Nextcloud-App `flzroom` fuer die gemeinsame Buchung und Verwaltung von Besprechungsraeumen.
 
 Lokale App-URL:
 
-    https://nextcloud-dev.ddev.site/apps/adroom/
+    https://nextcloud-dev.ddev.site/apps/flzroom/
 
 Nextcloud-App-ID:
 
-    adroom
+    flzroom
 
 Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`; verbindliche Fach-, Sicherheits- und Architekturregeln bleiben in dieser Datei.
 
@@ -22,9 +22,9 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Buchungen liegen innerhalb eines Kalendertags und verwenden 5-Minuten-Schritte ohne pauschale Einschränkung auf bestimmte Tageszeiten.
 - Buchungen desselben Raums duerfen sich nicht ueberschneiden. Angrenzende Buchungen sind erlaubt.
 - Nur Mitglieder der von `Datenschutzbeauftragte` app-lokal konfigurierten, bestehenden Nextcloud-Gruppen erhalten Zugriff auf den Raumplaner; reine Assistenzkräfte erhalten keinen Zugriff. Nextcloud bleibt Quelle der Gruppen und Mitgliedschaften. Organisationskräfte dürfen Räume und Buchungen lesen sowie eigene Buchungen anlegen, bearbeiten, in andere Räume verschieben und löschen. Eine leere oder fehlerhafte Konfiguration wirkt deny by default; der zeitlich freigegebene Adminpfad bleibt die dokumentierte Ausnahme.
-- Die kanonische LocalBase-Gruppe `ad-Sekretariat` bildet die app-lokale Fachrolle Sekretariat. Sie ist von temporärem technischem Admin-Vollzugriff getrennt und darf Räume verwalten sowie bei organisatorischen Konflikten fremde Buchungen ändern oder löschen.
+- Die kanonische LocalBase-Gruppe `flz-Sekretariat` bildet die app-lokale Fachrolle Sekretariat. Sie ist von temporärem technischem Admin-Vollzugriff getrennt und darf Räume verwalten sowie bei organisatorischen Konflikten fremde Buchungen ändern oder löschen.
 - Jeder Eingriff des Sekretariats in eine fremde Buchung verlangt vor der Änderung eine Begründung und einen app-lokal auditierbaren Nachweis. Die betroffene buchende Person erhält eine datensparsame Benachrichtigung mit altem und, soweit anwendbar, neuem Raum und Zeitraum sowie der Begründung; Angaben zu anderen Personen oder Buchungen bleiben ausgeschlossen.
-- Für eine direkte Abstimmung dürfen berechtigte Organisationskräfte die buchende Person und den frei eingegebenen Zweck einer Buchung sehen. Der freie Titel wird serverseitig ausschließlich der buchenden Person und Mitgliedern von `ad-Sekretariat` ausgegeben. Diese Sichtbarkeit erteilt kein Änderungsrecht und erweitert die Datenanzeige nicht über den erforderlichen Koordinationskontext hinaus.
+- Für eine direkte Abstimmung dürfen berechtigte Organisationskräfte die buchende Person und den frei eingegebenen Zweck einer Buchung sehen. Der freie Titel wird serverseitig ausschließlich der buchenden Person und Mitgliedern von `flz-Sekretariat` ausgegeben. Diese Sichtbarkeit erteilt kein Änderungsrecht und erweitert die Datenanzeige nicht über den erforderlichen Koordinationskontext hinaus.
 - Native Nextcloud-Administration erteilt keinen automatischen fachlichen
   Vollzugriff. Ein konkretes Administrationskonto darf alle Buchungen und die
   Raumliste ausschließlich mit einer app-lokalen, serverseitig geprüften und
@@ -41,9 +41,9 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 
 ## Architektur und Sicherheit
 
-- AD Raumplaner registriert seinen app-lokalen `PersonalDataProvider` lazy
+- Filzmann Raumplaner registriert seinen app-lokalen `PersonalDataProvider` lazy
   über den öffentlichen V1-Registry-Event der optionalen App
-  `filzmann_data_protection`. Fehlt oder ist diese App deaktiviert, bleibt der
+  `flz_data_protection`. Fehlt oder ist diese App deaktiviert, bleibt der
   Raumplaner funktionsfähig und instanziiert die Datenschutzprovider nicht.
   Der app-lokale `RetentionProvider` registriert sich ebenfalls lazy über den
   öffentlichen V1-Vertrag des Datenschutz-Centers; seine globale,
@@ -71,7 +71,7 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Adminblöcke sind zugänglich klappbar und per Tastatur oder Drag-and-drop
   verschiebbar. Ihre persönliche Anordnung verändert keine Fachwerte.
 - Controller bleiben duenn. Validierung und Kollisionspruefung liegen im `BookingService`, Rechte im `RoomAccessService`, Datenzugriff in Repositories.
-- `HolidayService` ist nur ein app-spezifischer Projektionsadapter auf den gemeinsamen, zwischengespeicherten LocalBase-Feiertagskalender; AD Raumplaner pflegt keine eigene Feiertagsquelle oder Regionstabelle.
+- `HolidayService` ist nur ein app-spezifischer Projektionsadapter auf den gemeinsamen, zwischengespeicherten LocalBase-Feiertagskalender; Filzmann Raumplaner pflegt keine eigene Feiertagsquelle oder Regionstabelle.
 - Deny by default: Jede schreibende API prueft die angemeldete Person und die Zielbuchung serverseitig.
 - Temporärer Admin-Vollzugriff bleibt bewusst lokaler Raumplanervertrag ohne
   zentrale Runtime-Abhängigkeit. Fehlende, abgelaufene, widerrufene oder
@@ -88,12 +88,12 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Persistente Modelle bieten `get(...)`, `get_all([...])` und `toArray()`; direkte Modellpersistenz ist nicht erlaubt.
 - QueryBuilder-Parameter werden gebunden. Keine SQL-Fragmente aus Requests.
 - Der App-Root erfuellt den Nextcloud-Scrollvertrag; nur die Monatsmatrix scrollt horizontal.
-- Die Raumverwaltung betrifft ausschließlich den AD Raumplaner und liegt deshalb in dessen eigenem Nextcloud-Adminabschnitt `AD Raumplaner`. Der Raumkalender enthält nur fachliche Buchungsfunktionen; künftige persönliche Einstellungen gehören in einen eigenen App-Tab.
+- Die Raumverwaltung betrifft ausschließlich den Filzmann Raumplaner und liegt deshalb in dessen eigenem Nextcloud-Adminabschnitt `Filzmann Raumplaner`. Der Raumkalender enthält nur fachliche Buchungsfunktionen; künftige persönliche Einstellungen gehören in einen eigenen App-Tab.
 
 ## Gemeinsame Suite-Navigation
 
-- Ohne aktive OrgSuite registriert AD Raumplaner einen eigenen Nextcloud-Hauptnavigationseintrag. Ab zwei AD-Produkten ersetzt `orgsuite` diesen durch den gemeinsamen Einstieg `AD`.
-- Das Template stellt den optionalen Menühost mit `data-suite="ad"` und `data-current-app="adroom"` bereit, lädt aber keine OrgSuite-Assets direkt.
+- Ohne aktive OrgSuite registriert Filzmann Raumplaner einen eigenen Nextcloud-Hauptnavigationseintrag. Ab zwei FLZ-Produkten ersetzt `orgsuite` diesen durch den gemeinsamen Einstieg `FLZ`.
+- Das Template stellt den optionalen Menühost mit `data-suite="flz"` und `data-current-app="flzroom"` bereit, lädt aber keine OrgSuite-Assets direkt.
 - Ohne Kalender oder Assistenzplanung bleiben Raumbuchungen vollständig manuell nutzbar; optionale Direktbuchungen dürfen nicht als harte Abhängigkeit modelliert werden.
 - Menuesichtbarkeit ist keine Berechtigung.
 
@@ -101,7 +101,7 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 
 - Eigenstaendiges Git-Repository. Diese Datei und lokal referenzierte Skills bilden bei einem direkten Start die vollständige Repository-Steuerung.
 - Fuer Git-, Sandbox-, DDEV-/`occ`-Sicherheit, Verifikation und Learning Candidates gilt der lokal mitgefuehrte Skill `work-in-nextcloud-app`; die folgenden Raumplaner-Regeln und Pruefungen ergaenzen ihn.
-- DDEV-Mount: `/var/www/html/html/custom_apps/adroom`.
+- DDEV-Mount: `/var/www/html/html/custom_apps/flzroom`.
 - Schnelle Tests: `php tests/run.php` und `node tests/run-js.mjs`.
 - Controller-, DI- und Migrationsaenderungen zusaetzlich in DDEV pruefen.
 

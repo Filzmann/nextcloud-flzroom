@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Controller;
+namespace OCA\FlzRoom\Controller;
 
-use OCA\AdRoom\AppInfo\Application;
-use OCA\AdRoom\Service\RoomDemoPackService;
-use OCA\AdRoom\Service\RoomAccessService;
+use OCA\FlzRoom\AppInfo\Application;
+use OCA\FlzRoom\Service\RoomDemoPackService;
+use OCA\FlzRoom\Service\RoomAccessService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

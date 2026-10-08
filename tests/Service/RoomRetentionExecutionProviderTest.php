@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 namespace OCP { interface IDBConnection { public function beginTransaction():void; public function commit():void; public function rollBack():void; } }
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     final class BookingRepository {
         public array $rows=[];
         public function findEndedBefore(\DateTimeImmutable $cutoff,int $limit,int $offset=0):array{return array_slice(array_values(array_filter($this->rows,static fn($row)=>$row->endsAt()<=$cutoff)),$offset,$limit);}
-        public function findForUpdate(int $id):?\OCA\AdRoom\Model\Booking{return$this->rows[$id]??null;}
+        public function findForUpdate(int $id):?\OCA\FlzRoom\Model\Booking{return$this->rows[$id]??null;}
         public function deleteIfEndedAt(int $id,\DateTimeImmutable $endedAt):bool{if(!isset($this->rows[$id])||$this->rows[$id]->endsAt()!=$endedAt)return false;unset($this->rows[$id]);return true;}
     }
     final class TemporaryAdminAccessRepository {
@@ -18,21 +18,21 @@ namespace OCA\AdRoom\Repository {
     }
     final class RetentionHoldRepository { public array $held=[]; public function activeFor(string $policyId,string $recordReference):?array{return isset($this->held[$policyId.':'.$recordReference])?['id'=>1]:null;} }
 }
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\Service {
     final class RoomRetentionPolicyService {
         public function policy():array{return['revision'=>1,'durationPeriod'=>'P30D','adminHistoryDurationPeriod'=>'P6M'];}
         public function policyFor(\DateTimeImmutable $triggerAt):array{return$triggerAt<new \DateTimeImmutable('2026-06-01T00:00:00+00:00')?['revision'=>0,'durationPeriod'=>'P1Y','adminHistoryDurationPeriod'=>'P6M']:['revision'=>1,'durationPeriod'=>'P30D','adminHistoryDurationPeriod'=>'P6M'];}
     }
 }
 namespace {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Privacy\RoomRetentionExecutionProvider;
-    use OCA\AdRoom\Repository\BookingRepository;
-    use OCA\AdRoom\Repository\RetentionHoldRepository;
-    use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
-    use OCA\AdRoom\Service\RoomRetentionPolicyService;
-    use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionBatch;
-    use OCA\FilzmannDataProtection\PublicApi\V2\RetentionExecutionRequest;
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Privacy\RoomRetentionExecutionProvider;
+    use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Repository\RetentionHoldRepository;
+    use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+    use OCA\FlzRoom\Service\RoomRetentionPolicyService;
+    use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionBatch;
+    use OCA\FlzDataProtection\PublicApi\V2\RetentionExecutionRequest;
 
     $catalog=json_decode((string)file_get_contents(dirname(__DIR__,2).'/resources/privacy-processing.json'),true,flags:JSON_THROW_ON_ERROR);
     $bookingMetadata=$catalog['processings'][0]??null;
@@ -66,5 +66,5 @@ namespace {
     $adminResult=$provider->execute(new RetentionExecutionBatch($adminRequest,$adminPlan->candidates()));
     if($adminResult->deletedReferences()!==['admin-grant:7']||isset($admins->rows[7]))throw new RuntimeException('Beendete Adminfreigabehistorie wird nach P6M nicht gelöscht.');
 
-    echo "AD Raumplaner retention execution provider tests passed\n";
+    echo "Filzmann Raumplaner retention execution provider tests passed\n";
 }

@@ -1,4 +1,4 @@
-# Manuelles Abnahmeformular – AD Raumplaner
+# Manuelles Abnahmeformular – Filzmann Raumplaner
 
 Dieses Formular enthält ausschließlich wiederholbare manuelle Prüfungen. Es ist
 keine Produktivfreigabe. Ausschließlich synthetische Räume, Buchungen und
@@ -47,7 +47,7 @@ Ergebniskennzeichnung: `[ ] erfolgreich` / `[ ] nicht erfolgreich` /
 | ID | Was wird geprüft? | Auszuführende Schritte | Erwartetes Ergebnis | Ergebnis | Warum/Beleg/Abweichung |
 |---|---|---|---|---|---|
 | D1 | Raumverwaltung | Räume anlegen, ordnen, ändern und mit Bestätigung löschen; als Nichtadmin wiederholen. | Nur Berechtigte verwalten Räume; Lösch- und CSRF-Schutz verhindern Nebenwirkungen. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
-| D2 | Optionale Provider | Betrieb ohne AD Kalender, AdPlaner und LocalBase im freigegebenen Testkontext prüfen. | Fehlende optionale Provider werden kontrolliert behandelt und blockieren die Kernfunktion nicht. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
+| D2 | Optionale Provider | Betrieb ohne Filzmann Kalender, FlzPlaner und LocalBase im freigegebenen Testkontext prüfen. | Fehlende optionale Provider werden kontrolliert behandelt und blockieren die Kernfunktion nicht. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 
 ## E. Bedienbarkeit, Fehler und temporärer Admin-Vollzugriff
 

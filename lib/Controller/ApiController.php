@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Controller;
+namespace OCA\FlzRoom\Controller;
 
-use OCA\AdRoom\AppInfo\Application;
-use OCA\AdRoom\Exception\BookingConflictException;
-use OCA\AdRoom\Service\BookingService;
-use OCA\AdRoom\Service\RoomAccessService;
-use OCA\AdRoom\Service\RoomService;
-use OCA\AdRoom\Service\SecretariatBookingInterventionService;
+use OCA\FlzRoom\AppInfo\Application;
+use OCA\FlzRoom\Exception\BookingConflictException;
+use OCA\FlzRoom\Service\BookingService;
+use OCA\FlzRoom\Service\RoomAccessService;
+use OCA\FlzRoom\Service\RoomService;
+use OCA\FlzRoom\Service\SecretariatBookingInterventionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

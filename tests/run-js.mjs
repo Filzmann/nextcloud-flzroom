@@ -8,4 +8,4 @@ execFileSync('node',['--check',new URL('../js/admin-access.js',import.meta.url).
 execFileSync('node',['--check',new URL('../js/organization-groups.js',import.meta.url).pathname],{stdio:'inherit'});
 execFileSync('node',['--check',new URL('../js/retention-policy.js',import.meta.url).pathname],{stdio:'inherit'});
 execFileSync('node',[new URL('./js/frontend-smoke.mjs',import.meta.url).pathname],{stdio:'inherit'});
-console.log('AD Raumplaner JavaScript tests passed');
+console.log('Filzmann Raumplaner JavaScript tests passed');

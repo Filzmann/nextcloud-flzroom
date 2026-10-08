@@ -14,6 +14,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.BookingWallTime = BookingWallTime;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.BookingWallTime = BookingWallTime;
 }());

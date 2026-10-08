@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "app_id": "adroom",
+  "app_id": "flzroom",
   "processings": [
     {
       "processing_id": "room_booking_management",
       "name": "Verwaltung und Anzeige von Raumbuchungen",
       "controller": {
-        "component": "AD Raumplaner",
+        "component": "Filzmann Raumplaner",
         "business_owner": "Sekretariat"
       },
       "data_categories": [
@@ -26,7 +26,7 @@
       ],
       "access_roles": [
         "Mitglieder der durch Datenschutzbeauftragte konfigurierten Nextcloud-Organisationsgruppen für die gemeinsame Monatsansicht",
-        "Buchende Person und Mitglieder von ad-Sekretariat für den freien Buchungstitel",
+        "Buchende Person und Mitglieder von flz-Sekretariat für den freien Buchungstitel",
         "Buchende Person für Änderungen der eigenen Buchung",
         "Mitglieder der Nextcloud-Gruppe Datenschutzbeauftragte ausschließlich für fachliche Datenschutzkonfiguration",
         "Native Nextcloud-Administration mit aktiver app-lokaler Freigabe von höchstens 24 Stunden"
@@ -35,7 +35,7 @@
         {
           "category": "Mitglieder konfigurierter Nextcloud-Organisationsgruppen",
           "allowed_disclosures": [
-            "Raum, Zeitraum, Zweck und aktuell aufgelöster Anzeigename in der gemeinsamen Belegungsansicht; Freititel nur für buchende Person und ad-Sekretariat"
+            "Raum, Zeitraum, Zweck und aktuell aufgelöster Anzeigename in der gemeinsamen Belegungsansicht; Freititel nur für buchende Person und flz-Sekretariat"
           ],
           "conditions": [
             "Serverseitig geprüfte Mitgliedschaft in mindestens einer konfigurierten Organisationsgruppe",
@@ -55,7 +55,7 @@
       "data_sources": [
         "Serverseitig gebundene Nextcloud-Session-UID",
         "Eingaben der buchenden oder berechtigt administrierenden Person",
-        "App-eigene Tabellen adr_bookings und adr_rooms"
+        "App-eigene Tabellen flz_room_bookings und flz_room_rooms"
       ],
       "legal_basis": {
         "status": "PRIVACY-DECISION-REQUIRED",
@@ -118,28 +118,28 @@
         "restriction": "Eine aktive rechtliche oder datenschutzrechtliche Sperre blockiert die Löschung und begrenzt die Nutzung auf den dokumentierten Sperrzweck. Nur Datenschutzbeauftragte dürfen die Sperre begründet und auditiert aufheben.",
         "erasure_or_anonymization": "Nach Ablauf der konfigurierten Frist wird die Buchung bei technischer Operatoraktivierung vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren verhindern die Löschung. Kundenlokale Rechts-, BV-, DPO- oder Evidenzreferenzen werden außerhalb des Produkts verantwortet und blockieren den technischen Löschlauf nicht."
       },
-      "international_transfers": "AD Raumplaner übermittelt selbst keine Buchungsdaten an Drittländer.",
+      "international_transfers": "Filzmann Raumplaner übermittelt selbst keine Buchungsdaten an Drittländer.",
       "automated_decisions": "Die Kollisionsprüfung verhindert Doppelbelegungen, trifft aber keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
       "special_safeguards": [
         "Serverseitige Bindung der Besitzer-UID aus der Sitzung",
         "Deny-by-default für fremde Änderungen",
         "Serverseitige Organisationsgruppenprüfung mit deny by default bei leerer oder fehlerhafter Konfiguration",
-        "Freititel ausschließlich für buchende Person und ad-Sekretariat",
+        "Freititel ausschließlich für buchende Person und flz-Sekretariat",
         "Redaktion möglicher Drittpersonenangaben in der Art.-15-Auskunft",
         "Fachliche Datenschutzkonfiguration ausschließlich durch die Nextcloud-Gruppe Datenschutzbeauftragte",
         "Automatische Retention standardmäßig deaktiviert; Aktivierung ausschließlich über den getrennten technischen Operatorpfad des Datenschutz-Centers"
       ],
       "systems": [
         "Nextcloud",
-        "AD Raumplaner",
-        "App-eigene Tabellen adr_bookings und adr_rooms"
+        "Filzmann Raumplaner",
+        "App-eigene Tabellen flz_room_bookings und flz_room_rooms"
       ]
     },
     {
       "processing_id": "secretariat_foreign_booking_intervention",
       "name": "Begründeter Eingriff des Sekretariats in eine fremde Raumbuchung",
       "controller": {
-        "component": "AD Raumplaner",
+        "component": "Filzmann Raumplaner",
         "business_owner": {
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Eingriffsaudit und ausstehende beziehungsweise dauerhaft fehlgeschlagene Benachrichtigung",
@@ -157,15 +157,15 @@
         "Benachrichtigungsqueue: Empfänger-UID, derselbe minimierte Raum-/Zeit-/Begründungssnapshot, Zustellversuch, nächster Versuch und minimaler Fehlercode",
         "Keine Buchungstitel, Zwecke, Namen anderer Personen oder Inhalte anderer Buchungen"
       ],
-      "data_subjects": ["Handelnde Mitglieder von ad-Sekretariat", "Betroffene buchende Person"],
+      "data_subjects": ["Handelnde Mitglieder von flz-Sekretariat", "Betroffene buchende Person"],
       "purposes": ["Nachvollziehbare organisatorische Konfliktlösung", "Information der betroffenen buchenden Person", "Technisch begrenzte Zustellwiederholung"],
       "access_roles": [
-        "Eingriff ausschließlich ad-Sekretariat mit zusätzlicher aktiver neutraler Risikoscope-Freigabe",
+        "Eingriff ausschließlich flz-Sekretariat mit zusätzlicher aktiver neutraler Risikoscope-Freigabe",
         "Auditansicht ausschließlich Datenschutzbeauftragte; ein Betriebsratszugriff wird nicht als App-Rolle hardcodiert und erfolgt nur im kundenlokal vereinbarten Prüfweg",
         "Subjectgebundene Art.-15-Projektion für handelnde beziehungsweise empfangende Person"
       ],
       "recipients": [{"category":"Betroffene buchende Person","allowed_disclosures":["Alter und soweit anwendbar neuer Raum und Zeitraum sowie Begründung"],"conditions":["Erfolgreich autorisierter und atomar gespeicherter Fremdeingriff"]}],
-      "data_sources": ["Serverseitig autorisierter Sekretariatseingriff", "App-eigene Tabellen adr_booking_audit und adr_notify_queue", "Native Nextcloud-Benachrichtigung"],
+      "data_sources": ["Serverseitig autorisierter Sekretariatseingriff", "App-eigene Tabellen flz_room_booking_audit und flz_room_notify_queue", "Native Nextcloud-Benachrichtigung"],
       "legal_basis": {
         "status": "PRIVACY-DECISION-REQUIRED",
         "affected_data": "Eingriffsaudit und Benachrichtigungsdaten",
@@ -188,16 +188,16 @@
       "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Audit und Queue in der Nextcloud-Datenbank","planned_processing":"Betriebliche Sicherung und Wiederherstellung","missing_decision":"Kundenlokale Backup-Aufbewahrung und Löschgrenze","reason":"Der App-Code kennt den betrieblichen Backupzyklus nicht.","technical_impact":"Die App kann keinen Entfall aus Sicherungen behaupten.","privacy_preserving_alternative":"Keine app-eigene Sicherungskopie anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":"Fristen aus ursprünglichem Eingriffs- beziehungsweise Fehlerzeitpunkt neu bewerten; abgelaufene Datensätze erneut löschen."},
       "exports_and_reports": {"article_15_relevance":"Handelnde Person erhält eigene Auditeinträge; Empfänger*in erhält noch persistente Queuewerte subjectgebunden.","other_outputs":["DPO-geschützte Auditansicht", "Native Nextcloud-Benachrichtigung"],"minimization":"Keine Titel, Zwecke, anderen Personen oder Buchungen ausgeben."},
       "data_subject_rights": {"article_15":"Subjectgebundene Projektion ist im app-eigenen PersonalDataProvider enthalten.","rectification":"Append-only Audit wird nicht überschrieben; Fehler brauchen einen gesondert zu entscheidenden Korrekturpfad.","restriction":"Keine kundenspezifische Sperrentscheidung wird technisch erfunden.","erasure_or_anonymization":"Feste vollständige Löschung nach P1Y beziehungsweise P30D; erfolgreiche Queue sofort."},
-      "international_transfers": "AD Raumplaner übermittelt diese Daten selbst nicht an Drittländer.",
+      "international_transfers": "Filzmann Raumplaner übermittelt diese Daten selbst nicht an Drittländer.",
       "automated_decisions": "Die Scope-Prüfung und Zustellwiederholung treffen keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
       "special_safeguards": ["Fail-closed Risikoscope", "Aktuelle Session, Fachrolle und Zielobjekt serverseitig prüfen", "Mutation, Audit und Outbox atomar", "Datenminimierte Pflichtbegründung mit 10 bis 500 Zeichen", "Keine Leistungs- oder Verhaltenskontrolle"],
-      "systems": ["Nextcloud", "AD Raumplaner", "App-eigene Tabellen adr_booking_audit und adr_notify_queue"]
+      "systems": ["Nextcloud", "Filzmann Raumplaner", "App-eigene Tabellen flz_room_booking_audit und flz_room_notify_queue"]
     },
     {
       "processing_id": "temporary_admin_full_access",
       "name": "Zeitlich begrenzte fachliche Adminfreigabe",
       "controller": {
-        "component": "AD Raumplaner",
+        "component": "Filzmann Raumplaner",
         "business_owner": {
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Freigabehistorie für fachlichen Admin-Vollzugriff",
@@ -245,8 +245,8 @@
         }
       ],
       "data_sources": [
-        "App-lokaler Freigabevorgang durch Datenschutzbeauftragte im AD Raumplaner",
-        "App-eigene Tabelle adr_admin_access"
+        "App-lokaler Freigabevorgang durch Datenschutzbeauftragte im Filzmann Raumplaner",
+        "App-eigene Tabelle flz_room_admin_access"
       ],
       "legal_basis": {
         "status": "PRIVACY-DECISION-REQUIRED",
@@ -326,7 +326,7 @@
         },
         "erasure_or_anonymization": "Die Adminfreigabehistorie wird bei technischer Operatoraktivierung sechs Monate nach ihrem tatsächlichen Ende vollständig gelöscht, ohne anonymisierten oder statistischen Restbestand. Aktive rechtliche oder datenschutzrechtliche Sperren blockieren die Löschung. Kundenlokale Rechts-, BV-, DPO- oder Evidenzreferenzen blockieren den technischen Löschlauf nicht."
       },
-      "international_transfers": "AD Raumplaner übermittelt die Freigabehistorie nicht an Drittländer.",
+      "international_transfers": "Filzmann Raumplaner übermittelt die Freigabehistorie nicht an Drittländer.",
       "automated_decisions": "Der Server beendet die Freigabe spätestens nach 24 Stunden; es findet keine automatisierte Entscheidung über eine Person statt.",
       "special_safeguards": [
         "Nativer Adminstatus und aktive app-lokale Freigabe sind gemeinsam erforderlich",
@@ -336,15 +336,15 @@
       ],
       "systems": [
         "Nextcloud",
-        "AD Raumplaner",
-        "App-eigene Tabelle adr_admin_access"
+        "Filzmann Raumplaner",
+        "App-eigene Tabelle flz_room_admin_access"
       ]
     },
     {
       "processing_id": "personal_admin_layout",
       "name": "Persönliche Anordnung der Administrationskarten",
       "controller": {
-        "component": "AD Raumplaner",
+        "component": "Filzmann Raumplaner",
         "business_owner": {
           "status": "PRIVACY-DECISION-REQUIRED",
           "affected_data": "Benutzergebundene Layoutpräferenz im Adminbereich",
@@ -363,7 +363,7 @@
         "Konfigurationsformat-Version"
       ],
       "data_subjects": [
-        "Administrationskonten, die den AD-Raumplaner-Adminbereich personalisieren"
+        "Administrationskonten, die den Filzmann-Raumplaner-Adminbereich personalisieren"
       ],
       "purposes": [
         "Wiederherstellung der persönlichen Anordnung des app-eigenen Adminbereichs"
@@ -383,8 +383,8 @@
         }
       ],
       "data_sources": [
-        "Eingabe der authentifizierten Person im AD-Raumplaner-Adminbereich",
-        "Nextcloud IUserConfig unter adroom/admin_dashboard_layout"
+        "Eingabe der authentifizierten Person im Filzmann-Raumplaner-Adminbereich",
+        "Nextcloud IUserConfig unter flzroom/admin_dashboard_layout"
       ],
       "legal_basis": {
         "status": "PRIVACY-DECISION-REQUIRED",
@@ -399,7 +399,7 @@
       },
       "retention": {
         "policy_id": "personal_admin_layout_lifecycle",
-        "trigger": "Ausdrücklicher Self-Reset durch das zugeordnete Nextcloud-Konto, Löschung dieses Nextcloud-Kontos oder Deinstallation von AD Raumplaner",
+        "trigger": "Ausdrücklicher Self-Reset durch das zugeordnete Nextcloud-Konto, Löschung dieses Nextcloud-Kontos oder Deinstallation von Filzmann Raumplaner",
         "duration_or_deadline": "Keine eigenständige Aufbewahrungsfrist; bei jedem Auslöser unverzüglich löschen",
         "action": "delete",
         "conditions_or_holds": [
@@ -431,7 +431,7 @@
       "exports_and_reports": {
         "article_15_relevance": "Der Wert ist personenbezogen, wird vom aktuellen PersonalDataProvider aber noch nicht ausgegeben.",
         "other_outputs": [
-          "Eigener AD-Raumplaner-Adminbereich"
+          "Eigener Filzmann-Raumplaner-Adminbereich"
         ],
         "minimization": "Nur bekannte Karten-IDs, Reihenfolge, Klappzustand und Formatversion speichern."
       },
@@ -441,7 +441,7 @@
         "restriction": "Durch Nichtnutzung bleibt das Standardlayout wirksam; ein gesonderter Sperrworkflow ist nicht implementiert.",
         "erasure_or_anonymization": "Der eigene Wert ist beim ausdrücklichen Self-Reset sowie beim Löschen des zugeordneten Nextcloud-Kontos oder bei App-Deinstallation unverzüglich zu löschen. Nur die Kontoinhaberin oder der Kontoinhaber darf den eigenen Reset auslösen; weder native Administration noch Datenschutzbeauftragte dürfen fremde Layouts zurücksetzen. Der Service bietet derzeit keinen Löschpfad; die technische Umsetzung steht aus."
       },
-      "international_transfers": "AD Raumplaner übermittelt die Layoutpräferenz nicht an Drittländer.",
+      "international_transfers": "Filzmann Raumplaner übermittelt die Layoutpräferenz nicht an Drittländer.",
       "automated_decisions": "Die Präferenz steuert nur die Darstellung und keine fachliche oder rechtliche Entscheidung.",
       "special_safeguards": [
         "Nextcloud-native kontogebundene IUserConfig",
@@ -450,7 +450,7 @@
       ],
       "systems": [
         "Nextcloud IUserConfig",
-        "AD Raumplaner"
+        "Filzmann Raumplaner"
       ]
     }
   ]

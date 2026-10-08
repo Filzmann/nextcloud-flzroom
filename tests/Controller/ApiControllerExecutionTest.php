@@ -40,11 +40,11 @@ namespace Psr\Log {
     }
 }
 
-namespace OCA\AdRoom\AppInfo {
-    final class Application { public const APP_ID = 'adroom'; }
+namespace OCA\FlzRoom\AppInfo {
+    final class Application { public const APP_ID = 'flzroom'; }
 }
 
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\Service {
     final class RoomAccessService {
         public bool $view = true;
         public bool $manageBooking = true;
@@ -107,7 +107,7 @@ namespace OCA\AdRoom\Service {
         }
 
         private function throwConfigured(): void {
-            if ($this->mode === 'conflict') throw new \OCA\AdRoom\Exception\BookingConflictException('Bereits belegt.');
+            if ($this->mode === 'conflict') throw new \OCA\FlzRoom\Exception\BookingConflictException('Bereits belegt.');
             if ($this->mode === 'not-found') throw new \OutOfBoundsException('Raum nicht gefunden.');
             if ($this->mode === 'generic') throw new \InvalidArgumentException('intern');
         }
@@ -132,11 +132,11 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    use OCA\AdRoom\Controller\ApiController;
-    use OCA\AdRoom\Service\BookingService;
-    use OCA\AdRoom\Service\RoomAccessService;
-    use OCA\AdRoom\Service\RoomService;
-    use OCA\AdRoom\Service\SecretariatBookingInterventionService;
+    use OCA\FlzRoom\Controller\ApiController;
+    use OCA\FlzRoom\Service\BookingService;
+    use OCA\FlzRoom\Service\RoomAccessService;
+    use OCA\FlzRoom\Service\RoomService;
+    use OCA\FlzRoom\Service\SecretariatBookingInterventionService;
     use OCP\AppFramework\Http;
 
     $request = new class implements OCP\IRequest {};
@@ -220,5 +220,5 @@ namespace {
         $assert($status($controller->deleteRoom(2)) === $expected, "Fehlerstatus beim Raumlöschen ist falsch: {$mode}");
     }
 
-    echo "AD Raumplaner controller execution tests passed\n";
+    echo "Filzmann Raumplaner controller execution tests passed\n";
 }

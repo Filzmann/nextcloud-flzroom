@@ -11,4 +11,4 @@ foreach (['createBooking','updateBooking','deleteBooking','createRoom','updateRo
 foreach (['createRoom','updateRoom','deleteRoom'] as $method) { $position=strpos($source,'function '.$method); $prefix=substr($source,max(0,$position-100),100); if(str_contains($prefix,'NoAdminRequired')) throw new RuntimeException("{$method} muss auf Nextcloud-Admins beschränkt bleiben."); }
 if (!str_contains($page,'NoAdminRequired') || !str_contains($page,'NoCSRFRequired')) throw new RuntimeException('Seitenattribute fehlen.');
 foreach (["'verb' => 'POST'","'verb' => 'PUT'","'verb' => 'DELETE'"] as $contract) if(!str_contains($routes,$contract)) throw new RuntimeException("Schreibroute fehlt: {$contract}");
-echo "AD Raumplaner controller security smoke test passed\n";
+echo "Filzmann Raumplaner controller security smoke test passed\n";

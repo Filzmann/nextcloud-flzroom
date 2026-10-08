@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Listener;
+namespace OCA\FlzRoom\Listener;
 
 use OCA\LocalBase\Service\StandaloneAppNavigationService;
 use OCP\EventDispatcher\Event;
@@ -16,6 +16,6 @@ final class StandaloneNavigationListener implements IEventListener {
 
     public function handle(Event $event): void {
         if (!$event instanceof LoadAdditionalEntriesEvent) return;
-        $this->navigation->addWhenStandalone('adroom', 'Räume', 'adroom.page.index', 'app.svg', 83);
+        $this->navigation->addWhenStandalone('flzroom', 'Räume', 'flzroom.page.index', 'app.svg', 83);
     }
 }

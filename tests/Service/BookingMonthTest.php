@@ -13,9 +13,9 @@ namespace OCA\LocalBase\Calendar {
     class HolidayCalendarService { public function forYear(int $year): HolidayCalendar { return new HolidayCalendar(); } }
 }
 
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     use DateTimeImmutable;
-    use OCA\AdRoom\Model\Booking;
+    use OCA\FlzRoom\Model\Booking;
 
     class BookingRepository {
         /** @var list<Booking> */ public array $bookings = [];
@@ -29,9 +29,9 @@ namespace OCA\AdRoom\Repository {
     }
 }
 
-namespace OCA\AdRoom\Service {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Model\Room;
+namespace OCA\FlzRoom\Service {
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Model\Room;
 
     class RoomService {
         public function all(): array { return [Room::get(['id' => 2, 'name' => 'Konferenz', 'description' => '', 'sortOrder' => 1])]; }
@@ -46,12 +46,12 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Repository\BookingRepository;
-    use OCA\AdRoom\Service\BookingService;
-    use OCA\AdRoom\Service\HolidayService;
-    use OCA\AdRoom\Service\RoomAccessService;
-    use OCA\AdRoom\Service\RoomService;
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Service\BookingService;
+    use OCA\FlzRoom\Service\HolidayService;
+    use OCA\FlzRoom\Service\RoomAccessService;
+    use OCA\FlzRoom\Service\RoomService;
     use OCP\IUser;
     use OCP\IUserManager;
 
@@ -81,5 +81,5 @@ namespace {
     $service->delete(5);
     if ($repository->deleted !== 5) throw new RuntimeException('Buchung wurde nicht gelöscht.');
 
-    echo "AD Raumplaner month workflow tests passed\n";
+    echo "Filzmann Raumplaner month workflow tests passed\n";
 }

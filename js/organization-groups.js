@@ -1,11 +1,11 @@
 (function() {
     'use strict';
 
-    const form = document.getElementById('adr-organization-groups-form');
-    const status = document.getElementById('adr-organization-groups-status');
+    const form = document.getElementById('flz-room-organization-groups-form');
+    const status = document.getElementById('flz-room-organization-groups-status');
     if (!form || !status) return;
 
-    const client = new window.LocalBase.api.ApiClient({ appId: 'adroom' });
+    const client = new window.LocalBase.api.ApiClient({ appId: 'flzroom' });
     const field = form.elements.organizationGroupIds;
     const render = groupIds => {
         field.value = groupIds.join('\n');

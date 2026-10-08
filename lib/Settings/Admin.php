@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Settings;
+namespace OCA\FlzRoom\Settings;
 
-use OCA\AdRoom\AppInfo\Application;
+use OCA\FlzRoom\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
 

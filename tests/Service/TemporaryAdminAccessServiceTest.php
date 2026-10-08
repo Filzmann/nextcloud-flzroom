@@ -12,7 +12,7 @@ namespace OCP {
 namespace OCP\AppFramework\Utility {
     interface ITimeFactory extends \Psr\Clock\ClockInterface { public function getTime(): int; public function getDateTime(string $time='now',?\DateTimeZone $timezone=null):\DateTime; public function withTimeZone(\DateTimeZone $timezone):static; public function getTimeZone(?string $timezone=null):\DateTimeZone; }
 }
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     interface TemporaryAdminAccessRepositoryInterface {
         public function replaceActive(string $targetUid,string $grantedBy,\DateTimeImmutable $startsAt,\DateTimeImmutable $endsAt):array;
         public function revokeActive(string $targetUid,string $revokedBy,\DateTimeImmutable $revokedAt):bool;
@@ -21,8 +21,8 @@ namespace OCA\AdRoom\Repository {
     }
 }
 namespace {
-    use OCA\AdRoom\Repository\TemporaryAdminAccessRepositoryInterface;
-    use OCA\AdRoom\Service\TemporaryAdminAccessService;
+    use OCA\FlzRoom\Repository\TemporaryAdminAccessRepositoryInterface;
+    use OCA\FlzRoom\Service\TemporaryAdminAccessService;
 
     $actor = new class implements OCP\IUser { public function getUID(): string { return 'admin-operator'; } };
     $session = new class($actor) implements OCP\IUserSession { public function __construct(public ?OCP\IUser $user) {} public function getUser(): ?OCP\IUser { return $this->user; } };
@@ -58,9 +58,9 @@ namespace {
     $service = new TemporaryAdminAccessService($session,$groups,$repository,$clock,$logger);
 
     $before=$repository->mutations;
-    try { $service->activate('admin-target',60); throw new RuntimeException('Nativer Admin ohne Datenschutzrolle durfte freigeben.'); } catch (OCA\AdRoom\Service\TemporaryAdminAccessDeniedException) {}
+    try { $service->activate('admin-target',60); throw new RuntimeException('Nativer Admin ohne Datenschutzrolle durfte freigeben.'); } catch (OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException) {}
     if($repository->mutations!==$before)throw new RuntimeException('Abgewiesene Adminfreigabe darf nichts persistieren.');
-    try { $service->state(); throw new RuntimeException('Nativer Admin ohne Datenschutzrolle durfte Historie lesen.'); } catch (OCA\AdRoom\Service\TemporaryAdminAccessDeniedException) {}
+    try { $service->state(); throw new RuntimeException('Nativer Admin ohne Datenschutzrolle durfte Historie lesen.'); } catch (OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException) {}
 
     $session->user=new class implements OCP\IUser { public function getUID():string{return 'privacy-officer';} };
     if(!$service->canManageGrants())throw new RuntimeException('Datenschutzbeauftragte ohne Adminstatus erreichen die Freigabesteuerung nicht.');
@@ -83,7 +83,7 @@ namespace {
     $groups->admins=['admin-operator','admin-target'];
     $groups->memberships=[];
     $before=$repository->mutations;
-    try { $service->revoke('admin-target'); throw new RuntimeException('Entzogene Datenschutzrolle durfte widerrufen.'); } catch (OCA\AdRoom\Service\TemporaryAdminAccessDeniedException) {}
+    try { $service->revoke('admin-target'); throw new RuntimeException('Entzogene Datenschutzrolle durfte widerrufen.'); } catch (OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException) {}
     if($repository->mutations!==$before)throw new RuntimeException('Abgewiesener Widerruf darf keine Historie verändern.');
     $groups->memberships=['privacy-officer'=>['Datenschutzbeauftragte']];
     if (!$service->revoke('admin-target')||$service->hasActiveGrant('admin-target')) throw new RuntimeException('Widerruf muss den aktiven Zeitraum beenden.');
@@ -94,9 +94,9 @@ namespace {
 
     $session->user=new class implements OCP\IUser { public function getUID():string{return 'ordinary';} };
     $before=$repository->mutations;
-    try { $service->activate('admin-target',60); throw new RuntimeException('Konto ohne Datenschutzrolle durfte freigeben.'); } catch (OCA\AdRoom\Service\TemporaryAdminAccessDeniedException) {}
-    try { $service->revoke('admin-target'); throw new RuntimeException('Konto ohne Datenschutzrolle durfte widerrufen.'); } catch (OCA\AdRoom\Service\TemporaryAdminAccessDeniedException) {}
-    try { $service->state(); throw new RuntimeException('Konto ohne Datenschutzrolle durfte Historie lesen.'); } catch (OCA\AdRoom\Service\TemporaryAdminAccessDeniedException) {}
+    try { $service->activate('admin-target',60); throw new RuntimeException('Konto ohne Datenschutzrolle durfte freigeben.'); } catch (OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException) {}
+    try { $service->revoke('admin-target'); throw new RuntimeException('Konto ohne Datenschutzrolle durfte widerrufen.'); } catch (OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException) {}
+    try { $service->state(); throw new RuntimeException('Konto ohne Datenschutzrolle durfte Historie lesen.'); } catch (OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException) {}
     if ($repository->mutations!==$before) throw new RuntimeException('Abgewiesene Freigabe oder Widerruf darf nichts persistieren.');
 
     $session->user=new class implements OCP\IUser { public function getUID():string{return 'admin-operator';} };
@@ -108,5 +108,5 @@ namespace {
     $session->user=new class implements OCP\IUser { public function getUID():string{return 'ordinary';} };
     if($service->currentAdminNeedsGrant())throw new RuntimeException('Gewöhnliche Konten sehen administrativen Eintrittszustand.');
 
-    echo "AD Raumplaner temporary admin access service tests passed\n";
+    echo "Filzmann Raumplaner temporary admin access service tests passed\n";
 }

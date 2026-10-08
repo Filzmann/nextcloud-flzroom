@@ -7,8 +7,8 @@ namespace OCP\AppFramework { class Controller { public function __construct(stri
 namespace OCP\AppFramework\Http { final class JSONResponse { public function __construct(private array $data=[],private int $status=200){} public function getData():array{return $this->data;} public function getStatus():int{return $this->status;} } }
 namespace OCP\AppFramework\Http\Attribute { #[\Attribute(\Attribute::TARGET_METHOD)] final class NoAdminRequired {} #[\Attribute(\Attribute::TARGET_METHOD)] final class NoCSRFRequired {} }
 namespace Psr\Log { interface LoggerInterface { public function warning(string $message,array $context=[]):void; } }
-namespace OCA\AdRoom\AppInfo { final class AppId { public const VALUE='adroom'; } }
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\AppInfo { final class AppId { public const VALUE='flzroom'; } }
+namespace OCA\FlzRoom\Service {
     final class OrganizationGroupPolicyService {
         public bool $allowed=false;
         /** @var list<string> */ public array $groupIds=['Organisation Nord'];
@@ -24,8 +24,8 @@ namespace OCA\AdRoom\Service {
     }
 }
 namespace {
-    use OCA\AdRoom\Controller\OrganizationGroupController;
-    use OCA\AdRoom\Service\OrganizationGroupPolicyService;
+    use OCA\FlzRoom\Controller\OrganizationGroupController;
+    use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
     use OCP\AppFramework\Http;
 
     $request=new class implements OCP\IRequest{};
@@ -47,5 +47,5 @@ namespace {
     $assert($invalid->getStatus()===Http::STATUS_BAD_REQUEST&&$service->writes===1,'Eine ungültige Gruppenpolicy wurde nicht ohne Seiteneffekt abgelehnt.');
     $assert($logger->warnings===['Organisationsgruppen des Raumplaners wurden abgelehnt.'],'Die abgelehnte Konfiguration bleibt nicht diagnostizierbar.');
 
-    echo "AD Raumplaner organization group controller tests passed\n";
+    echo "Filzmann Raumplaner organization group controller tests passed\n";
 }

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Notification;
+namespace OCA\FlzRoom\Notification;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
+use OCA\FlzRoom\AppInfo\AppId;
 use OCA\LocalBase\Calendar\CalendarContextSettingsService;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
@@ -21,12 +21,12 @@ final class Notifier implements INotifier {
     }
 
     public function getName(): string {
-        return 'AD Raumplaner';
+        return 'Filzmann Raumplaner';
     }
 
     public function prepare(INotification $notification, string $languageCode): INotification {
         if ($notification->getApp() !== AppId::VALUE || $notification->getSubject() !== 'foreign_booking_intervention') {
-            throw new InvalidArgumentException('Unbekannte AD-Raumplaner-Benachrichtigung.');
+            throw new InvalidArgumentException('Unbekannte Filzmann-Raumplaner-Benachrichtigung.');
         }
         $parameters = $notification->getSubjectParameters();
         $old = $this->slot((string)$parameters['oldRoom'], (string)$parameters['oldStartsAt'], (string)$parameters['oldEndsAt']);
@@ -37,7 +37,7 @@ final class Notifier implements INotifier {
             $new = $this->slot((string)$parameters['newRoom'], (string)$parameters['newStartsAt'], (string)$parameters['newEndsAt']);
             $message = sprintf('Ihre Raumbuchung wurde durch das Sekretariat von %s auf %s geändert. Begründung: %s', $old, $new, $reason);
         }
-        return $notification->setParsedSubject($message)->setLink('/apps/adroom/');
+        return $notification->setParsedSubject($message)->setLink('/apps/flzroom/');
     }
 
     private function slot(string $room, string $startsAt, string $endsAt): string {

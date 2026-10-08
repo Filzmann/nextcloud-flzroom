@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
-use OCA\AdRoom\AppInfo\Application;
-use OCA\AdRoom\Model\Booking;
-use OCA\FilzmannDataProtection\PublicApi\V1\ScopeAuthorizationQueryEvent;
+use OCA\FlzRoom\AppInfo\Application;
+use OCA\FlzRoom\Model\Booking;
+use OCA\FlzDataProtection\PublicApi\V1\ScopeAuthorizationQueryEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -39,14 +39,14 @@ final class SecretariatForeignBookingInterventionGuard {
 
             $event = new ScopeAuthorizationQueryEvent(
                 Application::APP_ID,
-                ScopeAuthorizationQueryEvent::ADROOM_SECRETARIAT_FOREIGN_BOOKING_INTERVENTION,
+                ScopeAuthorizationQueryEvent::FLZROOM_SECRETARIAT_FOREIGN_BOOKING_INTERVENTION,
                 ScopeAuthorizationQueryEvent::CONTRACT_VERSION,
             );
             $this->events->dispatchTyped($event);
             return $event->isAuthorized() ? $uid : null;
         } catch (Throwable $error) {
             $this->logger->warning('Risikoscope für einen Sekretariatseingriff konnte nicht geprüft werden.', [
-                'scope' => ScopeAuthorizationQueryEvent::ADROOM_SECRETARIAT_FOREIGN_BOOKING_INTERVENTION,
+                'scope' => ScopeAuthorizationQueryEvent::FLZROOM_SECRETARIAT_FOREIGN_BOOKING_INTERVENTION,
                 'exception' => $error,
             ]);
             return null;

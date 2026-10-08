@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\AppInfo;
+namespace OCA\FlzRoom\AppInfo;
 
-use OCA\AdRoom\Listener\IntegrationCapabilityQueryListener;
-use OCA\AdRoom\Listener\StandaloneNavigationListener;
-use OCA\AdRoom\Notification\Notifier;
-use OCA\AdRoom\Privacy\RoomPrivacyProviderListener;
-use OCA\AdRoom\Privacy\RoomRetentionExecutionProviderListener;
-use OCA\AdRoom\Privacy\RoomPersonalDataProviderListener;
-use OCA\AdRoom\Privacy\RoomProcessingMetadataProviderListener;
-use OCA\AdRoom\Permission\RoomPermissionProviderListener;
-use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
-use OCA\AdRoom\Repository\TemporaryAdminAccessRepositoryInterface;
-use OCA\AdRoom\Service\TemporaryAdminAccessChecker;
-use OCA\AdRoom\Service\TemporaryAdminAccessService;
-use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
-use OCA\FilzmannDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
-use OCA\FilzmannDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
-use OCA\FilzmannDataProtection\PublicApi\V2\RegisterRetentionExecutionProvidersEvent;
-use OCA\FilzmannPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
+use OCA\FlzRoom\Listener\IntegrationCapabilityQueryListener;
+use OCA\FlzRoom\Listener\StandaloneNavigationListener;
+use OCA\FlzRoom\Notification\Notifier;
+use OCA\FlzRoom\Privacy\RoomPrivacyProviderListener;
+use OCA\FlzRoom\Privacy\RoomRetentionExecutionProviderListener;
+use OCA\FlzRoom\Privacy\RoomPersonalDataProviderListener;
+use OCA\FlzRoom\Privacy\RoomProcessingMetadataProviderListener;
+use OCA\FlzRoom\Permission\RoomPermissionProviderListener;
+use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+use OCA\FlzRoom\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\FlzRoom\Service\TemporaryAdminAccessChecker;
+use OCA\FlzRoom\Service\TemporaryAdminAccessService;
+use OCA\FlzDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
+use OCA\FlzDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
+use OCA\FlzDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
+use OCA\FlzDataProtection\PublicApi\V2\RegisterRetentionExecutionProvidersEvent;
+use OCA\FlzPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
 use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;

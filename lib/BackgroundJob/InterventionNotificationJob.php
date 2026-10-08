@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\BackgroundJob;
+namespace OCA\FlzRoom\BackgroundJob;
 
 use DateInterval;
-use OCA\AdRoom\Repository\BookingInterventionAuditRepository;
-use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
-use OCA\AdRoom\Service\InterventionNotificationDeliveryService;
+use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
+use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
+use OCA\FlzRoom\Service\InterventionNotificationDeliveryService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository;
+namespace OCA\FlzRoom\Repository;
 
 use DateTimeImmutable;
 use DateTimeZone;
@@ -17,7 +17,7 @@ final class BookingInterventionAuditRepository {
     /** @param array<string, mixed> $entry */
     public function append(array $entry): int {
         $qb = $this->db->getQueryBuilder();
-        $qb->insert('adr_booking_audit');
+        $qb->insert('flz_room_booking_audit');
         $values = [
             'action' => [$entry['action'], IQueryBuilder::PARAM_STR],
             'actor_uid' => [$entry['actorUid'], IQueryBuilder::PARAM_STR],
@@ -65,7 +65,7 @@ final class BookingInterventionAuditRepository {
 
     public function deleteOlderThan(DateTimeImmutable $cutoff): int {
         $qb = $this->db->getQueryBuilder();
-        return $qb->delete('adr_booking_audit')
+        return $qb->delete('flz_room_booking_audit')
             ->where($qb->expr()->lt('occurred_at', $qb->createNamedParameter($cutoff, IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->executeStatement();
     }
@@ -73,7 +73,7 @@ final class BookingInterventionAuditRepository {
     private function baseSelect(): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
         return $qb->select('id', 'action', 'actor_uid', 'booking_id', 'occurred_at', 'old_room_id', 'new_room_id', 'old_room_name', 'new_room_name', 'old_starts_at', 'old_ends_at', 'new_starts_at', 'new_ends_at', 'reason')
-            ->from('adr_booking_audit');
+            ->from('flz_room_booking_audit');
     }
 
     /** @return array<string, mixed> */

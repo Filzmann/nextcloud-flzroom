@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository;
+namespace OCA\FlzRoom\Repository;
 
 use DateInterval;
 use DateTimeImmutable;
@@ -19,7 +19,7 @@ final class InterventionNotificationQueueRepository {
     public function enqueue(array $entry): int {
         $now = $entry['createdAt'];
         $qb = $this->db->getQueryBuilder();
-        $qb->insert('adr_notify_queue');
+        $qb->insert('flz_room_notify_queue');
         $values = [
             'recipient_uid' => [$entry['recipientUid'], IQueryBuilder::PARAM_STR],
             'action' => [$entry['action'], IQueryBuilder::PARAM_STR],
@@ -73,7 +73,7 @@ final class InterventionNotificationQueueRepository {
 
     public function remove(int $id): void {
         $qb = $this->db->getQueryBuilder();
-        $qb->delete('adr_notify_queue')->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)))->executeStatement();
+        $qb->delete('flz_room_notify_queue')->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)))->executeStatement();
     }
 
     public function scheduleRetry(int $id, int $attemptCount, DateTimeImmutable $nextAttemptAt, DateTimeImmutable $now, string $errorCode): void {
@@ -95,7 +95,7 @@ final class InterventionNotificationQueueRepository {
 
     public function deletePermanentlyFailedBefore(DateTimeImmutable $cutoff): int {
         $qb = $this->db->getQueryBuilder();
-        return $qb->delete('adr_notify_queue')
+        return $qb->delete('flz_room_notify_queue')
             ->where($qb->expr()->eq('state', $qb->createNamedParameter('failed', IQueryBuilder::PARAM_STR)))
             ->andWhere($qb->expr()->lt('failed_at', $qb->createNamedParameter($cutoff, IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->executeStatement();
@@ -103,7 +103,7 @@ final class InterventionNotificationQueueRepository {
 
     private function updateFailure(int $id, int $attemptCount, string $state, DateTimeImmutable $nextAttemptAt, ?DateTimeImmutable $failedAt, DateTimeImmutable $updatedAt, string $errorCode): void {
         $qb = $this->db->getQueryBuilder();
-        $qb->update('adr_notify_queue')
+        $qb->update('flz_room_notify_queue')
             ->set('attempt_count', $qb->createNamedParameter($attemptCount, IQueryBuilder::PARAM_INT))
             ->set('next_attempt_at', $qb->createNamedParameter($nextAttemptAt, IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
             ->set('state', $qb->createNamedParameter($state, IQueryBuilder::PARAM_STR))
@@ -117,7 +117,7 @@ final class InterventionNotificationQueueRepository {
     private function baseSelect(): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
         return $qb->select('id', 'recipient_uid', 'action', 'booking_id', 'old_room_id', 'new_room_id', 'old_room_name', 'new_room_name', 'old_starts_at', 'old_ends_at', 'new_starts_at', 'new_ends_at', 'reason', 'attempt_count', 'next_attempt_at', 'state', 'failed_at', 'error_code', 'created_at', 'updated_at')
-            ->from('adr_notify_queue');
+            ->from('flz_room_notify_queue');
     }
 
     /** @return array<string, mixed> */

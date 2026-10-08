@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Listener;
+namespace OCA\FlzRoom\Listener;
 
-use OCA\AdRoom\AppInfo\Application;
-use OCA\LocalBase\Integration\AdIntegrationCapabilities;
+use OCA\FlzRoom\AppInfo\Application;
+use OCA\LocalBase\Integration\FlzIntegrationCapabilities;
 use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -15,8 +15,8 @@ final class IntegrationCapabilityQueryListener implements IEventListener {
     public function handle(Event $event): void {
         if (!$event instanceof IntegrationCapabilityQueryEvent) return;
         $event->provide(Application::APP_ID, [
-            AdIntegrationCapabilities::ROOM_AVAILABILITY_READ,
-            AdIntegrationCapabilities::ROOM_BOOKING_WRITE,
+            FlzIntegrationCapabilities::ROOM_AVAILABILITY_READ,
+            FlzIntegrationCapabilities::ROOM_BOOKING_WRITE,
         ]);
     }
 }

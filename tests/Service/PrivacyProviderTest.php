@@ -26,9 +26,9 @@ namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
 
-namespace OCA\AdRoom\Repository {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Model\Room;
+namespace OCA\FlzRoom\Repository {
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Model\Room;
     class BookingRepository {
         /** @var list<Booking> */ public array $items = [];
         public int $deleteCalls = 0;
@@ -69,22 +69,22 @@ namespace OCA\AdRoom\Repository {
 }
 
 namespace {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Privacy\RoomPersonalDataProvider;
-    use OCA\AdRoom\Privacy\RoomPersonalDataProviderListener;
-    use OCA\AdRoom\Privacy\RoomPrivacyProviderListener;
-    use OCA\AdRoom\Privacy\RoomRetentionProvider;
-    use OCA\AdRoom\Repository\BookingRepository;
-    use OCA\AdRoom\Repository\RoomRepository;
-    use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
-    use OCA\AdRoom\Service\RoomAdminLayoutService;
-    use OCA\AdRoom\Service\RoomRetentionPolicyService;
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Privacy\RoomPersonalDataProvider;
+    use OCA\FlzRoom\Privacy\RoomPersonalDataProviderListener;
+    use OCA\FlzRoom\Privacy\RoomPrivacyProviderListener;
+    use OCA\FlzRoom\Privacy\RoomRetentionProvider;
+    use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Repository\RoomRepository;
+    use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+    use OCA\FlzRoom\Service\RoomAdminLayoutService;
+    use OCA\FlzRoom\Service\RoomRetentionPolicyService;
     use OCA\LocalBase\Calendar\CalendarContextSettingsService;
-    use OCA\FilzmannDataProtection\PublicApi\V1\RetentionPreviewRequest;
-    use OCA\FilzmannDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
-    use OCA\FilzmannDataProtection\PublicApi\V1\DataSubjectRef;
-    use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataRequest;
-    use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
+    use OCA\FlzDataProtection\PublicApi\V1\RetentionPreviewRequest;
+    use OCA\FlzDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
+    use OCA\FlzDataProtection\PublicApi\V1\DataSubjectRef;
+    use OCA\FlzDataProtection\PublicApi\V1\PersonalDataRequest;
+    use OCA\FlzDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
 
     $repository = new BookingRepository();
     $repository->items = [
@@ -100,8 +100,8 @@ namespace {
         public function getValueArray(string $userId, string $appId, string $key, array $default = [], bool $lazy = false): array { return $this->userValues[$userId][$appId][$key] ?? $default; }
         public function setValueArray(string $userId, string $appId, string $key, array $value, bool $lazy = false): void { $this->userValues[$userId][$appId][$key] = $value; }
     };
-    $config->userValues['user-17']['adroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['demo','rooms','retention'],'collapsed'=>['retention']]],'organigram'=>['zoom'=>100]];
-    $config->userValues['foreign-user']['adroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['retention','rooms','demo'],'collapsed'=>['rooms']]],'organigram'=>['zoom'=>100]];
+    $config->userValues['user-17']['flzroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['demo','rooms','retention'],'collapsed'=>['retention']]],'organigram'=>['zoom'=>100]];
+    $config->userValues['foreign-user']['flzroom']['admin_dashboard_layout'] = ['version'=>1,'scopes'=>['main'=>['order'=>['retention','rooms','demo'],'collapsed'=>['rooms']]],'organigram'=>['zoom'=>100]];
     $logger = new class implements Psr\Log\LoggerInterface { public function warning(string $message, array $context = []): void {} };
     $groups = new class implements OCP\IGroupManager { public function isInGroup(string $uid, string $gid): bool { return $uid === 'user-17' && $gid === 'Datenschutzbeauftragte'; } };
     $session = new class implements OCP\IUserSession { public function getUser(): ?OCP\IUser { return new class implements OCP\IUser { public function getUID(): string { return 'user-17'; } }; } };
@@ -131,7 +131,7 @@ namespace {
     }
     $adminAudit = $report->entries()[1]->toArray();
     if ($adminAudit['reference'] !== 'admin-access:9' || str_contains(json_encode($adminAudit, JSON_THROW_ON_ERROR), 'admin-other')) throw new RuntimeException('Admin-Freigabeaudit fehlt oder legt eine Drittpersonen-UID offen.');
-    if (($adminAudit['source'] ?? null) !== 'App-lokale Freigabesteuerung im AD Raumplaner'
+    if (($adminAudit['source'] ?? null) !== 'App-lokale Freigabesteuerung im Filzmann Raumplaner'
         || !str_contains(json_encode($adminAudit['recipientCategories'], JSON_THROW_ON_ERROR), 'Datenschutz')) {
         throw new RuntimeException('Admin-Freigabeaudit projiziert die fachliche Freigaberolle oder Quelle nicht korrekt.');
     }
@@ -149,20 +149,20 @@ namespace {
         || str_contains(json_encode($policyAudit, JSON_THROW_ON_ERROR), 'foreign-user')) {
         throw new RuntimeException('Die eigene Policybearbeitung fehlt oder legt eine fremde Kennung offen.');
     }
-    unset($config->userValues['user-17']['adroom']['admin_dashboard_layout']);
+    unset($config->userValues['user-17']['flzroom']['admin_dashboard_layout']);
     $reportWithoutStoredLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     foreach ($reportWithoutStoredLayout->entries() as $entry) {
         if ($entry->toArray()['reference'] === 'admin-layout') {
             throw new RuntimeException('Das nicht persistierte Standardlayout wurde als gespeicherte Personendate ausgegeben.');
         }
     }
-    $config->userValues['user-17']['adroom']['admin_dashboard_layout'] = ['version'=>2];
+    $config->userValues['user-17']['flzroom']['admin_dashboard_layout'] = ['version'=>2];
     $reportWithInvalidLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     if ($reportWithInvalidLayout->status() !== 'partial'
         || $reportWithInvalidLayout->restrictions() !== ['Das gespeicherte persönliche Adminlayout konnte nicht sicher ausgegeben werden.']) {
         throw new RuntimeException('Ein ungültiges gespeichertes Adminlayout wird nicht als unvollständige Auskunft ausgewiesen.');
     }
-    unset($config->userValues['user-17']['adroom']['admin_dashboard_layout']);
+    unset($config->userValues['user-17']['flzroom']['admin_dashboard_layout']);
     $foreignSubjectReport = $personal->collect(new PersonalDataRequest(
         new DataSubjectRef('external-applicant', 'user-17'),
         'de',
@@ -220,12 +220,12 @@ namespace {
     $retentionListener = new RoomPrivacyProviderListener($retention);
     $retentionRegistry = new RegisterRetentionProvidersEvent();
     $retentionListener->handle($retentionRegistry);
-    if (array_keys($personalRegistry->providers()) !== ['adroom'] || array_keys($retentionRegistry->providers()) !== ['adroom']) throw new RuntimeException('AD Raumplaner registriert seine Privacy-Provider nicht.');
+    if (array_keys($personalRegistry->providers()) !== ['flzroom'] || array_keys($retentionRegistry->providers()) !== ['flzroom']) throw new RuntimeException('Filzmann Raumplaner registriert seine Privacy-Provider nicht.');
     $application = (string)file_get_contents(dirname(__DIR__, 2) . '/lib/AppInfo/Application.php');
     if (!str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
         || str_contains($application, 'RetentionProviderRegistryEvent')) {
         throw new RuntimeException('Der Bootstrap verwendet nicht ausschließlich den Standalone-V1-Retention-Vertrag.');
     }
 
-    echo "AD Raumplaner privacy provider test passed\n";
+    echo "Filzmann Raumplaner privacy provider test passed\n";
 }

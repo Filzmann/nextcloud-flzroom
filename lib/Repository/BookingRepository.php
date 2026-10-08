@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository;
+namespace OCA\FlzRoom\Repository;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use OCA\AdRoom\Model\Booking;
+use OCA\FlzRoom\Model\Booking;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -22,7 +22,7 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb
             ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
-            ->from('adr_bookings')
+            ->from('flz_room_bookings')
             ->where($qb->expr()->lt(
                 'starts_at',
                 $qb->createNamedParameter($end, IQueryBuilder::PARAM_DATETIME_IMMUTABLE),
@@ -42,7 +42,7 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $row = $qb
             ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
-            ->from('adr_bookings')
+            ->from('flz_room_bookings')
             ->where($qb->expr()->eq(
                 'id',
                 $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT),
@@ -58,7 +58,7 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb
             ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
-            ->from('adr_bookings')
+            ->from('flz_room_bookings')
             ->where($qb->expr()->eq(
                 'user_uid',
                 $qb->createNamedParameter($uid, IQueryBuilder::PARAM_STR),
@@ -76,7 +76,7 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb
             ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
-            ->from('adr_bookings')
+            ->from('flz_room_bookings')
             ->where($qb->expr()->eq('user_uid', $qb->createNamedParameter($uid, IQueryBuilder::PARAM_STR)))
             ->andWhere($qb->expr()->lte('ends_at', $qb->createNamedParameter($cutoff, IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->orderBy('ends_at', 'ASC')
@@ -92,7 +92,7 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb
             ->select('id', 'room_id', 'user_uid', 'purpose', 'title', 'starts_at', 'ends_at')
-            ->from('adr_bookings')
+            ->from('flz_room_bookings')
             ->where($qb->expr()->lte('ends_at', $qb->createNamedParameter($cutoff, IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->orderBy('ends_at', 'ASC')
             ->addOrderBy('id', 'ASC')
@@ -108,7 +108,7 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $qb
             ->select('id')
-            ->from('adr_bookings')
+            ->from('flz_room_bookings')
             ->where($qb->expr()->eq(
                 'room_id',
                 $qb->createNamedParameter($roomId, IQueryBuilder::PARAM_INT),
@@ -156,12 +156,12 @@ final class BookingRepository {
         $qb = $this->db->getQueryBuilder();
         $insert = $booking->id() === null;
         if ($insert) {
-            $qb->insert('adr_bookings');
+            $qb->insert('flz_room_bookings');
             $values['created_at'] = $now;
             $types['created_at'] = IQueryBuilder::PARAM_DATETIME_IMMUTABLE;
         } else {
             $qb
-                ->update('adr_bookings')
+                ->update('flz_room_bookings')
                 ->where($qb->expr()->eq(
                     'id',
                     $qb->createNamedParameter($booking->id(), IQueryBuilder::PARAM_INT),
@@ -183,7 +183,7 @@ final class BookingRepository {
     public function delete(int $id): void {
         $qb = $this->db->getQueryBuilder();
         $qb
-            ->delete('adr_bookings')
+            ->delete('flz_room_bookings')
             ->where($qb->expr()->eq(
                 'id',
                 $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT),
@@ -193,7 +193,7 @@ final class BookingRepository {
 
     public function findForUpdate(int $id): ?Booking {
         $qb=$this->db->getQueryBuilder();
-        $query=$qb->select('id','room_id','user_uid','purpose','title','starts_at','ends_at')->from('adr_bookings')
+        $query=$qb->select('id','room_id','user_uid','purpose','title','starts_at','ends_at')->from('flz_room_bookings')
             ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)));
         if (method_exists($query,'forUpdate')) $query->forUpdate();
         $row=$query->executeQuery()->fetchAssociative();
@@ -202,7 +202,7 @@ final class BookingRepository {
 
     public function deleteIfEndedAt(int $id, DateTimeImmutable $endedAt): bool {
         $qb=$this->db->getQueryBuilder();
-        return$qb->delete('adr_bookings')
+        return$qb->delete('flz_room_bookings')
             ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)))
             ->andWhere($qb->expr()->eq('ends_at',$qb->createNamedParameter($endedAt,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->executeStatement()>0;

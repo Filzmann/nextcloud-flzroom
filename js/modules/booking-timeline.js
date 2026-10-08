@@ -30,10 +30,10 @@
         }
 
         minute(value) {
-            return window.AdRoom.BookingWallTime.parts(value).minute;
+            return window.FlzRoom.BookingWallTime.parts(value).minute;
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.BookingTimeline = BookingTimeline;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.BookingTimeline = BookingTimeline;
 }());

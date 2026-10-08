@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Privacy;
+namespace OCA\FlzRoom\Privacy;
 
 use DateInterval;
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
-use OCA\AdRoom\Model\Booking;
-use OCA\AdRoom\Repository\BookingRepository;
-use OCA\AdRoom\Repository\BookingInterventionAuditRepository;
-use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
-use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
-use OCA\AdRoom\Service\RoomRetentionPolicyService;
-use OCA\FilzmannDataProtection\PublicApi\V1\RetentionCandidate;
-use OCA\FilzmannDataProtection\PublicApi\V1\RetentionPolicy;
-use OCA\FilzmannDataProtection\PublicApi\V1\RetentionPreviewPage;
-use OCA\FilzmannDataProtection\PublicApi\V1\RetentionPreviewRequest;
-use OCA\FilzmannDataProtection\PublicApi\V1\RetentionProvider;
-use OCA\FilzmannDataProtection\PublicApi\V1\RetentionProviderDescriptor;
+use OCA\FlzRoom\AppInfo\AppId;
+use OCA\FlzRoom\Model\Booking;
+use OCA\FlzRoom\Repository\BookingRepository;
+use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
+use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
+use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+use OCA\FlzRoom\Service\RoomRetentionPolicyService;
+use OCA\FlzDataProtection\PublicApi\V1\RetentionCandidate;
+use OCA\FlzDataProtection\PublicApi\V1\RetentionPolicy;
+use OCA\FlzDataProtection\PublicApi\V1\RetentionPreviewPage;
+use OCA\FlzDataProtection\PublicApi\V1\RetentionPreviewRequest;
+use OCA\FlzDataProtection\PublicApi\V1\RetentionProvider;
+use OCA\FlzDataProtection\PublicApi\V1\RetentionProviderDescriptor;
 
 final class RoomRetentionProvider implements RetentionProvider {
     public const POLICY_ID = 'room_booking_review';
@@ -36,7 +36,7 @@ final class RoomRetentionProvider implements RetentionProvider {
     ) {}
 
     public function descriptor(): RetentionProviderDescriptor {
-        return new RetentionProviderDescriptor(AppId::VALUE, 'AD Raumplaner', '1.0', 200);
+        return new RetentionProviderDescriptor(AppId::VALUE, 'Filzmann Raumplaner', '1.0', 200);
     }
 
     public function policies(): array {

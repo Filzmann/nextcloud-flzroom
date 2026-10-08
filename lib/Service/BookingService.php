@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use OCA\AdRoom\Exception\BookingConflictException;
-use OCA\AdRoom\Model\Booking;
-use OCA\AdRoom\Model\Room;
-use OCA\AdRoom\Repository\BookingRepository;
+use OCA\FlzRoom\Exception\BookingConflictException;
+use OCA\FlzRoom\Model\Booking;
+use OCA\FlzRoom\Model\Room;
+use OCA\FlzRoom\Repository\BookingRepository;
 use OCA\LocalBase\Calendar\CalendarContextSettingsService;
 use OCP\IUserManager;
 

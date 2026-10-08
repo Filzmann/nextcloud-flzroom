@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository;
+namespace OCA\FlzRoom\Repository;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -16,7 +16,7 @@ final class RetentionHoldRepository {
 
     public function activeFor(string $policyId, string $recordReference): ?array {
         $qb=$this->db->getQueryBuilder();
-        $row=$qb->select('*')->from('adr_retention_holds')
+        $row=$qb->select('*')->from('flz_room_retention_holds')
             ->where($qb->expr()->eq('policy_id',$qb->createNamedParameter($policyId,IQueryBuilder::PARAM_STR)))
             ->andWhere($qb->expr()->eq('record_ref',$qb->createNamedParameter($recordReference,IQueryBuilder::PARAM_STR)))
             ->andWhere($qb->expr()->isNull('released_at'))
@@ -26,7 +26,7 @@ final class RetentionHoldRepository {
 
     public function place(string $policyId,string $recordReference,string $reasonCode,string $evidenceReference,string $placedBy,DateTimeImmutable $placedAt,DateTimeImmutable $reviewDueAt):int {
         $qb=$this->db->getQueryBuilder();
-        $qb->insert('adr_retention_holds')
+        $qb->insert('flz_room_retention_holds')
             ->setValue('policy_id',$qb->createNamedParameter($policyId,IQueryBuilder::PARAM_STR))
             ->setValue('record_ref',$qb->createNamedParameter($recordReference,IQueryBuilder::PARAM_STR))
             ->setValue('reason_code',$qb->createNamedParameter($reasonCode,IQueryBuilder::PARAM_STR))
@@ -42,7 +42,7 @@ final class RetentionHoldRepository {
 
     public function release(int $id,string $releasedBy,DateTimeImmutable $releasedAt):bool {
         $qb=$this->db->getQueryBuilder();
-        return $qb->update('adr_retention_holds')
+        return $qb->update('flz_room_retention_holds')
             ->set('released_by',$qb->createNamedParameter($releasedBy,IQueryBuilder::PARAM_STR))
             ->set('released_at',$qb->createNamedParameter($releasedAt,IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
             ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)))
@@ -51,7 +51,7 @@ final class RetentionHoldRepository {
 
     public function releaseActive(string $policyId,string $recordReference,string $releasedBy,DateTimeImmutable $releasedAt):bool {
         $qb=$this->db->getQueryBuilder();
-        return $qb->update('adr_retention_holds')
+        return $qb->update('flz_room_retention_holds')
             ->set('released_by',$qb->createNamedParameter($releasedBy,IQueryBuilder::PARAM_STR))
             ->set('released_at',$qb->createNamedParameter($releasedAt,IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
             ->where($qb->expr()->eq('policy_id',$qb->createNamedParameter($policyId,IQueryBuilder::PARAM_STR)))
@@ -61,7 +61,7 @@ final class RetentionHoldRepository {
 
     public function releasedBefore(DateTimeImmutable $cutoff,int $limit):array {
         $qb=$this->db->getQueryBuilder();
-        $rows=$qb->select('*')->from('adr_retention_holds')
+        $rows=$qb->select('*')->from('flz_room_retention_holds')
             ->where($qb->expr()->lte('released_at',$qb->createNamedParameter($cutoff,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->orderBy('released_at','ASC')->addOrderBy('id','ASC')->setMaxResults($limit)->executeQuery()->fetchAllAssociative();
         return array_map([$this,'map'],$rows);
@@ -69,7 +69,7 @@ final class RetentionHoldRepository {
 
     public function deleteReleased(int $id,DateTimeImmutable $releasedAt):bool {
         $qb=$this->db->getQueryBuilder();
-        return $qb->delete('adr_retention_holds')
+        return $qb->delete('flz_room_retention_holds')
             ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)))
             ->andWhere($qb->expr()->eq('released_at',$qb->createNamedParameter($releasedAt,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
             ->executeStatement()>0;

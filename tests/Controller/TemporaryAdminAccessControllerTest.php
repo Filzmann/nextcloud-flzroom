@@ -7,7 +7,7 @@ namespace OCP\AppFramework { class Controller { public function __construct(stri
 namespace OCP\AppFramework\Http { final class JSONResponse { public function __construct(private array $data=[],private int $status=200){}public function getData():array{return $this->data;}public function getStatus():int{return $this->status;} } }
 namespace OCP\AppFramework\Http\Attribute { #[\Attribute(\Attribute::TARGET_METHOD)] final class NoCSRFRequired {} #[\Attribute(\Attribute::TARGET_METHOD)] final class NoAdminRequired {} }
 namespace Psr\Log { interface LoggerInterface { public function error(string $message,array $context=[]):void; } }
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\Service {
     final class TemporaryAdminAccessService {
         public string $mode='allowed'; public int $mutations=0;
         public function state():array { if($this->mode==='denied')throw new TemporaryAdminAccessDeniedException();return ['maxDurationMinutes'=>1440,'history'=>[]]; }
@@ -17,8 +17,8 @@ namespace OCA\AdRoom\Service {
     final class TemporaryAdminAccessDeniedException extends \RuntimeException {}
 }
 namespace {
-    use OCA\AdRoom\Controller\TemporaryAdminAccessController;
-    use OCA\AdRoom\Service\TemporaryAdminAccessService;
+    use OCA\FlzRoom\Controller\TemporaryAdminAccessController;
+    use OCA\FlzRoom\Service\TemporaryAdminAccessService;
     use OCP\AppFramework\Http;
 
     $service=new TemporaryAdminAccessService();
@@ -33,5 +33,5 @@ namespace {
     if($controller->status()->getStatus()!==Http::STATUS_FORBIDDEN)throw new RuntimeException('Nicht-Admin kann den Freigabestatus lesen.');
     $service->mode='failed';
     if($controller->activate('admin-target',60)->getStatus()!==Http::STATUS_INTERNAL_SERVER_ERROR||$logger->errors===[])throw new RuntimeException('Persistenzfehler wird nicht sicher diagnostiziert.');
-    echo "AD Raumplaner temporary admin access controller tests passed\n";
+    echo "Filzmann Raumplaner temporary admin access controller tests passed\n";
 }

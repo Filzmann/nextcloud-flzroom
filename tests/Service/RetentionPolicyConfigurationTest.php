@@ -14,7 +14,7 @@ namespace OCP {
 namespace OCP\AppFramework\Utility { interface ITimeFactory { public function now(): \DateTimeImmutable; } }
 
 namespace {
-    use OCA\AdRoom\Service\RoomRetentionPolicyService;
+    use OCA\FlzRoom\Service\RoomRetentionPolicyService;
 
     $config = new class implements OCP\IAppConfig {
         public array $values = [];
@@ -81,5 +81,5 @@ namespace {
     catch (DomainException) {}
     if ($config->values !== $before) throw new RuntimeException('Beschädigte Policyhistorie wurde verändert.');
 
-    echo "AD Raumplaner versioned retention policy test passed\n";
+    echo "Filzmann Raumplaner versioned retention policy test passed\n";
 }

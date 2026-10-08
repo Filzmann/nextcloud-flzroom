@@ -46,6 +46,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.BookingWorkflow = BookingWorkflow;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.BookingWorkflow = BookingWorkflow;
 }());

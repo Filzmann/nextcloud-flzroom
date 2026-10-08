@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Migration;
+namespace OCA\FlzRoom\Migration;
 
 use Closure;
-use OCA\AdRoom\BackgroundJob\InterventionNotificationJob;
+use OCA\FlzRoom\BackgroundJob\InterventionNotificationJob;
 use OCP\BackgroundJob\IJobList;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -20,8 +20,8 @@ final class Version000003Date202609290001 extends SimpleMigrationStep {
     public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
         /** @var ISchemaWrapper $schema */
         $schema = $schemaClosure();
-        if (!$schema->hasTable('adr_booking_audit')) {
-            $table = $schema->createTable('adr_booking_audit');
+        if (!$schema->hasTable('flz_room_booking_audit')) {
+            $table = $schema->createTable('flz_room_booking_audit');
             $table->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'notnull' => true]);
             $table->addColumn('action', Types::STRING, ['length' => 16, 'notnull' => true]);
             $table->addColumn('actor_uid', Types::STRING, ['length' => 64, 'notnull' => true]);
@@ -37,13 +37,13 @@ final class Version000003Date202609290001 extends SimpleMigrationStep {
             $table->addColumn('new_ends_at', Types::DATETIME_IMMUTABLE, ['notnull' => false]);
             $table->addColumn('reason', Types::STRING, ['length' => 500, 'notnull' => true]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['occurred_at', 'id'], 'adr_baudit_retention');
-            $table->addIndex(['actor_uid', 'occurred_at'], 'adr_baudit_actor');
-            $table->addIndex(['booking_id', 'occurred_at'], 'adr_baudit_booking');
+            $table->addIndex(['occurred_at', 'id'], 'flz_room_baudit_retention');
+            $table->addIndex(['actor_uid', 'occurred_at'], 'flz_room_baudit_actor');
+            $table->addIndex(['booking_id', 'occurred_at'], 'flz_room_baudit_booking');
         }
 
-        if (!$schema->hasTable('adr_notify_queue')) {
-            $table = $schema->createTable('adr_notify_queue');
+        if (!$schema->hasTable('flz_room_notify_queue')) {
+            $table = $schema->createTable('flz_room_notify_queue');
             $table->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'notnull' => true]);
             $table->addColumn('recipient_uid', Types::STRING, ['length' => 64, 'notnull' => true]);
             $table->addColumn('action', Types::STRING, ['length' => 16, 'notnull' => true]);
@@ -65,9 +65,9 @@ final class Version000003Date202609290001 extends SimpleMigrationStep {
             $table->addColumn('created_at', Types::DATETIME_IMMUTABLE, ['notnull' => true]);
             $table->addColumn('updated_at', Types::DATETIME_IMMUTABLE, ['notnull' => true]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['state', 'next_attempt_at'], 'adr_notify_due');
-            $table->addIndex(['state', 'failed_at'], 'adr_notify_retention');
-            $table->addIndex(['recipient_uid', 'created_at'], 'adr_notify_recipient');
+            $table->addIndex(['state', 'next_attempt_at'], 'flz_room_notify_due');
+            $table->addIndex(['state', 'failed_at'], 'flz_room_notify_retention');
+            $table->addIndex(['recipient_uid', 'created_at'], 'flz_room_notify_recipient');
         }
         return $schema;
     }

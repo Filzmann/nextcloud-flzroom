@@ -9,19 +9,19 @@ namespace OCP\AppFramework\Http {
     class JSONResponse { public function __construct(private array $data=[],private int $status=200){} public function getStatus():int{return $this->status;} }
 }
 namespace OCP\AppFramework\Http\Attribute { #[\Attribute(\Attribute::TARGET_METHOD)] final class NoAdminRequired {} #[\Attribute(\Attribute::TARGET_METHOD)] final class NoCSRFRequired {} }
-namespace OCA\AdRoom\AppInfo { final class Application { public const APP_ID='adroom'; } }
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\AppInfo { final class Application { public const APP_ID='flzroom'; } }
+namespace OCA\FlzRoom\Service {
     final class TemporaryAdminAccessService { public function canManageGrants():bool{return false;} public function currentAdminNeedsGrant():bool{return false;} }
     final class RoomRetentionPolicyService { public function canConfigure():bool{return false;} }
     final class RoomAccessService { public bool $allowed=false; public function canView():bool{return $this->allowed;} }
     final class OrganizationGroupPolicyService { public bool $configurator=false; public function canConfigure():bool{return $this->configurator;} }
 }
 namespace {
-    use OCA\AdRoom\Controller\PageController;
-    use OCA\AdRoom\Service\OrganizationGroupPolicyService;
-    use OCA\AdRoom\Service\RoomAccessService;
-    use OCA\AdRoom\Service\RoomRetentionPolicyService;
-    use OCA\AdRoom\Service\TemporaryAdminAccessService;
+    use OCA\FlzRoom\Controller\PageController;
+    use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
+    use OCA\FlzRoom\Service\RoomAccessService;
+    use OCA\FlzRoom\Service\RoomRetentionPolicyService;
+    use OCA\FlzRoom\Service\TemporaryAdminAccessService;
     use OCP\AppFramework\Http;
 
     $access=new RoomAccessService();
@@ -37,5 +37,5 @@ namespace {
     $roomPage=$controller->index();
     if(!$roomPage instanceof OCP\AppFramework\Http\TemplateResponse||($roomPage->params['canViewRoomPlan']??false)!==true)throw new RuntimeException('Konfigurierte Organisationskräfte erreichen den Raumplan nicht.');
 
-    echo "AD Raumplaner page access tests passed\n";
+    echo "Filzmann Raumplaner page access tests passed\n";
 }

@@ -16,9 +16,9 @@ namespace Psr\Log {
     }
 }
 
-namespace OCA\AdRoom\Service {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Model\Room;
+namespace OCA\FlzRoom\Service {
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Model\Room;
 
     final class BookingService {
         public ?Booking $booking = null;
@@ -63,7 +63,7 @@ namespace OCA\AdRoom\Service {
     }
 }
 
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     final class BookingInterventionAuditRepository {
         public array $entries = [];
         public bool $throw = false;
@@ -86,14 +86,14 @@ namespace OCA\AdRoom\Repository {
 }
 
 namespace {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Repository\BookingInterventionAuditRepository;
-    use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
-    use OCA\AdRoom\Service\BookingService;
-    use OCA\AdRoom\Service\InterventionNotificationDeliveryService;
-    use OCA\AdRoom\Service\RoomService;
-    use OCA\AdRoom\Service\SecretariatBookingInterventionService;
-    use OCA\AdRoom\Service\SecretariatForeignBookingInterventionGuard;
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
+    use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
+    use OCA\FlzRoom\Service\BookingService;
+    use OCA\FlzRoom\Service\InterventionNotificationDeliveryService;
+    use OCA\FlzRoom\Service\RoomService;
+    use OCA\FlzRoom\Service\SecretariatBookingInterventionService;
+    use OCA\FlzRoom\Service\SecretariatForeignBookingInterventionGuard;
     use OCP\IDBConnection;
 
     $assert = static function (bool $condition, string $message): void {

@@ -7,7 +7,7 @@
   Sekretariatseingriff zugleich Fachrolle, fremde Zielbuchung und eine
   kompatible aktive Scope-Freigabe, erhält keine kundenlokalen Policydetails
   und hält kundenlokale Policydetails aus der Fachapp heraus.
-- Begründete Fremdeingriffe durch `ad-Sekretariat` vollständig angebunden:
+- Begründete Fremdeingriffe durch `flz-Sekretariat` vollständig angebunden:
   10–500 Zeichen Pflichtbegründung, atomare Buchungsänderung mit append-only
   Audit und persistenter Nextcloud-Benachrichtigungsqueue, Wiederholungen nach
   5 Minuten, 1 Stunde und 24 Stunden sowie feste Löschung des Audits nach 12
@@ -19,7 +19,7 @@
 - Raumplan und eigene Buchungen serverseitig auf von `Datenschutzbeauftragte`
   konfigurierte Nextcloud-Gruppen begrenzt; eine leere Konfiguration sperrt
   reguläre Zugriffe. Freie Buchungstitel werden nur Besitzer*in und
-  `ad-Sekretariat` ausgegeben.
+  `flz-Sekretariat` ausgegeben.
 - Retention-Dry-Run vom LocalBase-Pilot auf den öffentlichen
   V1-Providervertrag des Datenschutz-Centers migriert; globale Vorschauen sind
   paginiert, datenminimiert und weiterhin strikt `REVIEW`-only.

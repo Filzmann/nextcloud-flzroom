@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Settings;
+namespace OCA\FlzRoom\Settings;
 
-use OCA\AdRoom\AppInfo\Application;
+use OCA\FlzRoom\AppInfo\Application;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
@@ -21,7 +21,7 @@ final class AdminSection implements IIconSection {
     }
 
     public function getName(): string {
-        return 'AD Raumplaner';
+        return 'Filzmann Raumplaner';
     }
 
     public function getPriority(): int {

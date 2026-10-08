@@ -35,6 +35,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.Booking = Booking;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.Booking = Booking;
 }());

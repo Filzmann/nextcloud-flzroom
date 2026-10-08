@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Exception;
+namespace OCA\FlzRoom\Exception;
 
 final class BookingConflictException extends \RuntimeException {}
 

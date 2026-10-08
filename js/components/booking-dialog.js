@@ -7,8 +7,8 @@
             this.dialog = dialog;
             this.form = form;
             this.onSubmit = onSubmit;
-            this.errorNode = this.dialog.querySelector('#adr-booking-error');
-            this.reasonGroup = this.dialog.querySelector('#adr-intervention-reason-group');
+            this.errorNode = this.dialog.querySelector('#flz-room-booking-error');
+            this.reasonGroup = this.dialog.querySelector('#flz-room-intervention-reason-group');
             this.opener = null;
             this.form.addEventListener('submit', event => this.submit(event));
             this.dialog.addEventListener('cancel', event => { event.preventDefault(); this.close(); });
@@ -93,7 +93,7 @@
         }
 
         localParts(value) {
-            return window.AdRoom.BookingWallTime.parts(value);
+            return window.FlzRoom.BookingWallTime.parts(value);
         }
 
         configureReason(required) {
@@ -105,6 +105,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.BookingDialog = BookingDialog;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.BookingDialog = BookingDialog;
 }());

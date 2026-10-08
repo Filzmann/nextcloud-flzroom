@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
-use OCA\AdRoom\Model\Booking;
+use OCA\FlzRoom\Model\Booking;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
+use OCA\FlzRoom\AppInfo\AppId;
 use OCP\Config\IUserConfig;
 use Psr\Log\LoggerInterface;
 

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\AppInfo;
+namespace OCA\FlzRoom\AppInfo;
 
 final class AppId {
-    public const VALUE = 'adroom';
+    public const VALUE = 'flzroom';
 }

@@ -8,14 +8,14 @@ namespace OCP\EventDispatcher {
 }
 
 namespace {
-    use OCA\AdRoom\Privacy\RoomProcessingMetadataProvider;
-    use OCA\AdRoom\Privacy\RoomProcessingMetadataProviderListener;
-    use OCA\FilzmannDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
+    use OCA\FlzRoom\Privacy\RoomProcessingMetadataProvider;
+    use OCA\FlzRoom\Privacy\RoomProcessingMetadataProviderListener;
+    use OCA\FlzDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
     use OCP\EventDispatcher\Event;
 
     $provider = new RoomProcessingMetadataProvider();
     $catalog = $provider->catalog();
-    if ($provider->descriptor()->appId() !== 'adroom' || $catalog->appId() !== 'adroom') {
+    if ($provider->descriptor()->appId() !== 'flzroom' || $catalog->appId() !== 'flzroom') {
         throw new RuntimeException('Processing-Metadata-Provider und Katalog verwenden nicht die kanonische App-ID.');
     }
     if ($catalog->processingIds() !== ['room_booking_management', 'secretariat_foreign_booking_intervention', 'temporary_admin_full_access', 'personal_admin_layout']) {
@@ -32,9 +32,9 @@ namespace {
         throw new RuntimeException('Ein fremdes Event registriert den Processing-Metadata-Provider.');
     }
     $listener->handle($registration);
-    if (($registration->providers()['adroom'] ?? null) !== $provider) {
+    if (($registration->providers()['flzroom'] ?? null) !== $provider) {
         throw new RuntimeException('Der Processing-Metadata-Provider wird nicht lazy registriert.');
     }
 
-    echo "AD Raumplaner processing metadata provider test passed\n";
+    echo "Filzmann Raumplaner processing metadata provider test passed\n";
 }

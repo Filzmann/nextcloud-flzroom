@@ -1,12 +1,12 @@
 (function() {
     'use strict';
 
-    const form = document.getElementById('adr-full-access-form');
-    const history = document.getElementById('adr-full-access-history');
-    const status = document.getElementById('adr-full-access-status');
+    const form = document.getElementById('flz-room-full-access-form');
+    const history = document.getElementById('flz-room-full-access-history');
+    const status = document.getElementById('flz-room-full-access-status');
     if (!form || !history || !status) return;
 
-    const client = new window.LocalBase.api.ApiClient({ appId: 'adroom' });
+    const client = new window.LocalBase.api.ApiClient({ appId: 'flzroom' });
 
     const setStatus = (message, isError = false) => {
         status.textContent = message;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Model;
+namespace OCA\FlzRoom\Model;
 
 final class Room {
     private function __construct(

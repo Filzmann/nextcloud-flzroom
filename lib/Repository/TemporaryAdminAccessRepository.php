@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository;
+namespace OCA\FlzRoom\Repository;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -19,7 +19,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
         $this->db->beginTransaction();
         try {
             $qb = $this->db->getQueryBuilder();
-            $qb->update('adr_admin_access')
+            $qb->update('flz_room_admin_access')
                 ->set('revoked_at', $qb->createNamedParameter($startsAt, IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
                 ->set('revoked_by', $qb->createNamedParameter($grantedBy, IQueryBuilder::PARAM_STR))
                 ->where($qb->expr()->eq('target_uid', $qb->createNamedParameter($targetUid, IQueryBuilder::PARAM_STR)))
@@ -29,7 +29,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
                 ->executeStatement();
 
             $qb = $this->db->getQueryBuilder();
-            $qb->insert('adr_admin_access')
+            $qb->insert('flz_room_admin_access')
                 ->setValue('target_uid', $qb->createNamedParameter($targetUid, IQueryBuilder::PARAM_STR))
                 ->setValue('granted_by', $qb->createNamedParameter($grantedBy, IQueryBuilder::PARAM_STR))
                 ->setValue('starts_at', $qb->createNamedParameter($startsAt, IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
@@ -50,7 +50,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
 
     public function revokeActive(string $targetUid, string $revokedBy, DateTimeImmutable $revokedAt): bool {
         $qb = $this->db->getQueryBuilder();
-        return $qb->update('adr_admin_access')
+        return $qb->update('flz_room_admin_access')
             ->set('revoked_at', $qb->createNamedParameter($revokedAt, IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
             ->set('revoked_by', $qb->createNamedParameter($revokedBy, IQueryBuilder::PARAM_STR))
             ->where($qb->expr()->eq('target_uid', $qb->createNamedParameter($targetUid, IQueryBuilder::PARAM_STR)))
@@ -63,7 +63,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
     public function activeFor(string $targetUid, DateTimeImmutable $at): ?array {
         $qb = $this->db->getQueryBuilder();
         $row = $qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')
-            ->from('adr_admin_access')
+            ->from('flz_room_admin_access')
             ->where($qb->expr()->eq('target_uid', $qb->createNamedParameter($targetUid, IQueryBuilder::PARAM_STR)))
             ->andWhere($qb->expr()->isNull('revoked_at'))
             ->andWhere($qb->expr()->lte('starts_at', $qb->createNamedParameter($at, IQueryBuilder::PARAM_DATETIME_IMMUTABLE)))
@@ -75,14 +75,14 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
     public function history(): array {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')
-            ->from('adr_admin_access')->orderBy('starts_at','DESC')->setMaxResults(200)->executeQuery()->fetchAllAssociative();
+            ->from('flz_room_admin_access')->orderBy('starts_at','DESC')->setMaxResults(200)->executeQuery()->fetchAllAssociative();
         return array_map([$this,'mapRow'],$rows);
     }
 
     public function historyForUid(string $uid, int $limit): array {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')
-            ->from('adr_admin_access')
+            ->from('flz_room_admin_access')
             ->where($qb->expr()->orX(
                 $qb->expr()->eq('target_uid', $qb->createNamedParameter($uid, IQueryBuilder::PARAM_STR)),
                 $qb->expr()->eq('granted_by', $qb->createNamedParameter($uid, IQueryBuilder::PARAM_STR)),
@@ -95,7 +95,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
     public function endedBefore(DateTimeImmutable $cutoff, int $limit, int $offset): array {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')
-            ->from('adr_admin_access')
+            ->from('flz_room_admin_access')
             ->where($qb->expr()->orX(
                 $qb->expr()->lte('revoked_at',$qb->createNamedParameter($cutoff,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)),
                 $qb->expr()->andX(
@@ -114,7 +114,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
 
     public function findForUpdate(int $id): ?array {
         $qb=$this->db->getQueryBuilder();
-        $query=$qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')->from('adr_admin_access')
+        $query=$qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by')->from('flz_room_admin_access')
             ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)));
         if(method_exists($query,'forUpdate'))$query->forUpdate();
         $row=$query->executeQuery()->fetchAssociative();
@@ -123,7 +123,7 @@ final class TemporaryAdminAccessRepository implements TemporaryAdminAccessReposi
 
     public function deleteIfActualEnd(int $id,DateTimeImmutable $actualEnd):bool {
         $qb=$this->db->getQueryBuilder();
-        return$qb->delete('adr_admin_access')
+        return$qb->delete('flz_room_admin_access')
             ->where($qb->expr()->eq('id',$qb->createNamedParameter($id,IQueryBuilder::PARAM_INT)))
             ->andWhere($qb->expr()->orX(
                 $qb->expr()->eq('revoked_at',$qb->createNamedParameter($actualEnd,IQueryBuilder::PARAM_DATETIME_IMMUTABLE)),

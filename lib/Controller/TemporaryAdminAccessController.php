@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Controller;
+namespace OCA\FlzRoom\Controller;
 
 use DateTimeInterface;
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
-use OCA\AdRoom\Service\TemporaryAdminAccessDeniedException;
-use OCA\AdRoom\Service\TemporaryAdminAccessService;
+use OCA\FlzRoom\AppInfo\AppId;
+use OCA\FlzRoom\Service\TemporaryAdminAccessDeniedException;
+use OCA\FlzRoom\Service\TemporaryAdminAccessService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

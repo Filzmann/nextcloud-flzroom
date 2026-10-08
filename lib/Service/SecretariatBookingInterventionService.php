@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use DomainException;
 use InvalidArgumentException;
-use OCA\AdRoom\Exception\BookingConflictException;
-use OCA\AdRoom\Model\Booking;
-use OCA\AdRoom\Repository\BookingInterventionAuditRepository;
-use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
+use OCA\FlzRoom\Exception\BookingConflictException;
+use OCA\FlzRoom\Model\Booking;
+use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
+use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
 use OCP\IDBConnection;
 use Psr\Log\LoggerInterface;
 use Throwable;

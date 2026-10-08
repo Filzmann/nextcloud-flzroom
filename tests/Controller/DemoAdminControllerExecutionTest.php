@@ -32,11 +32,11 @@ namespace Psr\Log {
     }
 }
 
-namespace OCA\AdRoom\AppInfo {
-    final class Application { public const APP_ID = 'adroom'; }
+namespace OCA\FlzRoom\AppInfo {
+    final class Application { public const APP_ID = 'flzroom'; }
 }
 
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\Service {
     final class RoomAccessService { public bool $allowed=false; public function canManageRooms():bool{return $this->allowed;} }
     final class RoomDemoPackService {
         public bool $fail = false;
@@ -48,9 +48,9 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    use OCA\AdRoom\Controller\DemoAdminController;
-    use OCA\AdRoom\Service\RoomDemoPackService;
-    use OCA\AdRoom\Service\RoomAccessService;
+    use OCA\FlzRoom\Controller\DemoAdminController;
+    use OCA\FlzRoom\Service\RoomDemoPackService;
+    use OCA\FlzRoom\Service\RoomAccessService;
     use OCP\AppFramework\Http;
     use OCP\IGroupManager;
     use OCP\IRequest;
@@ -96,5 +96,5 @@ namespace {
     $assert($response->getData()['error'] === 'Demo nicht verfügbar.', 'Demo failures lose their actionable message.');
     $assert($logger->errors[0][0] === 'Raum-Demo-Pack konnte nicht installiert werden.', 'Demo failures are not logged.');
 
-    echo "AD Raumplaner demo admin controller tests passed\n";
+    echo "Filzmann Raumplaner demo admin controller tests passed\n";
 }

@@ -16,11 +16,11 @@ namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
 
-namespace OCA\AdRoom\AppInfo {
-    final class Application { public const APP_ID = 'adroom'; }
+namespace OCA\FlzRoom\AppInfo {
+    final class Application { public const APP_ID = 'flzroom'; }
 }
 
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\Service {
     final class OrganizationGroupPolicyService {
         public bool $secretariat = false;
         public function isSecretariat(string $uid): bool { return $this->secretariat && $uid === 'secretariat-user'; }
@@ -28,10 +28,10 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Service\OrganizationGroupPolicyService;
-    use OCA\AdRoom\Service\SecretariatForeignBookingInterventionGuard;
-    use OCA\FilzmannDataProtection\PublicApi\V1\ScopeAuthorizationQueryEvent;
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
+    use OCA\FlzRoom\Service\SecretariatForeignBookingInterventionGuard;
+    use OCA\FlzDataProtection\PublicApi\V1\ScopeAuthorizationQueryEvent;
     use OCP\EventDispatcher\Event;
     use OCP\EventDispatcher\IEventDispatcher;
     use OCP\IUser;
@@ -109,5 +109,5 @@ namespace {
     $session->uid = '';
     $assertSame(false, $guard->allows($foreign), 'Eine leere Session-UID wurde freigegeben.');
 
-    echo "AD Raumplaner risk-scope consumer contract passed\n";
+    echo "Filzmann Raumplaner risk-scope consumer contract passed\n";
 }

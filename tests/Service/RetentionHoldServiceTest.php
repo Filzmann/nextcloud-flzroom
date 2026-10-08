@@ -7,7 +7,7 @@ namespace OCP {
     interface IUser{public function getUID():string;} interface IUserSession{public function getUser():?IUser;} interface IGroupManager{public function isInGroup(string $uid,string $gid):bool;}
 }
 namespace OCP\AppFramework\Utility{interface ITimeFactory{public function now():\DateTimeImmutable;}}
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     final class BookingRepository { public bool $exists=true;public function findForUpdate(int $id):?object{return$this->exists?(object)['id'=>$id]:null;} }
     final class TemporaryAdminAccessRepository { public bool $exists=true;public function findForUpdate(int $id):?array{return$this->exists?['id'=>$id]:null;} }
     final class RetentionHoldRepository {
@@ -18,11 +18,11 @@ namespace OCA\AdRoom\Repository {
     }
 }
 namespace {
-    use OCA\AdRoom\Privacy\RoomRetentionExecutionProvider;
-    use OCA\AdRoom\Repository\BookingRepository;
-    use OCA\AdRoom\Repository\RetentionHoldRepository;
-    use OCA\AdRoom\Repository\TemporaryAdminAccessRepository;
-    use OCA\AdRoom\Service\RetentionHoldService;
+    use OCA\FlzRoom\Privacy\RoomRetentionExecutionProvider;
+    use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Repository\RetentionHoldRepository;
+    use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+    use OCA\FlzRoom\Service\RetentionHoldService;
     $session=new class implements OCP\IUserSession{public string $uid='dpo';public function getUser():?OCP\IUser{return new class($this->uid)implements OCP\IUser{public function __construct(private string $uid){}public function getUID():string{return$this->uid;}};}};
     $groups=new class implements OCP\IGroupManager{public function isInGroup(string $uid,string $gid):bool{return$uid==='dpo'&&$gid==='Datenschutzbeauftragte';}};
     $clock=new class implements OCP\AppFramework\Utility\ITimeFactory{public function now():DateTimeImmutable{return new DateTimeImmutable('2026-09-29T10:00:00+00:00');}};
@@ -39,5 +39,5 @@ namespace {
     $bookings->exists=false;$before=$holds->rows;
     try{$service->place(RoomRetentionExecutionProvider::BOOKING_POLICY_ID,'booking:999','review','CASE-REF-2');throw new RuntimeException('Hold für fremde oder fehlende Buchung wurde akzeptiert.');}catch(InvalidArgumentException){}
     if($holds->rows!==$before)throw new RuntimeException('Ungültiger Hold hatte Nebenwirkungen.');
-    echo "AD Raumplaner retention hold service tests passed\n";
+    echo "Filzmann Raumplaner retention hold service tests passed\n";
 }

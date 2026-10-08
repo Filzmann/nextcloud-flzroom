@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Privacy;
+namespace OCA\FlzRoom\Privacy;
 
 use DomainException;
 use JsonException;
-use OCA\AdRoom\AppInfo\AppId;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProcessingMetadataCatalog;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProcessingMetadataProvider;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProcessingMetadataProviderDescriptor;
+use OCA\FlzRoom\AppInfo\AppId;
+use OCA\FlzDataProtection\PublicApi\V1\ProcessingMetadataCatalog;
+use OCA\FlzDataProtection\PublicApi\V1\ProcessingMetadataProvider;
+use OCA\FlzDataProtection\PublicApi\V1\ProcessingMetadataProviderDescriptor;
 
 final class RoomProcessingMetadataProvider implements ProcessingMetadataProvider {
     public function descriptor(): ProcessingMetadataProviderDescriptor {
-        return new ProcessingMetadataProviderDescriptor(AppId::VALUE, 'AD Raumplaner', '1.0');
+        return new ProcessingMetadataProviderDescriptor(AppId::VALUE, 'Filzmann Raumplaner', '1.0');
     }
 
     public function catalog(): ProcessingMetadataCatalog {

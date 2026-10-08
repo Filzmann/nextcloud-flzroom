@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Controller;
+namespace OCA\FlzRoom\Controller;
 
 use DomainException;
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
-use OCA\AdRoom\Service\RetentionHoldService;
+use OCA\FlzRoom\AppInfo\AppId;
+use OCA\FlzRoom\Service\RetentionHoldService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

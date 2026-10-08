@@ -13,7 +13,7 @@
             this.head = head;
             this.body = body;
             this.state = null;
-            this.timeline = new window.AdRoom.BookingTimeline();
+            this.timeline = new window.FlzRoom.BookingTimeline();
         }
 
         render(state) {
@@ -63,7 +63,7 @@
             row.append(this.dayLabel(date, month, day, holiday));
             const scheduleCell = document.createElement('td');
             scheduleCell.colSpan = this.state.rooms.length;
-            scheduleCell.className = 'adr-day-schedule-cell';
+            scheduleCell.className = 'flz-room-day-schedule-cell';
             scheduleCell.append(this.daySchedule(dateKey));
             row.append(scheduleCell);
             return row;
@@ -87,7 +87,7 @@
             const bookings = this.bookingsFor(dateKey);
             const points = this.timeline.points(bookings);
             const schedule = document.createElement('div');
-            schedule.className = 'adr-day-schedule';
+            schedule.className = 'flz-room-day-schedule';
             schedule.setAttribute('role', 'group');
             schedule.setAttribute('aria-label', `Buchungen am ${dateKey}`);
             schedule.style.gridTemplateColumns = `repeat(${this.state.rooms.length}, minmax(150px, 1fr))`;
@@ -99,13 +99,13 @@
 
         roomLane(room, index, dateKey, lineCount) {
             const lane = document.createElement('div');
-            lane.className = 'adr-room-lane';
+            lane.className = 'flz-room-room-lane';
             lane.style.gridColumn = String(index + 1);
             lane.style.gridRow = `1 / ${lineCount}`;
             lane.setAttribute('aria-label', room.name);
             const add = this.iconButton('+', `Buchung für ${room.name} anlegen`);
-            add.classList.add('adr-add');
-            add.addEventListener('click', () => this.dispatch('adroom:add-booking', { room, date: dateKey }));
+            add.classList.add('flz-room-add');
+            add.addEventListener('click', () => this.dispatch('flzroom:add-booking', { room, date: dateKey }));
             lane.append(add);
             return lane;
         }
@@ -121,19 +121,19 @@
 
         bookingCard(booking) {
             const card = document.createElement('article');
-            card.className = 'adr-booking';
+            card.className = 'flz-room-booking';
             card.append(
                 this.node('strong', `${this.time(booking.startsAt)}–${this.time(booking.endsAt)}`),
-                this.node('span', booking.purpose, 'adr-booking-purpose'),
-                this.node('span', booking.title, 'adr-booking-title'),
+                this.node('span', booking.purpose, 'flz-room-booking-purpose'),
+                this.node('span', booking.title, 'flz-room-booking-title'),
                 this.node('small', booking.userName),
             );
             if (booking.canManage) {
                 const actions = document.createElement('div');
-                actions.className = 'adr-booking-actions';
+                actions.className = 'flz-room-booking-actions';
                 actions.append(
-                    this.actionButton('✎', 'Buchung bearbeiten', 'adroom:edit-booking', booking),
-                    this.actionButton('×', 'Buchung löschen', 'adroom:delete-booking', booking),
+                    this.actionButton('✎', 'Buchung bearbeiten', 'flzroom:edit-booking', booking),
+                    this.actionButton('×', 'Buchung löschen', 'flzroom:delete-booking', booking),
                 );
                 card.append(actions);
             }
@@ -149,7 +149,7 @@
         iconButton(icon, label) {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'adr-icon-button';
+            button.className = 'flz-room-icon-button';
             button.title = label;
             button.setAttribute('aria-label', label);
             const symbol = document.createElement('span');
@@ -177,14 +177,14 @@
         }
 
         dateKey(value) {
-            return window.AdRoom.BookingWallTime.parts(value).date;
+            return window.FlzRoom.BookingWallTime.parts(value).date;
         }
 
         time(value) {
-            return window.AdRoom.BookingWallTime.parts(value).time;
+            return window.FlzRoom.BookingWallTime.parts(value).time;
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.MonthCalendar = MonthCalendar;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.MonthCalendar = MonthCalendar;
 }());

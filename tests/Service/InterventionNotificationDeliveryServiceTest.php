@@ -24,7 +24,7 @@ namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
 
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     final class InterventionNotificationQueueRepository {
         public ?array $row = null;
         public array $events = [];
@@ -36,8 +36,8 @@ namespace OCA\AdRoom\Repository {
 }
 
 namespace {
-    use OCA\AdRoom\Repository\InterventionNotificationQueueRepository;
-    use OCA\AdRoom\Service\InterventionNotificationDeliveryService;
+    use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
+    use OCA\FlzRoom\Service\InterventionNotificationDeliveryService;
     use OCP\AppFramework\Utility\ITimeFactory;
     use OCP\Notification\IManager;
     use OCP\Notification\INotification;
@@ -80,7 +80,7 @@ namespace {
     $queue->row = $base;
     $service->deliverById(41);
     $assert($queue->events === [['remove', 41]], 'Erfolgreich zugestellte Queuezeile wurde nicht sofort entfernt.');
-    $assert($notification->data['app'] === 'adroom' && $notification->data['user'] === 'booking-owner', 'Native Benachrichtigung ist falsch adressiert.');
+    $assert($notification->data['app'] === 'flzroom' && $notification->data['user'] === 'booking-owner', 'Native Benachrichtigung ist falsch adressiert.');
     $parameters = $notification->data['subject'][1];
     $assert(!isset($parameters['title'], $parameters['purpose'], $parameters['actorUid']), 'Benachrichtigung enthält verbotene Buchungs- oder Personendaten.');
     $assert($parameters['oldRoom'] === 'Raum 4' && $parameters['newRoom'] === 'Raum 8' && $parameters['reason'] === $base['reason'], 'Erforderlicher Benachrichtigungsinhalt fehlt.');
