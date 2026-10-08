@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateTimeImmutable;
-use OCA\AdRoom\Exception\BookingConflictException;
+use OCA\FlzRoom\Exception\BookingConflictException;
 use OCA\LocalBase\Calendar\CalendarContextSettingsService;
 use OCA\LocalBase\Service\DemoAccountProvisioningService;
 
@@ -20,8 +20,8 @@ final class RoomDemoPackService {
 
     /** @return array{accounts:array,rooms:int,createdBookings:int,skippedBookings:int} */
     public function install(): array {
-        $accounts = $this->accounts->provision('ad-suite-demo', [[
-            'uid' => 'ad-demo-room', 'displayName' => 'Romy Baum (Raumplaner-Demo)', 'groups' => [],
+        $accounts = $this->accounts->provision('flz-full-suite-demo', [[
+            'uid' => 'flz-demo-room', 'displayName' => 'Romy Baum (Raumplaner-Demo)', 'groups' => [],
         ]]);
         $definitions = [
             ['name' => 'Besprechungsraum Nord', 'description' => 'Kleiner Besprechungsraum', 'sortOrder' => 10],
@@ -44,7 +44,7 @@ final class RoomDemoPackService {
         $skippedBookings = 0;
         foreach ($samples as [$name, $start, $end, $purpose, $title]) {
             try {
-                $this->bookings->create((int)$existing[$name], $day->format('Y-m-d') . 'T' . $start, $day->format('Y-m-d') . 'T' . $end, $purpose, $title, 'ad-demo-room');
+                $this->bookings->create((int)$existing[$name], $day->format('Y-m-d') . 'T' . $start, $day->format('Y-m-d') . 'T' . $end, $purpose, $title, 'flz-demo-room');
                 $createdBookings++;
             } catch (BookingConflictException) {
                 $skippedBookings++;

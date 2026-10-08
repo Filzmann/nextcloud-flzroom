@@ -23,6 +23,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.Room = Room;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.Room = Room;
 }());

@@ -2,27 +2,45 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use InvalidArgumentException;
-use OCA\AdRoom\AppInfo\AppId;
+use OCA\FlzRoom\AppInfo\AppId;
 use OCP\Config\IUserConfig;
 use Psr\Log\LoggerInterface;
 
 final class RoomAdminLayoutService {
     private const KEY = 'admin_dashboard_layout';
-    private const BLOCKS = ['rooms', 'retention', 'demo'];
+    private const BLOCKS = ['rooms', 'demo'];
+    private const LEGACY_BLOCKS = ['retention'];
 
     public function __construct(private IUserConfig $config, private LoggerInterface $logger) {}
 
     public function layout(string $uid): array {
         try {
-            $stored = $this->config->getValueArray($uid, AppId::VALUE, self::KEY, [], true);
-            return $stored === [] ? $this->default() : $this->normalize($stored);
+            return $this->storedLayout($uid) ?? $this->default();
         } catch (\Throwable $error) {
-            $this->logger->warning('Persönliches Raumplaner-Adminlayout ist ungültig; Standard wird verwendet.', ['exception' => $error]);
+            $this->logInvalidLayout($error);
             return $this->default();
         }
+    }
+
+    public function personalDataForUid(string $uid): ?array {
+        try {
+            return $this->storedLayout($uid);
+        } catch (\Throwable $error) {
+            $this->logInvalidLayout($error);
+            throw new InvalidArgumentException('Personal admin layout is unavailable.', 0, $error);
+        }
+    }
+
+    private function storedLayout(string $uid): ?array {
+        $stored = $this->config->getValueArray($uid, AppId::VALUE, self::KEY, [], true);
+        return $stored === [] ? null : $this->normalize($stored);
+    }
+
+    private function logInvalidLayout(\Throwable $error): void {
+        $this->logger->warning('Persönliches Raumplaner-Adminlayout ist ungültig; Standard wird verwendet.', ['exception' => $error]);
     }
 
     public function save(string $uid, array $layout): array {
@@ -49,7 +67,8 @@ final class RoomAdminLayoutService {
         if (!is_array($value) || !array_is_list($value)) throw new InvalidArgumentException('Adminlayout-Liste ist ungültig.');
         $result=[];
         foreach ($value as $id) {
-            if (!is_string($id) || !in_array($id,self::BLOCKS,true) || in_array($id,$result,true)) throw new InvalidArgumentException('Adminlayout enthält unbekannte oder doppelte Karten.');
+            if (!is_string($id) || (!in_array($id,self::BLOCKS,true) && !in_array($id,self::LEGACY_BLOCKS,true)) || in_array($id,$result,true)) throw new InvalidArgumentException('Adminlayout enthält unbekannte oder doppelte Karten.');
+            if (in_array($id,self::LEGACY_BLOCKS,true)) continue;
             $result[]=$id;
         }
         return $result;

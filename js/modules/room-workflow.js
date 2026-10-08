@@ -50,6 +50,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.RoomWorkflow = RoomWorkflow;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.RoomWorkflow = RoomWorkflow;
 }());

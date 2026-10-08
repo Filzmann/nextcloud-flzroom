@@ -7,7 +7,8 @@ $workspaceRoot = dirname($appRoot);
 
 spl_autoload_register(static function (string $class) use ($appRoot, $workspaceRoot): void {
     $mappings = [
-        'OCA\\AdRoom\\' => $appRoot . '/lib/',
+        'OCA\\FlzRoom\\' => $appRoot . '/lib/',
+        'OCA\\FlzDataProtection\\' => $appRoot . '/tests/stubs/FlzDataProtection/',
         'OCA\\LocalBase\\Tests\\' => $workspaceRoot . '/localbase/tests/',
         'OCA\\LocalBase\\' => $workspaceRoot . '/localbase/lib/',
     ];

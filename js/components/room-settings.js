@@ -53,7 +53,7 @@
         button(icon, label) {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'adr-icon-button';
+            button.className = 'flz-room-icon-button';
             button.title = label;
             button.setAttribute('aria-label', label);
             const symbol = document.createElement('span');
@@ -79,6 +79,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.RoomSettings = RoomSettings;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.RoomSettings = RoomSettings;
 }());

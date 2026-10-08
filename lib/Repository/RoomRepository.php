@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository;
+namespace OCA\FlzRoom\Repository;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use OCA\AdRoom\Model\Room;
+use OCA\FlzRoom\Model\Room;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -19,7 +19,7 @@ final class RoomRepository {
         $qb = $this->db->getQueryBuilder();
         $rows = $qb
             ->select('id', 'name', 'description', 'sort_order')
-            ->from('adr_rooms')
+            ->from('flz_room_rooms')
             ->orderBy('sort_order', 'ASC')
             ->addOrderBy('name', 'ASC')
             ->executeQuery()
@@ -32,7 +32,7 @@ final class RoomRepository {
         $qb = $this->db->getQueryBuilder();
         $row = $qb
             ->select('id', 'name', 'description', 'sort_order')
-            ->from('adr_rooms')
+            ->from('flz_room_rooms')
             ->where($qb->expr()->eq(
                 'id',
                 $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT),
@@ -60,12 +60,12 @@ final class RoomRepository {
         $qb = $this->db->getQueryBuilder();
         $insert = $room->id() === null;
         if ($insert) {
-            $qb->insert('adr_rooms');
+            $qb->insert('flz_room_rooms');
             $values['created_at'] = $now;
             $types['created_at'] = IQueryBuilder::PARAM_DATETIME_IMMUTABLE;
         } else {
             $qb
-                ->update('adr_rooms')
+                ->update('flz_room_rooms')
                 ->where($qb->expr()->eq(
                     'id',
                     $qb->createNamedParameter($room->id(), IQueryBuilder::PARAM_INT),
@@ -89,7 +89,7 @@ final class RoomRepository {
         try {
             $qb = $this->db->getQueryBuilder();
             $qb
-                ->delete('adr_bookings')
+                ->delete('flz_room_bookings')
                 ->where($qb->expr()->eq(
                     'room_id',
                     $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT),
@@ -98,7 +98,7 @@ final class RoomRepository {
 
             $qb = $this->db->getQueryBuilder();
             $qb
-                ->delete('adr_rooms')
+                ->delete('flz_room_rooms')
                 ->where($qb->expr()->eq(
                     'id',
                     $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT),

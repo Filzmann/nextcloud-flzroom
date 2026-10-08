@@ -13,9 +13,9 @@ namespace OCA\LocalBase\Calendar {
     class HolidayCalendarService { public function forYear(int $year): HolidayCalendar { return new HolidayCalendar(); } }
 }
 
-namespace OCA\AdRoom\Repository {
+namespace OCA\FlzRoom\Repository {
     use DateTimeImmutable;
-    use OCA\AdRoom\Model\Booking;
+    use OCA\FlzRoom\Model\Booking;
 
     class BookingRepository {
         /** @var list<Booking> */ public array $bookings = [];
@@ -29,27 +29,29 @@ namespace OCA\AdRoom\Repository {
     }
 }
 
-namespace OCA\AdRoom\Service {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Model\Room;
+namespace OCA\FlzRoom\Service {
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Model\Room;
 
     class RoomService {
         public function all(): array { return [Room::get(['id' => 2, 'name' => 'Konferenz', 'description' => '', 'sortOrder' => 1])]; }
         public function get(int $id): ?Room { return $id === 2 ? $this->all()[0] : null; }
     }
     class RoomAccessService {
+        public bool $canSeeTitle = false;
         public function canManageBooking(Booking $booking): bool { return $booking->userUid() === 'anna'; }
         public function canManageRooms(): bool { return true; }
+        public function canViewBookingTitle(Booking $booking): bool { return $this->canSeeTitle; }
     }
 }
 
 namespace {
-    use OCA\AdRoom\Model\Booking;
-    use OCA\AdRoom\Repository\BookingRepository;
-    use OCA\AdRoom\Service\BookingService;
-    use OCA\AdRoom\Service\HolidayService;
-    use OCA\AdRoom\Service\RoomAccessService;
-    use OCA\AdRoom\Service\RoomService;
+    use OCA\FlzRoom\Model\Booking;
+    use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Service\BookingService;
+    use OCA\FlzRoom\Service\HolidayService;
+    use OCA\FlzRoom\Service\RoomAccessService;
+    use OCA\FlzRoom\Service\RoomService;
     use OCP\IUser;
     use OCP\IUserManager;
 
@@ -58,7 +60,8 @@ namespace {
     $user = new class implements IUser { public function getDisplayName(): string { return 'Anna Beispiel'; } };
     $users = new class($user) implements IUserManager { public function __construct(private IUser $user) {} public function get(string $uid): ?IUser { return $uid === 'anna' ? $this->user : null; } };
     $service = new BookingService($repository, new RoomService(), $users, new HolidayService(new \OCA\LocalBase\Calendar\HolidayCalendarService()), new \OCA\LocalBase\Calendar\CalendarContextSettingsService());
-    $month = $service->month('2026-05', new RoomAccessService());
+    $access = new RoomAccessService();
+    $month = $service->month('2026-05', $access);
     if ($month['month'] !== '2026-05' || $month['bookings'][0]['userName'] !== 'Anna Beispiel' || !$month['bookings'][0]['canManage'] || !$month['capabilities']['canManageRooms']) {
         throw new RuntimeException('Monatsansicht projiziert Buchungen oder Rechte nicht korrekt.');
     }
@@ -66,6 +69,10 @@ namespace {
         throw new RuntimeException('Monatsansicht projiziert Buchungszeiten nicht in die fachliche Organisationszeitzone.');
     }
     if ($repository->lastRange[0]->format(DATE_ATOM) !== '2026-04-30T23:00:00+00:00' || $month['holidays'] === []) throw new RuntimeException('Administrative Monatsgrenzen oder gemeinsame Feiertage fehlen.');
+    if (array_key_exists('title', $month['bookings'][0])) throw new RuntimeException('Fremde Freititel dürfen die Monatsprojektion nicht verlassen.');
+    $access->canSeeTitle = true;
+    $titleVisibleMonth = $service->month('2026-05', $access);
+    if (($titleVisibleMonth['bookings'][0]['title'] ?? null) !== 'Leitung') throw new RuntimeException('Besitzer*in oder Sekretariat erhält den Freititel nicht.');
     foreach (['Juli 2026', '2026-00', '2026-13'] as $invalid) {
         try { $service->month($invalid, new RoomAccessService()); throw new RuntimeException('Ungültiger Monat wurde akzeptiert.'); } catch (InvalidArgumentException) {}
     }
@@ -74,5 +81,5 @@ namespace {
     $service->delete(5);
     if ($repository->deleted !== 5) throw new RuntimeException('Buchung wurde nicht gelöscht.');
 
-    echo "AD Raumplaner month workflow tests passed\n";
+    echo "Filzmann Raumplaner month workflow tests passed\n";
 }

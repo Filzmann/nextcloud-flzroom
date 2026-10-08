@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Model;
+namespace OCA\FlzRoom\Model;
 
 use DateTimeImmutable;
 

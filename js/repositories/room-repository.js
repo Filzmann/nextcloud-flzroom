@@ -9,8 +9,8 @@
             const data = await this.request(`/api/month/${this.encode(month)}`);
             return {
                 ...data,
-                rooms: window.AdRoom.Room.get_all(data.rooms),
-                bookings: window.AdRoom.Booking.get_all(data.bookings),
+                rooms: window.FlzRoom.Room.get_all(data.rooms),
+                bookings: window.FlzRoom.Booking.get_all(data.bookings),
             };
         }
 
@@ -22,8 +22,8 @@
             return this.request(`/api/bookings/${this.encode(id)}`, { method: 'PUT', body: JSON.stringify(payload) });
         }
 
-        deleteBooking(id) {
-            return this.request(`/api/bookings/${this.encode(id)}`, { method: 'DELETE' });
+        deleteBooking(id, payload = {}) {
+            return this.request(`/api/bookings/${this.encode(id)}`, { method: 'DELETE', body: JSON.stringify(payload) });
         }
 
         createRoom(payload) {
@@ -39,6 +39,6 @@
         }
     }
 
-    window.AdRoom = window.AdRoom || {};
-    window.AdRoom.RoomRepository = RoomRepository;
+    window.FlzRoom = window.FlzRoom || {};
+    window.FlzRoom.RoomRepository = RoomRepository;
 }());

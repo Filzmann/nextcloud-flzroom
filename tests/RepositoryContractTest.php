@@ -10,4 +10,4 @@ foreach (['RoomRepository.php', 'BookingRepository.php'] as $file) {
     }
 }
 
-echo "AD Raumplaner repository contract test passed\n";
+echo "Filzmann Raumplaner repository contract test passed\n";

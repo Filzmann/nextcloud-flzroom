@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateTimeImmutable;
 use OCA\LocalBase\Calendar\HolidayCalendarService as SharedHolidayCalendarService;

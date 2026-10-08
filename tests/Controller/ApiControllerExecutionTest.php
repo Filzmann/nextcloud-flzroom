@@ -40,24 +40,44 @@ namespace Psr\Log {
     }
 }
 
-namespace OCA\AdRoom\AppInfo {
-    final class Application { public const APP_ID = 'adroom'; }
+namespace OCA\FlzRoom\AppInfo {
+    final class Application { public const APP_ID = 'flzroom'; }
 }
 
-namespace OCA\AdRoom\Service {
+namespace OCA\FlzRoom\Service {
     final class RoomAccessService {
         public bool $view = true;
         public bool $manageBooking = true;
+        public bool $ownBooking = true;
         public bool $manageRooms = true;
         public function canView(): bool { return $this->view; }
         public function currentUid(): string { return 'anna'; }
         public function canManageBooking(object $booking): bool { return $this->manageBooking; }
+        public function isOwnBooking(object $booking): bool { return $this->ownBooking; }
         public function canManageRooms(): bool { return $this->manageRooms; }
+    }
+
+    final class SecretariatBookingInterventionService {
+        public bool $allowed = false;
+        public array $updates = [];
+        public array $deletes = [];
+        public function update(int $id, int $roomId, string $start, string $end, string $purpose, string $title, string $reason): int {
+            if (!$this->allowed) throw new \DomainException('Keine Berechtigung.');
+            if (strlen(trim($reason)) < 10) throw new \InvalidArgumentException('Die Begründung muss 10 bis 500 Zeichen enthalten.');
+            $this->updates[] = [$id, $roomId, $start, $end, $purpose, $title, $reason];
+            return $id;
+        }
+        public function delete(int $id, string $reason): void {
+            if (!$this->allowed) throw new \DomainException('Keine Berechtigung.');
+            if (strlen(trim($reason)) < 10) throw new \InvalidArgumentException('Die Begründung muss 10 bis 500 Zeichen enthalten.');
+            $this->deletes[] = [$id, $reason];
+        }
     }
 
     final class BookingService {
         public string $mode = 'success';
         public ?int $deleted = null;
+        public int $creates = 0;
 
         public function month(string $month, RoomAccessService $access): array {
             if ($this->mode === 'generic') throw new \RuntimeException('intern');
@@ -65,6 +85,7 @@ namespace OCA\AdRoom\Service {
         }
 
         public function create(int $roomId, string $start, string $end, string $purpose, string $title, string $uid): int {
+            $this->creates++;
             $this->throwConfigured();
             return 17;
         }
@@ -86,7 +107,7 @@ namespace OCA\AdRoom\Service {
         }
 
         private function throwConfigured(): void {
-            if ($this->mode === 'conflict') throw new \OCA\AdRoom\Exception\BookingConflictException('Bereits belegt.');
+            if ($this->mode === 'conflict') throw new \OCA\FlzRoom\Exception\BookingConflictException('Bereits belegt.');
             if ($this->mode === 'not-found') throw new \OutOfBoundsException('Raum nicht gefunden.');
             if ($this->mode === 'generic') throw new \InvalidArgumentException('intern');
         }
@@ -111,23 +132,25 @@ namespace OCA\AdRoom\Service {
 }
 
 namespace {
-    use OCA\AdRoom\Controller\ApiController;
-    use OCA\AdRoom\Service\BookingService;
-    use OCA\AdRoom\Service\RoomAccessService;
-    use OCA\AdRoom\Service\RoomService;
+    use OCA\FlzRoom\Controller\ApiController;
+    use OCA\FlzRoom\Service\BookingService;
+    use OCA\FlzRoom\Service\RoomAccessService;
+    use OCA\FlzRoom\Service\RoomService;
+    use OCA\FlzRoom\Service\SecretariatBookingInterventionService;
     use OCP\AppFramework\Http;
 
     $request = new class implements OCP\IRequest {};
     $access = new RoomAccessService();
     $bookings = new BookingService();
     $rooms = new RoomService();
+    $interventions = new SecretariatBookingInterventionService();
     $logger = new class implements Psr\Log\LoggerInterface {
         public array $errors = [];
         public array $warnings = [];
         public function error(string $message, array $context = []): void { $this->errors[] = $message; }
         public function warning(string $message, array $context = []): void { $this->warnings[] = $message; }
     };
-    $controller = new ApiController($request, $access, $bookings, $rooms, $logger);
+    $controller = new ApiController($request, $access, $bookings, $interventions, $rooms, $logger);
 
     $assert = static function (bool $condition, string $message): void {
         if (!$condition) throw new RuntimeException($message);
@@ -138,6 +161,7 @@ namespace {
     $access->view = false;
     $assert($status($controller->month('2026-07')) === Http::STATUS_FORBIDDEN, 'Monatsansicht ignoriert das Leserecht.');
     $assert($status($controller->createBooking(1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A')) === Http::STATUS_FORBIDDEN, 'Buchungsanlage ignoriert das Leserecht.');
+    $assert($bookings->creates === 0, 'Eine verweigerte Buchungsanlage hat den Schreibservice erreicht.');
     $access->view = true;
 
     $assert($data($controller->month('2026-07'))['month'] === '2026-07', 'Monatsdaten werden nicht durchgereicht.');
@@ -157,6 +181,13 @@ namespace {
     $access->manageBooking = false;
     $assert($status($controller->updateBooking(3, 1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A')) === Http::STATUS_FORBIDDEN, 'Fremde Buchung kann geändert werden.');
     $assert($status($controller->deleteBooking(3)) === Http::STATUS_FORBIDDEN, 'Fremde Buchung kann gelöscht werden.');
+    $assert($interventions->updates === [] && $interventions->deletes === [], 'Verweigerter Fremdeingriff hatte eine Nebenwirkung.');
+    $interventions->allowed = true;
+    $reason = 'Organisatorischer Raumkonflikt wurde abgestimmt.';
+    $assert($data($controller->updateBooking(3, 2, '2026-07-13T10:00', '2026-07-13T11:00', 'AT', 'Team A', $reason))['id'] === 3, 'Freigegebener Sekretariatseingriff wurde nicht geändert.');
+    $assert($data($controller->deleteBooking(3, $reason))['deleted'] === true, 'Freigegebener Sekretariatseingriff wurde nicht gelöscht.');
+    $assert($status($controller->updateBooking(3, 2, '2026-07-13T10:00', '2026-07-13T11:00', 'AT', 'Team A', 'zu kurz')) === Http::STATUS_BAD_REQUEST, 'Ungültige Eingriffsbegründung wurde akzeptiert.');
+    $interventions->allowed = false;
     $access->manageBooking = true;
     $assert($data($controller->updateBooking(3, 1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A'))['id'] === 23, 'Buchungsänderung liefert falsche ID.');
     foreach (['conflict' => Http::STATUS_CONFLICT, 'missing' => Http::STATUS_NOT_FOUND, 'generic' => Http::STATUS_BAD_REQUEST] as $mode => $expected) {
@@ -189,5 +220,5 @@ namespace {
         $assert($status($controller->deleteRoom(2)) === $expected, "Fehlerstatus beim Raumlöschen ist falsch: {$mode}");
     }
 
-    echo "AD Raumplaner controller execution tests passed\n";
+    echo "Filzmann Raumplaner controller execution tests passed\n";
 }

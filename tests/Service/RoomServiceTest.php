@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Repository {
-    use OCA\AdRoom\Model\Room;
+namespace OCA\FlzRoom\Repository {
+    use OCA\FlzRoom\Model\Room;
 
     class RoomRepository {
         /** @var list<Room> */ public array $rooms = [];
@@ -17,9 +17,9 @@ namespace OCA\AdRoom\Repository {
 }
 
 namespace {
-    use OCA\AdRoom\Model\Room;
-    use OCA\AdRoom\Repository\RoomRepository;
-    use OCA\AdRoom\Service\RoomService;
+    use OCA\FlzRoom\Model\Room;
+    use OCA\FlzRoom\Repository\RoomRepository;
+    use OCA\FlzRoom\Service\RoomService;
 
     $repository = new RoomRepository();
     $repository->rooms = [Room::get(['id' => 4, 'name' => 'Nord', 'description' => 'Test', 'sortOrder' => 2])];
@@ -35,5 +35,5 @@ namespace {
     if ($repository->deleted !== 4) throw new RuntimeException('Raum wurde nicht gelöscht.');
     try { $service->delete(404); throw new RuntimeException('Fehlender Raum wurde gelöscht.'); } catch (OutOfBoundsException) {}
 
-    echo "AD Raumplaner room service tests passed\n";
+    echo "Filzmann Raumplaner room service tests passed\n";
 }

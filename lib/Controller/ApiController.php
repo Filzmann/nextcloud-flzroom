@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Controller;
+namespace OCA\FlzRoom\Controller;
 
-use OCA\AdRoom\AppInfo\Application;
-use OCA\AdRoom\Exception\BookingConflictException;
-use OCA\AdRoom\Service\BookingService;
-use OCA\AdRoom\Service\RoomAccessService;
-use OCA\AdRoom\Service\RoomService;
+use OCA\FlzRoom\AppInfo\Application;
+use OCA\FlzRoom\Exception\BookingConflictException;
+use OCA\FlzRoom\Service\BookingService;
+use OCA\FlzRoom\Service\RoomAccessService;
+use OCA\FlzRoom\Service\RoomService;
+use OCA\FlzRoom\Service\SecretariatBookingInterventionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -27,6 +28,7 @@ final class ApiController extends Controller {
         IRequest $request,
         private RoomAccessService $access,
         private BookingService $bookings,
+        private SecretariatBookingInterventionService $interventions,
         private RoomService $rooms,
         private LoggerInterface $logger,
     ) {
@@ -72,14 +74,19 @@ final class ApiController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function updateBooking(int $id, int $roomId, string $start, string $end, string $purpose, string $title): JSONResponse {
+    public function updateBooking(int $id, int $roomId, string $start, string $end, string $purpose, string $title, string $reason = ''): JSONResponse {
         try {
             $booking = $this->bookings->existing($id);
-            if (!$this->access->canManageBooking($booking)) return $this->denied();
-
+            if ($this->access->canManageBooking($booking)) {
+                return new JSONResponse([
+                    'id' => $this->bookings->update($booking, $roomId, $start, $end, $purpose, $title),
+                ]);
+            }
             return new JSONResponse([
-                'id' => $this->bookings->update($booking, $roomId, $start, $end, $purpose, $title),
+                'id' => $this->interventions->update($id, $roomId, $start, $end, $purpose, $title, $reason),
             ]);
+        } catch (\DomainException $error) {
+            return $this->denied();
         } catch (BookingConflictException $error) {
             return $this->error($error->getMessage(), Http::STATUS_CONFLICT);
         } catch (\OutOfBoundsException $error) {
@@ -91,13 +98,17 @@ final class ApiController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function deleteBooking(int $id): JSONResponse {
+    public function deleteBooking(int $id, string $reason = ''): JSONResponse {
         try {
             $booking = $this->bookings->existing($id);
-            if (!$this->access->canManageBooking($booking)) return $this->denied();
-
-            $this->bookings->delete($id);
+            if ($this->access->canManageBooking($booking)) {
+                $this->bookings->delete($id);
+                return new JSONResponse(['deleted' => true]);
+            }
+            $this->interventions->delete($id, $reason);
             return new JSONResponse(['deleted' => true]);
+        } catch (\DomainException $error) {
+            return $this->denied();
         } catch (\OutOfBoundsException $error) {
             return $this->error($error->getMessage(), Http::STATUS_NOT_FOUND);
         } catch (\Throwable $error) {

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdRoom\Service;
+namespace OCA\FlzRoom\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use OCA\AdRoom\Exception\BookingConflictException;
-use OCA\AdRoom\Model\Booking;
-use OCA\AdRoom\Model\Room;
-use OCA\AdRoom\Repository\BookingRepository;
+use OCA\FlzRoom\Exception\BookingConflictException;
+use OCA\FlzRoom\Model\Booking;
+use OCA\FlzRoom\Model\Room;
+use OCA\FlzRoom\Repository\BookingRepository;
 use OCA\LocalBase\Calendar\CalendarContextSettingsService;
 use OCP\IUserManager;
 
@@ -57,7 +57,11 @@ final class BookingService {
             $item['startsAt'] = $booking->startsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
             $item['endsAt'] = $booking->endsAt()->setTimezone($this->localTimezone)->format(DATE_ATOM);
             $item['userName'] = $this->users->get($booking->userUid())?->getDisplayName() ?: $booking->userUid();
-            $item['canManage'] = $access->canManageBooking($booking);
+            $canManageNormally = $access->canManageBooking($booking);
+            $canIntervene = !$canManageNormally && $access->canInterveneInBooking($booking);
+            $item['canManage'] = $canManageNormally || $canIntervene;
+            $item['requiresInterventionReason'] = $canIntervene;
+            if (!$access->canViewBookingTitle($booking)) unset($item['title']);
             $bookingItems[] = $item;
         }
 
