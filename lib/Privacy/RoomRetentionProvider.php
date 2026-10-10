@@ -76,7 +76,7 @@ final class RoomRetentionProvider implements RetentionProvider {
                 self::FAILED_NOTIFICATION_POLICY_ID,
                 'Dauerhaft fehlgeschlagene Eingriffsbenachrichtigungen',
                 'Vollständige Löschung dreißig Tage nach dauerhaft fehlgeschlagener Zustellung',
-                'FAILED_AT',
+                'COMPLETED_AT',
                 'P30D',
                 'REVIEW',
                 '1.0',
