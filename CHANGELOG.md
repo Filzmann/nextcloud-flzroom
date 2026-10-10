@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Nextcloud 35.0.1 durch Fresh Install, Upgrade 34→35 sowie Provider-,
+  Berechtigungs-, Runtime-, UI-/API- und Asset-Smokes nachgewiesen und den
+  unterstützten Bereich auf die lückenlosen Hauptversionen 33 bis 35
+  erweitert. Der Permission-Provider-Listener erfüllt nun Nextclouds
+  öffentlichen `IEventListener`-Vertrag. Die Vorschau dauerhaft
+  fehlgeschlagener Zustellungen verwendet den gültigen Retention-Trigger
+  `COMPLETED_AT`; Berechnung ab `failedAt`, 30-Tage-Frist und reine
+  `REVIEW`-Semantik bleiben unverändert. Nextcloud 36 bleibt ungeprüft.
 - Fail-closed Consumer-Guard für den neutralen öffentlichen V1-Risikoscope
   des Datenschutz-Centers ergänzt. Er verlangt für den künftigen
   Sekretariatseingriff zugleich Fachrolle, fremde Zielbuchung und eine
