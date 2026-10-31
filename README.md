@@ -17,31 +17,43 @@ Filzmann Raumplaner funktioniert einzeln; Buchungen bleiben ohne Kalender oder A
 
 Räume werden nach der Aktivierung im eigenen Nextcloud-Adminabschnitt `Filzmann Raumplaner` eingerichtet. `flzroom:demo:seed` ist ausschließlich für synthetische Testdaten bestimmt.
 
-Der Raumplan ist serverseitig auf Mitglieder der von
-`Datenschutzbeauftragte` konfigurierten, bestehenden Nextcloud-Gruppen
-begrenzt. Die Gruppenmitgliedschaften selbst bleiben Nextcloud-eigen. Eine
-leere Konfiguration sperrt den regulären Zugriff. Berechtigte
-Organisationskräfte sehen Raum, Zeitraum, Zweck und buchende Person; den
-Freititel erhalten nur die buchende Person und `flz-Sekretariat`.
+Der Raumplan verwendet getrennte app-lokale Einzelrechte und semantische
+Organigrammrollen aus dem öffentlichen LocalBase-V1-Snapshot. Standardmäßig
+dürfen alle Organigrammrollen außer `flz-AS` und `flz-ASN-*` den Raumplan lesen,
+eigene Buchungen verwalten und freie Titel lesen. `Datenschutzbeauftragte`
+können die Rollen je Einzelrecht im App-Tab `Einstellungen` zuordnen, ohne
+Gruppenmitgliedschaften zu verändern. Ein fehlender oder ungültiger Snapshot
+oder eine ungültige Zuordnung sperrt den regulären Zugriff fail-closed.
+
+Fremde Buchungen dürfen standardmäßig Sekretariat, (stellvertretende)
+Büroleitungen, (stellvertretende) PDL und Geschäftsführung ausschließlich mit
+Begründung und zusätzlicher Risikoskop-Freigabe bearbeiten. Räume verwalten
+native Nextcloud-Administrationskonten und standardmäßig das Sekretariat; das
+erteilt keinen Zugriff auf fremde Buchungen. Alle Buchungen bleiben nur für
+native Admins mit aktiver, höchstens 24 Stunden gültiger app-lokaler Freigabe
+verwaltbar.
 
 Native Nextcloud-Administration besitzt keinen automatischen Vollzugriff auf
-Raumdaten. Ausschließlich Mitglieder der kanonischen Nextcloud-Gruppe
+Buchungsdaten; die ausdrücklich getrennte Raumstammdatenverwaltung bleibt
+davon unberührt. Ausschließlich Mitglieder der kanonischen Nextcloud-Gruppe
 `Datenschutzbeauftragte` können in der Hauptoberfläche ein aktuelles
 Administrationskonto für höchstens 24 Stunden freischalten oder die Freigabe
 vorzeitig widerrufen. Nativer Adminstatus allein genügt dafür nicht. Beginn,
 geplantes Ende und tatsächliches Ende bleiben app-lokal protokolliert; ohne
-aktive Freigabe sind Raumverwaltung, Fremdbuchungen und Demo-Installation
+aktive Freigabe sind die Verwaltung aller Buchungen und die Demo-Installation
 gesperrt. Der sichere Eintrittshinweis ist nur für betroffene native
 Administrationskonten sichtbar und verlinkt die Freigabesteuerung nur bei
 gleichzeitiger Datenschutzrolle.
 
-Der technische Guard für den begründeten Sekretariatseingriff in
+Der technische Guard für den begründeten organisatorischen Fremdeingriff in
 fremde Buchungen fragt optional den neutralen V1-Risikoscope des
 Datenschutz-Centers ab. Fehlende, deaktivierte, abgelaufene oder inkompatible
 Freigaben sperren fail-closed; der Raumplaner erhält keine kundenlokalen
-Policy-, Vereinbarungs- oder DPO-Daten. Mitglieder von `flz-Sekretariat`
-können bei aktiver Freigabe fremde Buchungen mit einer Begründung von 10 bis
-500 Zeichen ändern oder löschen. Mutation, minimiertes Audit und persistente
+Policy-, Vereinbarungs- oder DPO-Daten. Zugewiesene Rollen – standardmäßig
+Sekretariat, (stellvertretende) Büroleitungen, (stellvertretende) PDL und
+Geschäftsführung – können bei aktiver Risikoskop-Freigabe fremde Buchungen mit
+einer Begründung von 10 bis 500 Zeichen ändern oder löschen. Mutation,
+minimiertes Audit und persistente
 Benachrichtigungsqueue werden atomar gespeichert. Das Audit wird nach zwölf
 Monaten gelöscht; Zustellungen werden nach fünf Minuten, einer Stunde und 24
 Stunden wiederholt, erfolgreiche Queuezeilen sofort und dauerhaft

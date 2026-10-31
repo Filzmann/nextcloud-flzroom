@@ -72,7 +72,7 @@ namespace {
     if (array_key_exists('title', $month['bookings'][0])) throw new RuntimeException('Fremde Freititel dürfen die Monatsprojektion nicht verlassen.');
     $access->canSeeTitle = true;
     $titleVisibleMonth = $service->month('2026-05', $access);
-    if (($titleVisibleMonth['bookings'][0]['title'] ?? null) !== 'Leitung') throw new RuntimeException('Besitzer*in oder Sekretariat erhält den Freititel nicht.');
+    if (($titleVisibleMonth['bookings'][0]['title'] ?? null) !== 'Leitung') throw new RuntimeException('Eine Rolle mit Freititelrecht erhält den Freititel nicht.');
     foreach (['Juli 2026', '2026-00', '2026-13'] as $invalid) {
         try { $service->month($invalid, new RoomAccessService()); throw new RuntimeException('Ungültiger Monat wurde akzeptiert.'); } catch (InvalidArgumentException) {}
     }

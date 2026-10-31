@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Organigrammrollen und Raumplaner-Berechtigungen getrennt: DPO-geschützte,
+  zugängliche Rechtematrix mit fünf Einzelrechten statt freier Gruppen-IDs,
+  serverseitig gegen den öffentlichen LocalBase-V1-Snapshot validiert. Die
+  Standardrechte bilden alle bestätigten Rollen einschließlich AS-/ASN-
+  Ausschluss, begründeten Fremdeingriff, DPO-Steuerung und getrennten
+  Admin-Vollzugriff ab; Provider- und Konfigurationsfehler wirken fail-closed.
+- Rollenübergreifende Fremdeingriffe werden in Oberfläche, Benachrichtigung
+  und Datenschutz-Auskunft neutral bezeichnet; Verzeichnisfehler der
+  serverseitigen Rechteprüfung bleiben fail-closed und datensparsam
+  diagnostizierbar.
+- Raumstammdaten sind über eine buchungsdatenfreie API für native Admins und
+  standardmäßig das Sekretariat verwaltbar. Nichtadministrative Berechtigte
+  nutzen dafür den App-Tab `Einstellungen`; fachlicher Vollzugriff auf fremde
+  Buchungen bleibt an die zeitlich begrenzte Adminfreigabe gebunden.
 - Nextcloud 35.0.1 durch Fresh Install, Upgrade 34→35 sowie Provider-,
   Berechtigungs-, Runtime-, UI-/API- und Asset-Smokes nachgewiesen und den
   unterstützten Bereich auf die lückenlosen Hauptversionen 33 bis 35
@@ -12,10 +26,10 @@
   `REVIEW`-Semantik bleiben unverändert. Nextcloud 36 bleibt ungeprüft.
 - Fail-closed Consumer-Guard für den neutralen öffentlichen V1-Risikoscope
   des Datenschutz-Centers ergänzt. Er verlangt für den künftigen
-  Sekretariatseingriff zugleich Fachrolle, fremde Zielbuchung und eine
+  organisatorischen Fremdeingriff zugleich Fachrolle, fremde Zielbuchung und eine
   kompatible aktive Scope-Freigabe, erhält keine kundenlokalen Policydetails
   und hält kundenlokale Policydetails aus der Fachapp heraus.
-- Begründete Fremdeingriffe durch `flz-Sekretariat` vollständig angebunden:
+- Begründete Fremdeingriffe durch zugewiesene Organigrammrollen vollständig angebunden:
   10–500 Zeichen Pflichtbegründung, atomare Buchungsänderung mit append-only
   Audit und persistenter Nextcloud-Benachrichtigungsqueue, Wiederholungen nach
   5 Minuten, 1 Stunde und 24 Stunden sowie feste Löschung des Audits nach 12
@@ -24,10 +38,9 @@
   PersonalDataProvider, PermissionProvider sowie Retention-Vorschau um die
   neuen Datenklassen ergänzt; kundenlokale Vereinbarungen oder BR-Gruppen
   werden nicht hardcodiert.
-- Raumplan und eigene Buchungen serverseitig auf von `Datenschutzbeauftragte`
-  konfigurierte Nextcloud-Gruppen begrenzt; eine leere Konfiguration sperrt
-  reguläre Zugriffe. Freie Buchungstitel werden nur Besitzer*in und
-  `flz-Sekretariat` ausgegeben.
+- Raumplan, eigene Buchungen und freie Buchungstitel serverseitig über
+  getrennte App-Rechte an semantische Organigrammrollen gebunden; eine leere
+  oder ungültige Zuordnung sperrt reguläre Zugriffe.
 - Retention-Dry-Run vom LocalBase-Pilot auf den öffentlichen
   V1-Providervertrag des Datenschutz-Centers migriert; globale Vorschauen sind
   paginiert, datenminimiert und weiterhin strikt `REVIEW`-only.

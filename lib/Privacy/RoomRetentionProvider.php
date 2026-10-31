@@ -65,7 +65,7 @@ final class RoomRetentionProvider implements RetentionProvider {
         if ($this->interventionAudit !== null && $this->interventionQueue !== null) {
             $policies[] = new RetentionPolicy(
                 self::INTERVENTION_AUDIT_POLICY_ID,
-                'Audit begründeter Sekretariatseingriffe',
+                'Audit begründeter organisatorischer Fremdeingriffe',
                 'Vollständige Löschung zwölf Monate nach dem Eingriff',
                 'CREATED_AT',
                 'P1Y',

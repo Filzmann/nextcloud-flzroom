@@ -50,10 +50,7 @@
 
     async function load() {
         try {
-            const now = new Date();
-            const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            const state = await repository.month(month);
-            if (!state.capabilities?.canManageRooms) throw new Error('Keine Berechtigung zur Raumverwaltung.');
+            const state = await repository.rooms();
             settings.render(state.rooms, true);
         } catch (error) {
             notice.error(error, 'Die Räume konnten nicht geladen werden.');

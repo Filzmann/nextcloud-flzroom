@@ -27,7 +27,7 @@ final class RetentionAdminController extends Controller {
 
     #[NoCSRFRequired]
     public function settings(): JSONResponse {
-        if (!$this->access->canManageRooms()) return $this->denied();
+        if (!$this->access->canManageAllBookings()) return $this->denied();
         return new JSONResponse([
             'dashboardLayout' => $this->layout->layout($this->access->currentUser()->getUID()),
         ]);
@@ -62,7 +62,7 @@ final class RetentionAdminController extends Controller {
     }
 
     public function saveLayout(array $layout): JSONResponse {
-        if (!$this->access->canManageRooms()) return $this->denied();
+        if (!$this->access->canManageAllBookings()) return $this->denied();
         try {
             return new JSONResponse(['dashboardLayout'=>$this->layout->save($this->access->currentUser()->getUID(),$layout)]);
         } catch (\Throwable $error) {

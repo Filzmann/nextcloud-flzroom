@@ -49,8 +49,18 @@ final class ApiController extends Controller {
     }
 
     #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function rooms(): JSONResponse {
+        if (!$this->access->canManageRooms()) return $this->denied();
+
+        return new JSONResponse([
+            'rooms' => array_map(static fn($room): array => $room->toArray(), $this->rooms->all()),
+        ]);
+    }
+
+    #[NoAdminRequired]
     public function createBooking(int $roomId, string $start, string $end, string $purpose, string $title): JSONResponse {
-        if (!$this->access->canView()) return $this->denied();
+        if (!$this->access->canCreateOwnBooking()) return $this->denied();
 
         try {
             return new JSONResponse([
@@ -117,6 +127,7 @@ final class ApiController extends Controller {
         }
     }
 
+    #[NoAdminRequired]
     public function createRoom(string $name, string $description = '', int $sortOrder = 0): JSONResponse {
         if (!$this->access->canManageRooms()) return $this->denied();
 
@@ -130,6 +141,7 @@ final class ApiController extends Controller {
         }
     }
 
+    #[NoAdminRequired]
     public function updateRoom(int $id, string $name, string $description = '', int $sortOrder = 0): JSONResponse {
         if (!$this->access->canManageRooms()) return $this->denied();
 
@@ -145,6 +157,7 @@ final class ApiController extends Controller {
         }
     }
 
+    #[NoAdminRequired]
     public function deleteRoom(int $id): JSONResponse {
         if (!$this->access->canManageRooms()) return $this->denied();
 

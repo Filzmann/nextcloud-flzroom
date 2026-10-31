@@ -21,13 +21,14 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Zweck und Titel sind auf die für die Raumkoordination erforderlichen Angaben zu begrenzen. Die Oberfläche warnt sichtbar davor, Namen, Gesundheits-, Fall- oder andere unnötige Drittpersonenangaben in die Freitextfelder einzutragen.
 - Buchungen liegen innerhalb eines Kalendertags und verwenden 5-Minuten-Schritte ohne pauschale Einschränkung auf bestimmte Tageszeiten.
 - Buchungen desselben Raums duerfen sich nicht ueberschneiden. Angrenzende Buchungen sind erlaubt.
-- Nur Mitglieder der von `Datenschutzbeauftragte` app-lokal konfigurierten, bestehenden Nextcloud-Gruppen erhalten Zugriff auf den Raumplaner; reine Assistenzkräfte erhalten keinen Zugriff. Nextcloud bleibt Quelle der Gruppen und Mitgliedschaften. Organisationskräfte dürfen Räume und Buchungen lesen sowie eigene Buchungen anlegen, bearbeiten, in andere Räume verschieben und löschen. Eine leere oder fehlerhafte Konfiguration wirkt deny by default; der zeitlich freigegebene Adminpfad bleibt die dokumentierte Ausnahme.
-- Die kanonische LocalBase-Gruppe `flz-Sekretariat` bildet die app-lokale Fachrolle Sekretariat. Sie ist von temporärem technischem Admin-Vollzugriff getrennt und darf Räume verwalten sowie bei organisatorischen Konflikten fremde Buchungen ändern oder löschen.
-- Jeder Eingriff des Sekretariats in eine fremde Buchung verlangt vor der Änderung eine Begründung und einen app-lokal auditierbaren Nachweis. Die betroffene buchende Person erhält eine datensparsame Benachrichtigung mit altem und, soweit anwendbar, neuem Raum und Zeitraum sowie der Begründung; Angaben zu anderen Personen oder Buchungen bleiben ausgeschlossen.
-- Für eine direkte Abstimmung dürfen berechtigte Organisationskräfte die buchende Person und den frei eingegebenen Zweck einer Buchung sehen. Der freie Titel wird serverseitig ausschließlich der buchenden Person und Mitgliedern von `flz-Sekretariat` ausgegeben. Diese Sichtbarkeit erteilt kein Änderungsrecht und erweitert die Datenanzeige nicht über den erforderlichen Koordinationskontext hinaus.
+- App-Berechtigungen und Organigrammrollen bleiben getrennt. App-lokale Rechtezuordnungen referenzieren ausschließlich semantische Rollen aus dem öffentlichen LocalBase-V1-Organisationssnapshot; Nextcloud bleibt Quelle der aufgelösten Gruppen und Mitgliedschaften. Standardmäßig dürfen alle Organigrammrollen außer `flz-AS` und `flz-ASN-*` den Raumplan lesen, eigene Buchungen verwalten und freie Buchungstitel lesen. Ein fehlender, deaktivierter, inkompatibler oder ungültiger Snapshot beziehungsweise eine ungültige Rechtezuordnung wirkt deny by default; der zeitlich freigegebene Adminpfad bleibt die dokumentierte Ausnahme.
+- Fremde Buchungen dürfen standardmäßig nur Sekretariat, (stellvertretende) Büroleitungen, (stellvertretende) PDL und Geschäftsführung bearbeiten. Jeder Fremdeingriff verlangt zusätzlich vor der Änderung eine Begründung und eine aktive neutrale Risikoskop-Freigabe sowie einen app-lokal auditierbaren Nachweis. Die betroffene buchende Person erhält eine datensparsame Benachrichtigung mit altem und, soweit anwendbar, neuem Raum und Zeitraum sowie der Begründung; Angaben zu anderen Personen oder Buchungen bleiben ausgeschlossen.
+- Für eine direkte Abstimmung dürfen berechtigte Organisationskräfte die buchende Person, den frei eingegebenen Zweck und entsprechend dem eigenständigen Recht den freien Titel einer Buchung sehen. Diese Sichtbarkeit erteilt kein Änderungsrecht und erweitert die Datenanzeige nicht über den erforderlichen Koordinationskontext hinaus.
+- Räume dürfen native Nextcloud-Administrationskonten sowie standardmäßig die Organigrammrolle Sekretariat verwalten. Dieses Recht erteilt weder Zugriff auf fremde Buchungen noch fachlichen Admin-Vollzugriff.
+- Nur `Datenschutzbeauftragte` verwalten die app-lokale Rechtematrix, Eingriffsaudits, Retention und Holds sowie temporäre Adminfreigaben.
 - Native Nextcloud-Administration erteilt keinen automatischen fachlichen
-  Vollzugriff. Ein konkretes Administrationskonto darf alle Buchungen und die
-  Raumliste ausschließlich mit einer app-lokalen, serverseitig geprüften und
+  Vollzugriff. Ein konkretes Administrationskonto darf alle Buchungen
+  ausschließlich mit einer app-lokalen, serverseitig geprüften und
   höchstens 24 Stunden gültigen Freigabe verwalten. Beginn, geplantes Ende,
   Widerruf und tatsächliches Ende bleiben in der app-eigenen Auditquelle
   erhalten. Der technische Zugriff auf den Nextcloud-Adminabschnitt bleibt
@@ -88,7 +89,7 @@ Die priorisierte Produktplanung und offene Entscheidungen stehen in `ROADMAP.md`
 - Persistente Modelle bieten `get(...)`, `get_all([...])` und `toArray()`; direkte Modellpersistenz ist nicht erlaubt.
 - QueryBuilder-Parameter werden gebunden. Keine SQL-Fragmente aus Requests.
 - Der App-Root erfuellt den Nextcloud-Scrollvertrag; nur die Monatsmatrix scrollt horizontal.
-- Die Raumverwaltung betrifft ausschließlich den Filzmann Raumplaner und liegt deshalb in dessen eigenem Nextcloud-Adminabschnitt `Filzmann Raumplaner`. Der Raumkalender enthält nur fachliche Buchungsfunktionen; künftige persönliche Einstellungen gehören in einen eigenen App-Tab.
+- Die Raumverwaltung betrifft ausschließlich den Filzmann Raumplaner. Native Nextcloud-Administrationskonten erreichen sie im eigenen Adminabschnitt `Filzmann Raumplaner`; nichtadministrative berechtigte Rollen erreichen sie im semantisch getrennten App-Tab `Einstellungen`. Der Raumkalender enthält nur fachliche Buchungsfunktionen. Rechtematrix, Retention, Holds und temporäre Freigaben liegen ebenfalls im nur für die jeweils berechtigte Rolle sichtbaren Einstellungstab und bleiben serverseitig geschützt.
 
 ## Gemeinsame Suite-Navigation
 

@@ -32,10 +32,10 @@ final class Notifier implements INotifier {
         $old = $this->slot((string)$parameters['oldRoom'], (string)$parameters['oldStartsAt'], (string)$parameters['oldEndsAt']);
         $reason = (string)$parameters['reason'];
         if (($parameters['action'] ?? '') === 'delete') {
-            $message = sprintf('Ihre Raumbuchung %s wurde durch das Sekretariat gelöscht. Begründung: %s', $old, $reason);
+            $message = sprintf('Ihre Raumbuchung %s wurde durch eine berechtigte Stelle gelöscht. Begründung: %s', $old, $reason);
         } else {
             $new = $this->slot((string)$parameters['newRoom'], (string)$parameters['newStartsAt'], (string)$parameters['newEndsAt']);
-            $message = sprintf('Ihre Raumbuchung wurde durch das Sekretariat von %s auf %s geändert. Begründung: %s', $old, $new, $reason);
+            $message = sprintf('Ihre Raumbuchung wurde durch eine berechtigte Stelle von %s auf %s geändert. Begründung: %s', $old, $new, $reason);
         }
         return $notification->setParsedSubject($message)->setLink('/apps/flzroom/');
     }

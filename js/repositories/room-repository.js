@@ -14,6 +14,11 @@
             };
         }
 
+        async rooms() {
+            const data = await this.request('/api/rooms');
+            return { ...data, rooms: window.FlzRoom.Room.get_all(data.rooms) };
+        }
+
         createBooking(payload) {
             return this.post('/api/bookings', payload);
         }

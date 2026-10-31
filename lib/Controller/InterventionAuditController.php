@@ -7,7 +7,7 @@ namespace OCA\FlzRoom\Controller;
 use DateTimeInterface;
 use OCA\FlzRoom\AppInfo\AppId;
 use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
-use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
+use OCA\FlzRoom\Service\RoomPermissionPolicyService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -19,7 +19,7 @@ use OCP\IRequest;
 final class InterventionAuditController extends Controller {
     public function __construct(
         IRequest $request,
-        private OrganizationGroupPolicyService $privacyRole,
+        private RoomPermissionPolicyService $privacyRole,
         private BookingInterventionAuditRepository $audit,
     ) {
         parent::__construct(AppId::VALUE, $request);

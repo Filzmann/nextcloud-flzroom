@@ -66,6 +66,41 @@ namespace OCA\FlzRoom\Repository {
             return array_slice($this->items, $offset, $limit);
         }
     }
+    class BookingInterventionAuditRepository {
+        public function byActor(string $uid, int $limit): array {
+            if ($uid !== 'user-17') return [];
+            return [[
+                'id' => 21,
+                'action' => 'update',
+                'bookingId' => 17,
+                'occurredAt' => new \DateTimeImmutable('2026-10-05T09:00:00+00:00'),
+                'oldRoom' => 'Raum 4',
+                'newRoom' => 'Raum 8',
+                'oldStartsAt' => new \DateTimeImmutable('2026-10-05T08:00:00+00:00'),
+                'oldEndsAt' => new \DateTimeImmutable('2026-10-05T09:00:00+00:00'),
+                'newStartsAt' => new \DateTimeImmutable('2026-10-05T10:00:00+00:00'),
+                'newEndsAt' => new \DateTimeImmutable('2026-10-05T11:00:00+00:00'),
+                'reason' => 'Organisatorischer Raumkonflikt wurde abgestimmt.',
+            ]];
+        }
+    }
+    class InterventionNotificationQueueRepository {
+        public function byRecipient(string $uid, int $limit): array {
+            if ($uid !== 'user-17') return [];
+            return [[
+                'id' => 22,
+                'action' => 'update',
+                'oldRoom' => 'Raum 4',
+                'newRoom' => 'Raum 8',
+                'oldStartsAt' => new \DateTimeImmutable('2026-10-05T08:00:00+00:00'),
+                'oldEndsAt' => new \DateTimeImmutable('2026-10-05T09:00:00+00:00'),
+                'newStartsAt' => new \DateTimeImmutable('2026-10-05T10:00:00+00:00'),
+                'newEndsAt' => new \DateTimeImmutable('2026-10-05T11:00:00+00:00'),
+                'reason' => 'Organisatorischer Raumkonflikt wurde abgestimmt.',
+                'state' => 'pending',
+            ]];
+        }
+    }
 }
 
 namespace {
@@ -75,6 +110,8 @@ namespace {
     use OCA\FlzRoom\Privacy\RoomPrivacyProviderListener;
     use OCA\FlzRoom\Privacy\RoomRetentionProvider;
     use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
+    use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
     use OCA\FlzRoom\Repository\RoomRepository;
     use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
     use OCA\FlzRoom\Service\RoomAdminLayoutService;
@@ -148,6 +185,29 @@ namespace {
         || ($policyAudit['attributes']['Aufbewahrungsfrist Adminfreigaben'] ?? null) !== 'P6M'
         || str_contains(json_encode($policyAudit, JSON_THROW_ON_ERROR), 'foreign-user')) {
         throw new RuntimeException('Die eigene Policybearbeitung fehlt oder legt eine fremde Kennung offen.');
+    }
+    $personalWithInterventions = new RoomPersonalDataProvider(
+        $repository,
+        new RoomRepository(),
+        $policy,
+        new CalendarContextSettingsService($config),
+        new TemporaryAdminAccessRepository(),
+        new RoomAdminLayoutService($config, $logger),
+        new BookingInterventionAuditRepository(),
+        new InterventionNotificationQueueRepository(),
+    );
+    $interventionReport = $personalWithInterventions->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
+    $interventionEntries = [];
+    foreach ($interventionReport->entries() as $entry) $interventionEntries[$entry->toArray()['reference']] = $entry->toArray();
+    $auditEntry = $interventionEntries['intervention-audit:21'] ?? null;
+    $queueEntry = $interventionEntries['intervention-notification:22'] ?? null;
+    if ($auditEntry === null || $queueEntry === null) throw new RuntimeException('Fremdeingriff oder Zustellnachweis fehlt in der subjectgebundenen Auskunft.');
+    $serializedInterventions = json_encode([$auditEntry, $queueEntry], JSON_THROW_ON_ERROR);
+    if (str_contains($serializedInterventions, 'Sekretariat')
+        || ($auditEntry['categoryLabel'] ?? null) !== 'Organisatorischer Fremdeingriff'
+        || !str_contains((string)($auditEntry['source'] ?? ''), 'berechtigte Organigrammrolle')
+        || !str_contains((string)($queueEntry['purpose'] ?? ''), 'organisatorischen Fremdeingriff')) {
+        throw new RuntimeException('Die Datenschutz-Auskunft behauptet trotz rollenübergreifender Berechtigung einen Sekretariatseingriff.');
     }
     unset($config->userValues['user-17']['flzroom']['admin_dashboard_layout']);
     $reportWithoutStoredLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));

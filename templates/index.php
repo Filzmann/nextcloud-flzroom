@@ -13,44 +13,72 @@
 \OCP\Util::addScript('flzroom','components/booking-dialog');
 \OCP\Util::addScript('flzroom','admin-access');
 \OCP\Util::addScript('flzroom','retention-policy');
-\OCP\Util::addScript('flzroom','organization-groups');
+\OCP\Util::addScript('flzroom','permission-settings');
+\OCP\Util::addScript('flzroom','settings-tabs');
+$canManageRooms = $_['canManageRooms'] ?? false;
+if ($canManageRooms) {
+    \OCP\Util::addScript('flzroom','modules/room-workflow');
+    \OCP\Util::addScript('flzroom','components/room-settings');
+    \OCP\Util::addScript('flzroom','room-management-settings');
+}
 if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('flzroom','main');
 \OCP\Util::addStyle('flzroom','style');
+$canViewRoomPlan = $_['canViewRoomPlan'] ?? false;
+$hasSettings = ($_['canConfigurePermissions'] ?? false)
+    || ($_['canConfigureRetention'] ?? false)
+    || ($_['canManageAdminAccess'] ?? false)
+    || $canManageRooms;
 ?>
 <main id="flzroom-app" class="flz-room-app">
     <div class="orgsuite-host" data-orgsuite data-suite="flz" data-current-app="flzroom"></div>
     <header class="flz-room-header">
         <div class="flz-room-title-row"><h1>Filzmann Raumplaner</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="flz-room-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="flz-room-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#flz-room-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?><p>Räume und Buchungen im Monatsüberblick</p></div>
-        <?php if ($_['canViewRoomPlan'] ?? false): ?>
-        <nav class="flz-room-month-navigation" aria-label="Monat auswählen">
-            <button type="button" id="flz-room-previous">Vorheriger Monat</button>
-            <label>Monat <input id="flz-room-month" type="month"></label>
-            <button type="button" id="flz-room-next">Nächster Monat</button>
-        </nav>
-        <?php endif; ?>
     </header>
     <div id="flz-room-notice" class="flz-room-notice" role="status" aria-live="polite" hidden></div>
+    <?php if ($canViewRoomPlan || $hasSettings): ?>
+    <nav class="flz-room-tabs" role="tablist" aria-label="Raumplaner-Bereiche">
+        <?php if ($canViewRoomPlan): ?>
+            <button type="button" id="flz-room-tab-calendar" role="tab" aria-controls="flz-room-calendar-view" aria-selected="true">Raumkalender</button>
+        <?php endif; ?>
+        <?php if ($hasSettings): ?>
+            <button type="button" id="flz-room-tab-settings" role="tab" aria-controls="flz-room-settings-view" aria-selected="<?= $canViewRoomPlan ? 'false' : 'true' ?>">Einstellungen</button>
+        <?php endif; ?>
+    </nav>
+    <?php endif; ?>
+    <?php if ($hasSettings): ?>
+    <section id="flz-room-settings-view" class="flz-room-settings-view" role="tabpanel" aria-labelledby="flz-room-tab-settings"<?= $canViewRoomPlan ? ' hidden' : '' ?>>
+    <?php if ($canManageRooms): ?>
+        <section id="flz-room-settings-rooms" class="flz-room-admin-access" aria-labelledby="flz-room-settings-rooms-heading">
+            <h2 id="flz-room-settings-rooms-heading">Räume verwalten</h2>
+            <p>Native Nextcloud-Administrationskonten und zugewiesene Organigrammrollen dürfen Raumstammdaten verwalten. Dieses Recht gewährt keinen Zugriff auf fremde Buchungen.</p>
+            <p>Beim Löschen eines Raums werden auch alle zugehörigen Buchungen gelöscht.</p>
+            <div class="flz-room-table-wrap"><table class="flz-room-room-table"><caption>Vorhandene Räume</caption><thead><tr><th>Name</th><th>Beschreibung</th><th>Reihenfolge</th><th>Aktionen</th></tr></thead><tbody id="flz-room-settings-room-body"><tr><td colspan="4">Räume werden geladen.</td></tr></tbody></table></div>
+            <form id="flz-room-settings-room-form" class="flz-room-room-form"><label>Name <input name="name" required maxlength="255"></label><label>Beschreibung <input name="description" maxlength="500"></label><label>Reihenfolge <input name="sortOrder" type="number" min="0" value="0"></label><button type="submit" class="primary">Raum anlegen</button></form>
+        </section>
+    <?php endif; ?>
     <?php if ($_['showMissingAdminGrant'] ?? false): ?>
         <section hidden class="flz-room-admin-access flz-room-notice is-warning" aria-labelledby="flz-room-admin-access-required-heading">
             <h2 id="flz-room-admin-access-required-heading">Kein fachlicher Admin-Vollzugriff</h2>
-            <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Für geschützte Raumverwaltung und Fremdbuchungen fehlt eine aktive app-lokale Freigabe.</p>
+            <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Für die Verwaltung aller Buchungen fehlt eine aktive app-lokale Freigabe.</p>
             <?php if ($_['showAdminAccessLink'] ?? false): ?>
                 <p><a href="#flz-room-full-access">Zur app-lokalen Freigabesteuerung</a></p>
             <?php endif; ?>
         </section>
     <?php endif; ?>
-    <?php if ($_['canConfigureOrganizationGroups'] ?? false): ?>
-        <section id="flz-room-organization-groups" class="flz-room-admin-access" aria-labelledby="flz-room-organization-groups-heading">
-            <h2 id="flz-room-organization-groups-heading">Organisationsgruppen</h2>
-            <p>Nur Mitglieder der hier eingetragenen Nextcloud-Gruppen erhalten Zugriff auf Raumplan und eigene Buchungen. Eine Gruppen-ID je Zeile; eine leere Liste sperrt den regulären Zugriff.</p>
-            <form id="flz-room-organization-groups-form">
-                <label>Nextcloud-Gruppen-IDs
-                    <textarea name="organizationGroupIds" rows="5" maxlength="25600" aria-describedby="flz-room-organization-groups-hint"></textarea>
-                </label>
-                <small id="flz-room-organization-groups-hint">Es können ausschließlich bereits vorhandene Nextcloud-Gruppen gespeichert werden.</small>
-                <button type="submit" class="primary">Organisationsgruppen speichern</button>
+    <?php if ($_['canConfigurePermissions'] ?? false): ?>
+        <section id="flz-room-permission-settings" class="flz-room-admin-access" aria-labelledby="flz-room-permission-settings-heading">
+            <h2 id="flz-room-permission-settings-heading">Berechtigungen nach Organigrammrolle</h2>
+            <p>Rollen stammen ausschließlich aus dem Organigramm. Die Auswahl erteilt einzelne Raumplaner-Rechte; sie verändert keine Gruppenmitgliedschaften. AS und ASN bleiben unabhängig von der Matrix ausgeschlossen.</p>
+            <form id="flz-room-permission-settings-form">
+                <div class="flz-room-table-wrap"><table>
+                    <caption>App-lokale Rechtezuordnung</caption>
+                    <thead><tr><th scope="col">Organigrammrolle</th><th scope="col">Raumplan lesen</th><th scope="col">Eigene Buchungen</th><th scope="col">Freie Titel lesen</th><th scope="col">Fremde Buchungen</th><th scope="col">Räume verwalten</th></tr></thead>
+                    <tbody data-permission-matrix-body><tr><td colspan="6">Rechte werden geladen.</td></tr></tbody>
+                </table></div>
+                <button type="submit" class="primary">Rechte speichern</button>
             </form>
-            <p id="flz-room-organization-groups-status" role="status" aria-live="polite"></p>
+            <p>Fest zugeordnet: Eingriffsaudit, Rechteverwaltung, Retention und Adminfreigaben für Datenschutz; alle Buchungen nur für native Nextcloud-Admins mit aktiver app-lokaler Freigabe.</p>
+            <p id="flz-room-permission-settings-status" role="status" aria-live="polite"></p>
         </section>
     <?php endif; ?>
     <?php if ($_['canConfigureRetention'] ?? false): ?>
@@ -94,8 +122,15 @@ if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('flzroom','main');
             </table></div>
         </section>
     <?php endif; ?>
-    <?php if ($_['canViewRoomPlan'] ?? false): ?>
-    <section id="flz-room-calendar-view" aria-label="Raumkalender">
+    </section>
+    <?php endif; ?>
+    <?php if ($canViewRoomPlan): ?>
+    <section id="flz-room-calendar-view" class="flz-room-calendar-view" role="tabpanel" aria-labelledby="flz-room-tab-calendar">
+        <nav class="flz-room-month-navigation" aria-label="Monat auswählen">
+            <button type="button" id="flz-room-previous">Vorheriger Monat</button>
+            <label>Monat <input id="flz-room-month" type="month"></label>
+            <button type="button" id="flz-room-next">Nächster Monat</button>
+        </nav>
         <div class="flz-room-table-wrap">
             <table class="flz-room-calendar">
                 <caption>Raumbuchungen des ausgewählten Monats</caption>
@@ -103,7 +138,6 @@ if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('flzroom','main');
                 <tbody id="flz-room-calendar-body"><tr><td>Daten werden geladen.</td></tr></tbody>
             </table>
         </div>
-    </section>
     <dialog id="flz-room-booking-dialog" class="flz-room-dialog" aria-labelledby="flz-room-booking-title">
         <form id="flz-room-booking-form">
             <header><h2 id="flz-room-booking-title">Raumbuchung</h2><button type="button" class="flz-room-icon-button" data-dialog-close aria-label="Dialog schließen" title="Schließen"><span aria-hidden="true">×</span></button></header>
@@ -119,7 +153,7 @@ if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('flzroom','main');
             <label>Titel <input name="title" maxlength="255" aria-describedby="flz-room-title-hint" required></label>
             <small id="flz-room-title-hint">Nur notwendige Sachangaben, zum Beispiel Gremium oder Thema. Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben.</small>
             <div id="flz-room-intervention-reason-group" hidden>
-                <label>Begründung des Sekretariatseingriffs
+                <label>Begründung des organisatorischen Fremdeingriffs
                     <textarea name="reason" minlength="10" maxlength="500" aria-describedby="flz-room-intervention-reason-hint"></textarea>
                 </label>
                 <small id="flz-room-intervention-reason-hint">10–500 Zeichen. Nur den organisatorischen Grund angeben. Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben.</small>
@@ -128,5 +162,6 @@ if ($_['canViewRoomPlan'] ?? false) \OCP\Util::addScript('flzroom','main');
             <footer><button type="button" data-dialog-close>Abbrechen</button><button type="submit" class="primary">Speichern</button></footer>
         </form>
     </dialog>
+    </section>
     <?php endif; ?>
 </main>

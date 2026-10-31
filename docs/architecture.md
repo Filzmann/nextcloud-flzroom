@@ -23,18 +23,32 @@ Zugriff auf Raumtabellen oder private Assets.
 ## Rechte und Datenschutz
 
 Eigene Buchungen werden aus der Session-UID serverseitig gebunden. Der
-Raumplaner gewährt nur Mitgliedern der von `Datenschutzbeauftragte`
-konfigurierten, bestehenden Nextcloud-Gruppen Zugriff; eine leere oder
-fehlerhafte Liste sperrt reguläre Zugriffe. Nextcloud bleibt Quelle der
-Gruppen und Mitgliedschaften. Organisationskräfte verwalten ausschließlich
-eigene Buchungen; der höchstens 24 Stunden freigegebene Adminpfad bleibt die
-ausdrücklich dokumentierte Ausnahme.
+Raumplaner trennt app-lokale Einzelrechte von semantischen Organigrammrollen.
+Die Rechtematrix referenziert nur Rollen des öffentlichen LocalBase-V1-
+Organisationssnapshots; Nextcloud bleibt Quelle der aufgelösten Gruppen und
+Mitgliedschaften. Standardmäßig erhalten alle Organigrammrollen außer
+`flz-AS` und `flz-ASN-*` Lese-, Eigenbuchungs- und Freititelrechte. Ein
+fehlender, deaktivierter, inkompatibler oder ungültiger Snapshot sowie eine
+ungültige Zuordnung sperren reguläre Zugriffe. Organisationskräfte verwalten
+ausschließlich eigene Buchungen, sofern ihnen nicht das getrennte,
+risikoskopgeschützte Fremdeingriffsrecht zugeordnet ist. Der höchstens 24
+Stunden freigegebene Adminpfad bleibt die ausdrücklich dokumentierte Ausnahme
+für die Verwaltung aller Buchungen.
 
-Die kanonische LocalBase-Gruppe `flz-Sekretariat` bildet eine dauerhafte,
-app-lokale Fachrolle. Sie ist ausdrücklich kein Ersatz für den getrennten,
-höchstens 24 Stunden gültigen technischen Admin-Vollzugriff. Das Sekretariat
-darf Räume verwalten und zur Lösung organisatorischer Konflikte fremde
-Buchungen ändern oder löschen. Jeder solche Eingriff setzt eine vorab
+Raumstammdaten werden über einen eigenen Endpunkt ohne Buchungsdaten
+projiziert. Native Nextcloud-Administrationskonten und standardmäßig das
+Sekretariat dürfen sie verwalten; daraus entsteht weder Buchungsleserecht noch
+fachlicher Admin-Vollzugriff. Datenschutzbeauftragte verwalten Rechtematrix,
+Eingriffsaudit, Retention und Holds sowie temporäre Adminfreigaben im getrennten
+App-Einstellungstab.
+
+Das Fremdeingriffsrecht ist eine app-lokale Berechtigung und keine
+Organigrammrolle. Standardmäßig ist es Sekretariat, (stellvertretenden)
+Büroleitungen, (stellvertretender) PDL und Geschäftsführung zugeordnet; die
+DPO-geschützte Rechtematrix kann diese Zuordnung auf andere vorhandene
+semantische Rollen ändern. Das Recht ist ausdrücklich kein Ersatz für den
+getrennten, höchstens 24 Stunden gültigen technischen Admin-Vollzugriff.
+Jeder solche Eingriff setzt eine vorab
 angegebene Begründung voraus und muss app-lokal auditierbar sein. Die
 betroffene buchende Person erhält über den nativen Nextcloud-Mechanismus eine
 datensparsame Benachrichtigung: alter und, soweit anwendbar, neuer Raum und
@@ -43,8 +57,8 @@ Buchungen und weitere Buchungsdaten werden nicht mitgeteilt.
 
 Der Fremdeingriff besitzt zusätzlich einen serverseitigen
 `SecretariatForeignBookingInterventionGuard`. Er kombiniert die aktuelle
-Session, eine tatsächlich fremde Zielbuchung, die app-lokale
-Sekretariatsrolle und den öffentlichen V1-Risikoscope
+Session, eine tatsächlich fremde Zielbuchung, das app-lokale
+Fremdeingriffsrecht und den öffentlichen V1-Risikoscope
 `flzroom.secretariat_foreign_booking_intervention` des optionalen
 Datenschutz-Centers. Fehlender oder deaktivierter Provider, ausbleibende
 Antwort, Deny, Vertragsinkompatibilität und Providerfehler bleiben
@@ -75,14 +89,16 @@ bei zusätzlicher Datenschutzrolle gerendert.
 
 Für die direkte Abstimmung sind buchende Person und frei eingegebener Zweck
 erforderlich und für berechtigte Organisationskräfte sichtbar. Der Freititel
-wird serverseitig nur der buchenden Person und `flz-Sekretariat` ausgegeben.
+wird serverseitig ausschließlich Konten mit dem eigenständigen
+`booking.title.read`-Recht ausgegeben; standardmäßig sind dies alle
+Organigrammrollen außer AS und ASN.
 Zweck und Titel bleiben freie Eingaben, weil ein abschließender Zweckkatalog
 den Planungsbedarf nicht abbildet. Die Oberfläche muss deshalb sichtbar zur
 Datenminimierung auffordern und Namen, Gesundheits-, Fall- sowie andere
 unnötige Drittpersonenangaben ausdrücklich ausschließen.
 
 Organisationszuordnung, Seiten-/API-Zugriff, Freititelprojektion,
-Sekretariatsverwaltung, Begründungs- und Auditpflicht sowie persistente
+Fremdeingriffsrecht, Begründungs- und Auditpflicht sowie persistente
 Benachrichtigungswiederholung sind serverseitig umgesetzt. Die reale
 Nextcloud-Runtimeabnahme von Migration, nativer Benachrichtigung und Jobs
 bleibt ein Release-Gate. Der Datenschutzprovider liefert weiterhin nur
