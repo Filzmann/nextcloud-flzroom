@@ -26,8 +26,6 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
   Freigabesteuerung in DDEV und auf Staging abnehmen.
 - Fremdeingriffe, Audit und Benachrichtigungswiederholung in DDEV und auf
   Staging mit realen Rollen und nativen Nextcloud-Benachrichtigungen abnehmen.
-- Die manuellen Prüfungen werden im ausfüllbaren
-  [`docs/manual-acceptance.md`](docs/manual-acceptance.md) dokumentiert.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
 - Löschbestätigung, Zeitraster, Wochenenden und die Feiertage der administrativ gewählten Organisationsregion sichtbar und barrierefrei prüfen.
 
