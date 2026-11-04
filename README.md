@@ -84,6 +84,14 @@ werden daraus keine automatische Löschung oder Anonymisierung abgeleitet.
 Das Produktpaket enthält außerdem keine kunden- oder instanzspezifische
 Rechtsgrundlage, verantwortliche Organisation, Vereinbarung oder Evidenz;
 diese Zuordnung ist je Installation außerhalb des Pakets zu dokumentieren.
+Der getrennte V2-Provider löscht nach gültiger technischer Aktivierung im
+Datenschutz-Center fällige Buchungen und beendete Adminfreigabehistorien in
+der jeweils app-eigenen Transaktion. Die isolierte Nextcloud-34-/PostgreSQL-16-
+Runtime-Abnahme belegt Fresh Install, Reinstall, Provider-Discovery, echte
+Löschung, aktive Holds, Job-Wiederanlauf und Idempotenz, Nebenläufigkeit,
+Rollback vor Commit sowie Restore-Quarantäne. Mangels autoritativem früheren
+V2-Runtime-Snapshot wird kein historischer Upgradepfad behauptet; der für die
+Entwicklungsphase kanonische Reinstall ist nachgewiesen.
 
 ## Roadmap
 

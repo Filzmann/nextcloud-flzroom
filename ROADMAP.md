@@ -56,22 +56,6 @@ produktübergreifender Werbung.
 
 ## Offene Datenschutz- und Runtime-Nachweise
 
-- Den implementierten V2-DELETE-Provider für Buchungen und
-  Adminfreigabehistorien gemeinsam mit der technischen Aktivierung des
-  Datenschutz-Centers auf der unterstützten realen Datenbank- und
-  Nextcloud-Runtime abnehmen. Nachzuweisen sind frische Installation
-  beziehungsweise Reinstall, Migration, Job-Wiederanlauf, echte
-  Transaktionsgrenze, Nebenläufigkeit, Hold-Rennen, Rollback vor Commit,
-  Provider-/Consumer-Versionen und Restore-Quarantäne. Bis dahin besteht kein
-  Releaseurteil für automatische Löschung.
-- In der Runtime-Abnahme positiv und negativ belegen, dass der technische
-  Operatorpfad standardmäßig deaktiviert ist, nur native
-  Nextcloud-Administration zulässt und bei fehlender, zukünftiger, fälliger,
-  beschädigter oder veralteter Konfiguration sowie ungültiger
-  Backup-/Restore-Prüfung fail-closed bleibt. Rechtsgrundlage,
-  Betriebsvereinbarung, DPO-/Betriebsratsbestätigung und Kundenevidenz bleiben
-  außerhalb des Produktpakets und sind keine Aktivierungsfelder oder
-  technischen DELETE-Gates.
 - Den entschiedenen Lifecycle für den bereits subjectgebunden ausgegebenen
   Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umsetzen: nur der
   jeweilige Kontoinhaber darf den eigenen Wert zurücksetzen; der Wert ist beim

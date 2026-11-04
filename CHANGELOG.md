@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- V2-DELETE-Provider gemeinsam mit dem Datenschutz-Center isoliert auf
+  Nextcloud 34.0.2 und PostgreSQL 16 abgenommen: Fresh Install, Reinstall,
+  Provider-Discovery, technische Fail-closed-Aktivierung, echte Löschung,
+  Holds, Job-Wiederanlauf und Idempotenz, Nebenläufigkeit, Rollback vor Commit
+  und Restore-Quarantäne sind grün. Ein historischer Upgradepfad wird mangels
+  autoritativem früheren V2-Runtime-Snapshot nicht behauptet; der kanonische
+  Entwicklungs-Reinstall ist nachgewiesen.
 - Organigrammrollen und Raumplaner-Berechtigungen getrennt: DPO-geschützte,
   zugängliche Rechtematrix mit fünf Einzelrechten statt freier Gruppen-IDs,
   serverseitig gegen den öffentlichen LocalBase-V1-Snapshot validiert. Die
