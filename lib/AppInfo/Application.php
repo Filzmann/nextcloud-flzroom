@@ -14,6 +14,7 @@ use OCA\FlzRoom\Privacy\RoomProcessingMetadataProviderListener;
 use OCA\FlzRoom\Permission\RoomPermissionProviderListener;
 use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
 use OCA\FlzRoom\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\FlzRoom\Service\OrganizationHolidayCalendarService;
 use OCA\FlzRoom\Service\TemporaryAdminAccessChecker;
 use OCA\FlzRoom\Service\TemporaryAdminAccessService;
 use OCA\FlzDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
@@ -21,7 +22,9 @@ use OCA\FlzDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
 use OCA\FlzDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
 use OCA\FlzDataProtection\PublicApi\V2\RegisterRetentionExecutionProvidersEvent;
 use OCA\FlzPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
+use OCA\LocalBase\Calendar\HolidayCalendarService as LocalBaseHolidayCalendarService;
 use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
+use OCP\App\IAppManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -37,6 +40,24 @@ final class Application extends App implements IBootstrap {
     }
 
     public function register(IRegistrationContext $context): void {
+        // Register OrganizationHolidayCalendarService as adapter for LocalBase HolidayCalendarService
+        // Priority: 1. flz_organization, 2. localbase fallback
+        $context->registerService(
+            OrganizationHolidayCalendarService::class,
+            function ($c) {
+                return new OrganizationHolidayCalendarService(
+                    $c->get(IAppManager::class),
+                    $c->get(LocalBaseHolidayCalendarService::class)
+                );
+            }
+        );
+        
+        // Override LocalBase HolidayCalendarService with our organization-aware adapter
+        $context->registerServiceAlias(
+            LocalBaseHolidayCalendarService::class,
+            OrganizationHolidayCalendarService::class
+        );
+
         $context->registerEventListener(IntegrationCapabilityQueryEvent::class, IntegrationCapabilityQueryListener::class);
         $context->registerEventListener(RegisterPersonalDataProvidersEvent::class, RoomPersonalDataProviderListener::class);
         $context->registerEventListener(RegisterProcessingMetadataProvidersEvent::class, RoomProcessingMetadataProviderListener::class);
