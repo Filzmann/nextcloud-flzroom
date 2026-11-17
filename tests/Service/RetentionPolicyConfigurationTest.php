@@ -12,6 +12,13 @@ namespace OCP {
     interface IGroupManager { public function isInGroup(string $uid, string $gid): bool; }
 }
 namespace OCP\AppFramework\Utility { interface ITimeFactory { public function now(): \DateTimeImmutable; } }
+namespace OCP\Lock {
+    interface ILockingProvider {
+        public const LOCK_EXCLUSIVE = 2;
+        public function acquireLock(string $path, int $type): void;
+        public function releaseLock(string $path, int $type): void;
+    }
+}
 
 namespace {
     use OCA\FlzRoom\Service\RoomRetentionPolicyService;
@@ -35,10 +42,18 @@ namespace {
         public function now(): DateTimeImmutable { return $this->value; }
     };
 
-    $service = new RoomRetentionPolicyService($config, $groups, $session, $clock);
+    $locking = new class implements OCP\Lock\ILockingProvider {
+        public int $acquired = 0;
+        public int $released = 0;
+        public function acquireLock(string $path, int $type): void { $this->acquired++; }
+        public function releaseLock(string $path, int $type): void { $this->released++; }
+    };
+    $service = new RoomRetentionPolicyService($config, $groups, $session, $clock, $locking);
     $default = $service->policy();
     if ($default['durationPeriod'] !== 'P1Y'
         || $default['adminHistoryDurationPeriod'] !== 'P6M'
+        || ($default['interventionAuditDurationPeriod'] ?? null) !== 'P1Y'
+        || ($default['failedNotificationDurationPeriod'] ?? null) !== 'P30D'
         || $default['action'] !== 'REVIEW'
         || $default['revision'] !== 0
         || !$default['reviewDue']) {
@@ -46,12 +61,51 @@ namespace {
     }
     if (!$service->canConfigure()) throw new RuntimeException('Datenschutzbeauftragte können die Policy nicht konfigurieren.');
 
-    $saved = $service->save(['durationPeriod' => 'P18M', 'adminHistoryDurationPeriod' => 'P6M', 'expectedRevision' => 0]);
+    $saved = $service->save([
+        'durationPeriod' => 'P18M',
+        'adminHistoryDurationPeriod' => 'P6M',
+        'interventionAuditDurationPeriod' => 'P90D',
+        'failedNotificationDurationPeriod' => 'P7D',
+        'expectedRevision' => 0,
+    ]);
     if ($saved['revision'] !== 1 || $saved['durationPeriod'] !== 'P18M' || $saved['adminHistoryDurationPeriod'] !== 'P6M' || $saved['changedBy'] !== 'dpo') {
         throw new RuntimeException('Eine gültige Policyänderung wird nicht versioniert und akteursgebunden gespeichert.');
     }
     if (count($service->history()) !== 1 || $service->reviewDue()) {
         throw new RuntimeException('Policyhistorie oder jährlicher Reviewstatus ist falsch.');
+    }
+    if ($locking->acquired !== 1 || $locking->released !== 1) {
+        throw new RuntimeException('Die gemeinsame Policyrevision wird nicht gegen gleichzeitige Änderungen gesperrt.');
+    }
+    if ($saved['interventionAuditDurationPeriod'] !== 'P90D'
+        || $saved['failedNotificationDurationPeriod'] !== 'P7D') {
+        throw new RuntimeException('Die bearbeitbaren Eingriffsfristen werden nicht gespeichert.');
+    }
+
+    $before = $config->values;
+    foreach ([
+        ['P29D', 'P7D'],
+        ['P4Y', 'P7D'],
+        ['P1096D', 'P7D'],
+        ['P90D', 'P0D'],
+        ['P90D', 'P366D'],
+        ['P90D', 'unbegrenzt'],
+        [null, 'P7D'],
+    ] as [$auditPeriod, $failurePeriod]) {
+        try {
+            $service->save([
+                'durationPeriod' => 'P18M',
+                'adminHistoryDurationPeriod' => 'P6M',
+                'interventionAuditDurationPeriod' => $auditPeriod,
+                'failedNotificationDurationPeriod' => $failurePeriod,
+                'expectedRevision' => 1,
+            ]);
+            throw new RuntimeException('Eine unzulässige Eingriffsfrist wurde angenommen.');
+        } catch (InvalidArgumentException) {
+        }
+        if ($config->values !== $before) {
+            throw new RuntimeException('Eine ungültige Frist hat die Policyhistorie verändert.');
+        }
     }
 
     $before = $config->values;
@@ -73,6 +127,33 @@ namespace {
     $reviewed = $service->recordReview(1);
     if ($reviewed['revision'] !== 2 || $reviewed['event'] !== 'reviewed' || $service->reviewDue()) {
         throw new RuntimeException('Der jährliche Review wird nicht versioniert protokolliert.');
+    }
+    if ($service->policy()['interventionAuditDurationPeriod'] !== 'P90D'
+        || $service->policy()['failedNotificationDurationPeriod'] !== 'P7D') {
+        throw new RuntimeException('Eine jährliche Prüfung verändert die Eingriffsfristen.');
+    }
+    foreach ([['P30D', 'P1D'], ['P3Y', 'P365D'], ['P1095D', 'P30D']] as [$auditPeriod, $failurePeriod]) {
+        $current = $service->policy();
+        $service->save([
+            'durationPeriod' => $current['durationPeriod'],
+            'adminHistoryDurationPeriod' => 'P6M',
+            'interventionAuditDurationPeriod' => $auditPeriod,
+            'failedNotificationDurationPeriod' => $failurePeriod,
+            'expectedRevision' => $current['revision'],
+        ]);
+        if ($service->policy()['interventionAuditDurationPeriod'] !== $auditPeriod
+            || $service->policy()['failedNotificationDurationPeriod'] !== $failurePeriod) {
+            throw new RuntimeException('Eine erlaubte Fristgrenze wird nicht gespeichert.');
+        }
+    }
+    $before = $config->values;
+    try {
+        $service->save(['durationPeriod' => 'P1Y', 'adminHistoryDurationPeriod' => 'P6M', 'expectedRevision' => 0]);
+        throw new RuntimeException('Eine veraltete DPO-Revision überschreibt neuere Fristen.');
+    } catch (DomainException) {
+    }
+    if ($config->values !== $before || $locking->acquired !== $locking->released) {
+        throw new RuntimeException('Ein Revisionskonflikt verändert Daten oder lässt die Schreibsperre bestehen.');
     }
 
     $config->values['retention_policy_history_v1'] = '{broken';

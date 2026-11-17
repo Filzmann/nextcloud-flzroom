@@ -16,7 +16,7 @@ use Throwable;
 final class SecretariatForeignBookingInterventionGuard {
     public function __construct(
         private IUserSession $session,
-        private OrganizationGroupPolicyService $organizationGroups,
+        private RoomPermissionPolicyService $permissions,
         private IEventDispatcher $events,
         private LoggerInterface $logger,
     ) {
@@ -32,7 +32,7 @@ final class SecretariatForeignBookingInterventionGuard {
             return null;
         }
         try {
-            if (!$this->organizationGroups->isSecretariat($uid)
+            if (!$this->permissions->isGranted($uid, RoomPermissionPolicyService::BOOKING_INTERVENE_FOREIGN)
                 || !class_exists(ScopeAuthorizationQueryEvent::class)) {
                 return null;
             }

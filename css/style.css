@@ -6,7 +6,7 @@
     max-width: 100%;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
     overflow-x: hidden;
     padding: 16px 20px 80px;
     background: var(--color-main-background);
@@ -29,6 +29,10 @@
 .flz-room-tabs { margin-bottom:12px; border-bottom:1px solid var(--color-border); }
 .flz-room-tabs button { margin:0; border-radius:var(--border-radius) var(--border-radius) 0 0; }
 .flz-room-tabs button[aria-selected="true"] { background:var(--color-primary-element-light); font-weight:700; }
+.flz-room-tabs button:focus-visible { outline:2px solid var(--color-primary-element); outline-offset:2px; }
+.flz-room-settings-view { min-width:0; min-height:0; flex:0 0 auto; }
+.flz-room-settings-view > .flz-room-admin-access { max-height:none; }
+.flz-room-settings-view select[multiple] { min-width:min(100%,32rem); min-height:14rem; }
 .flz-room-notice { margin:8px 0; padding:8px 10px; border:1px solid var(--color-border); border-radius:var(--border-radius); }
 .flz-room-notice.is-error { border-color:var(--color-error); }
 .flz-room-notice.is-success { border-color:var(--color-success); }
@@ -41,8 +45,8 @@
 .flz-room-admin-access table { width:max-content; min-width:100%; border-collapse:collapse; }
 .flz-room-admin-access th,.flz-room-admin-access td { padding:5px; border:1px solid var(--color-border); text-align:left; vertical-align:top; }
 .flz-room-admin-access :is(button,input,select,a):focus-visible { outline:2px solid var(--color-primary-element); outline-offset:2px; }
-#flz-room-calendar-view { min-width:0; min-height:0; display:flex; flex:1 1 auto; overflow:hidden; }
-.flz-room-table-wrap { min-width:0; min-height:0; max-width:100%; flex:1 1 auto; overflow:auto; overscroll-behavior:contain; }
+#flz-room-calendar-view { min-width:0; min-height:0; display:flex; flex:0 0 auto; flex-direction:column; gap:10px; overflow:visible; }
+.flz-room-table-wrap { min-width:0; min-height:0; max-width:100%; flex:0 0 auto; overflow-x:auto; overflow-y:visible; overscroll-behavior:contain; }
 .flz-room-calendar,.flz-room-room-table { width:max-content; min-width:100%; border-collapse:collapse; table-layout:auto; }
 .flz-room-calendar caption,.flz-room-room-table caption { text-align:left; padding:6px 0; color:var(--color-text-maxcontrast); }
 .flz-room-calendar th,.flz-room-calendar td,.flz-room-room-table th,.flz-room-room-table td { border:1px solid var(--color-border); padding:5px; vertical-align:top; text-align:left; }

@@ -1,8 +1,8 @@
 <?php
-\OCP\Util::addScript('localbase', 'api/api-client');
-\OCP\Util::addScript('localbase', 'models/model');
-\OCP\Util::addScript('localbase', 'repositories/repository');
-\OCP\Util::addScript('localbase', 'ui/ui');
+\OCP\Util::addScript('flzroom', 'shared/api-client');
+\OCP\Util::addScript('flzroom', 'shared/model');
+\OCP\Util::addScript('flzroom', 'shared/repository');
+\OCP\Util::addScript('flzroom', 'shared/ui');
 \OCP\Util::addScript('localbase', 'components/organization-dashboard');
 \OCP\Util::addScript('flzroom', 'models/room');
 \OCP\Util::addScript('flzroom', 'models/booking');

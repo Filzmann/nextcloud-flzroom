@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 final class DemoAdminController extends Controller {
     public function __construct(IRequest $request, private RoomAccessService $access, private RoomDemoPackService $demoPack, private LoggerInterface $logger) { parent::__construct(Application::APP_ID, $request); }
     public function install(): JSONResponse {
-        if (!$this->access->canManageRooms()) return new JSONResponse(['error' => 'Keine Berechtigung.'], Http::STATUS_FORBIDDEN);
+        if (!$this->access->canManageAllBookings()) return new JSONResponse(['error' => 'Keine Berechtigung.'], Http::STATUS_FORBIDDEN);
         try {
             return new JSONResponse(['result' => $this->demoPack->install()]);
         } catch (\Throwable $error) {

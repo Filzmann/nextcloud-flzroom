@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace OCA\FlzRoom\Controller;
 
 use OCA\FlzRoom\AppInfo\Application;
-use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
 use OCA\FlzRoom\Service\RoomAccessService;
+use OCA\FlzRoom\Service\RoomPermissionPolicyService;
 use OCA\FlzRoom\Service\TemporaryAdminAccessService;
 use OCA\FlzRoom\Service\RoomRetentionPolicyService;
 use OCP\AppFramework\Controller;
@@ -23,7 +23,7 @@ final class PageController extends Controller {
         private TemporaryAdminAccessService $adminAccess,
         private RoomRetentionPolicyService $retentionPolicy,
         private RoomAccessService $access,
-        private OrganizationGroupPolicyService $organizationGroups,
+        private RoomPermissionPolicyService $permissions,
     ) { parent::__construct(Application::APP_ID,$request); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -32,17 +32,19 @@ final class PageController extends Controller {
         $canManageAdminAccess = $this->adminAccess->canManageGrants();
         $showMissingAdminGrant = $this->adminAccess->currentAdminNeedsGrant();
         $canConfigureRetention = $this->retentionPolicy->canConfigure();
-        $canConfigureOrganizationGroups = $this->organizationGroups->canConfigure();
-        if (!$canViewRoomPlan && !$canManageAdminAccess && !$showMissingAdminGrant && !$canConfigureRetention && !$canConfigureOrganizationGroups) {
+        $canConfigurePermissions = $this->permissions->canConfigure();
+        $canManageRooms = $this->access->canManageRooms();
+        if (!$canViewRoomPlan && !$canManageRooms && !$canManageAdminAccess && !$showMissingAdminGrant && !$canConfigureRetention && !$canConfigurePermissions) {
             return new JSONResponse(['message' => 'Keine Berechtigung.'], Http::STATUS_FORBIDDEN);
         }
         return new TemplateResponse(Application::APP_ID, 'index', [
             'canViewRoomPlan' => $canViewRoomPlan,
+            'canManageRooms' => $canManageRooms,
             'canManageAdminAccess' => $canManageAdminAccess,
             'showMissingAdminGrant' => $showMissingAdminGrant,
             'showAdminAccessLink' => $canManageAdminAccess && $showMissingAdminGrant,
             'canConfigureRetention' => $canConfigureRetention,
-            'canConfigureOrganizationGroups' => $canConfigureOrganizationGroups,
+            'canConfigurePermissions' => $canConfigurePermissions,
         ]);
     }
 }

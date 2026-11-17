@@ -59,7 +59,11 @@ namespace {
     $repository->bookings = [Booking::get(['id' => 5, 'roomId' => 2, 'userUid' => 'anna', 'purpose' => 'LG', 'title' => 'Leitung', 'startsAt' => '2026-07-13T06:00:00+00:00', 'endsAt' => '2026-07-13T07:00:00+00:00'])];
     $user = new class implements IUser { public function getDisplayName(): string { return 'Anna Beispiel'; } };
     $users = new class($user) implements IUserManager { public function __construct(private IUser $user) {} public function get(string $uid): ?IUser { return $uid === 'anna' ? $this->user : null; } };
-    $service = new BookingService($repository, new RoomService(), $users, new HolidayService(new \OCA\LocalBase\Calendar\HolidayCalendarService()), new \OCA\LocalBase\Calendar\CalendarContextSettingsService());
+    $holidayCalendar = new class extends \OCA\FlzRoom\Service\OrganizationHolidayCalendarService {
+        public function __construct() {}
+        public function forYear(int $year): ?array { return ['publicHolidays' => [['name' => 'Feiertag', 'startDate' => '2026-05-01', 'endDate' => '2026-05-01']]]; }
+    };
+    $service = new BookingService($repository, new RoomService(), $users, new HolidayService($holidayCalendar), new \OCA\LocalBase\Calendar\CalendarContextSettingsService());
     $access = new RoomAccessService();
     $month = $service->month('2026-05', $access);
     if ($month['month'] !== '2026-05' || $month['bookings'][0]['userName'] !== 'Anna Beispiel' || !$month['bookings'][0]['canManage'] || !$month['capabilities']['canManageRooms']) {
@@ -72,7 +76,7 @@ namespace {
     if (array_key_exists('title', $month['bookings'][0])) throw new RuntimeException('Fremde Freititel dürfen die Monatsprojektion nicht verlassen.');
     $access->canSeeTitle = true;
     $titleVisibleMonth = $service->month('2026-05', $access);
-    if (($titleVisibleMonth['bookings'][0]['title'] ?? null) !== 'Leitung') throw new RuntimeException('Besitzer*in oder Sekretariat erhält den Freititel nicht.');
+    if (($titleVisibleMonth['bookings'][0]['title'] ?? null) !== 'Leitung') throw new RuntimeException('Eine Rolle mit Freititelrecht erhält den Freititel nicht.');
     foreach (['Juli 2026', '2026-00', '2026-13'] as $invalid) {
         try { $service->month($invalid, new RoomAccessService()); throw new RuntimeException('Ungültiger Monat wurde akzeptiert.'); } catch (InvalidArgumentException) {}
     }

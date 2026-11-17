@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const BaseModel = window.LocalBase.models.Model;
+    const BaseModel = window.OCA.FlzRoom.Shared.models.Model;
 
     /** Zweck: Repräsentiert einen hydratisierten Raum aus Monats- und Adminantworten. */
     class Room extends BaseModel {

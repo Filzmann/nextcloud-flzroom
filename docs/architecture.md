@@ -17,24 +17,59 @@ Zugriff auf Raumtabellen oder private Assets.
   Buchungen bleiben erlaubt.
 - Validierung und Konfliktprüfung liegen im Booking-Service, Rechte im
   Access-Service und Persistenz in Repositorys.
-- Feiertage und fachliche Zeitzone werden ausschließlich aus dem gemeinsamen
-  LocalBase-Kalenderkontext projiziert.
+- Feiertage werden ausschließlich aus dem öffentlichen V1-Kalendersnapshot
+  von `flz_organization` projiziert. Die fachliche Zeitzone der Buchungen
+  bleibt Teil des gemeinsamen Kalenderkontexts. Es gibt keinen
+  LocalBase-Feiertagsfallback.
+
+## Frontend und gebündelte Browserbibliothek
+
+API-Zugriffe, Modelle, Repository-Basis und sichtbare Statusmeldungen verwenden
+die app-lokal gebündelten Kategorie-A-Verträge `ApiClient`, `Model`,
+`Repository` und `Notice` aus `flz_shared`. Das reproduzierbare
+Browserartefakt liegt vollständig unter `js/shared`, besitzt einen eigenen
+Paket-Lock und stellt seine Laufzeittypen ausschließlich unter
+`window.OCA.FlzRoom.Shared` bereit. Es lädt weder die entsprechenden privaten
+LocalBase-Browserassets noch Dateien aus einem benachbarten
+Workspace-Repository.
+
+Die im technischen Nextcloud-Adminbereich weiterhin verwendete
+`OrganizationDashboard`-Komponente und deren Stylesheet sind nicht Teil
+dieses zustandslosen Kategorie-A-Pakets. Sie bleiben bis zu ihrem getrennten
+Kategorie-B-Migrationsschritt unverändert; aus dem Browserbundle entsteht
+keine zweite Organisations- oder Kalenderquelle.
 
 ## Rechte und Datenschutz
 
 Eigene Buchungen werden aus der Session-UID serverseitig gebunden. Der
-Raumplaner gewährt nur Mitgliedern der von `Datenschutzbeauftragte`
-konfigurierten, bestehenden Nextcloud-Gruppen Zugriff; eine leere oder
-fehlerhafte Liste sperrt reguläre Zugriffe. Nextcloud bleibt Quelle der
-Gruppen und Mitgliedschaften. Organisationskräfte verwalten ausschließlich
-eigene Buchungen; der höchstens 24 Stunden freigegebene Adminpfad bleibt die
-ausdrücklich dokumentierte Ausnahme.
+Raumplaner trennt app-lokale Einzelrechte von semantischen Organigrammrollen.
+Die Rechtematrix referenziert nur Rollen des öffentlichen V1-
+Organisationssnapshots von `flz_organization`; Nextcloud bleibt Quelle der
+aufgelösten Gruppen und
+Mitgliedschaften. Standardmäßig erhalten alle Organigrammrollen außer
+`flz-AS` und `flz-ASN-*` Lese-, Eigenbuchungs- und Freititelrechte. Ein
+fehlender, deaktivierter, inkompatibler oder ungültiger Snapshot sowie eine
+ungültige Zuordnung sperren reguläre Zugriffe. LocalBase ist keine zweite
+Rollenquelle. Organisationskräfte verwalten
+ausschließlich eigene Buchungen, sofern ihnen nicht das getrennte,
+risikoskopgeschützte Fremdeingriffsrecht zugeordnet ist. Der höchstens 24
+Stunden freigegebene Adminpfad bleibt die ausdrücklich dokumentierte Ausnahme
+für die Verwaltung aller Buchungen.
 
-Die kanonische LocalBase-Gruppe `flz-Sekretariat` bildet eine dauerhafte,
-app-lokale Fachrolle. Sie ist ausdrücklich kein Ersatz für den getrennten,
-höchstens 24 Stunden gültigen technischen Admin-Vollzugriff. Das Sekretariat
-darf Räume verwalten und zur Lösung organisatorischer Konflikte fremde
-Buchungen ändern oder löschen. Jeder solche Eingriff setzt eine vorab
+Raumstammdaten werden über einen eigenen Endpunkt ohne Buchungsdaten
+projiziert. Native Nextcloud-Administrationskonten und standardmäßig das
+Sekretariat dürfen sie verwalten; daraus entsteht weder Buchungsleserecht noch
+fachlicher Admin-Vollzugriff. Datenschutzbeauftragte verwalten Rechtematrix,
+Eingriffsaudit, Retention und Holds sowie temporäre Adminfreigaben im getrennten
+App-Einstellungstab.
+
+Das Fremdeingriffsrecht ist eine app-lokale Berechtigung und keine
+Organigrammrolle. Standardmäßig ist es Sekretariat, (stellvertretenden)
+Büroleitungen, (stellvertretender) PDL und Geschäftsführung zugeordnet; die
+DPO-geschützte Rechtematrix kann diese Zuordnung auf andere vorhandene
+semantische Rollen ändern. Das Recht ist ausdrücklich kein Ersatz für den
+getrennten, höchstens 24 Stunden gültigen technischen Admin-Vollzugriff.
+Jeder solche Eingriff setzt eine vorab
 angegebene Begründung voraus und muss app-lokal auditierbar sein. Die
 betroffene buchende Person erhält über den nativen Nextcloud-Mechanismus eine
 datensparsame Benachrichtigung: alter und, soweit anwendbar, neuer Raum und
@@ -43,8 +78,8 @@ Buchungen und weitere Buchungsdaten werden nicht mitgeteilt.
 
 Der Fremdeingriff besitzt zusätzlich einen serverseitigen
 `SecretariatForeignBookingInterventionGuard`. Er kombiniert die aktuelle
-Session, eine tatsächlich fremde Zielbuchung, die app-lokale
-Sekretariatsrolle und den öffentlichen V1-Risikoscope
+Session, eine tatsächlich fremde Zielbuchung, das app-lokale
+Fremdeingriffsrecht und den öffentlichen V1-Risikoscope
 `flzroom.secretariat_foreign_booking_intervention` des optionalen
 Datenschutz-Centers. Fehlender oder deaktivierter Provider, ausbleibende
 Antwort, Deny, Vertragsinkompatibilität und Providerfehler bleiben
@@ -55,9 +90,20 @@ Datenbanktransaktion gespeichert. Audit- oder Outbox-Schreibfehler rollen die
 Fachmutation zurück; ein Fehler der erst nach dem Commit versuchten nativen
 Benachrichtigung lässt die Änderung bestehen und wird aus der Queue genau nach
 5 Minuten, 1 Stunde und 24 Stunden wiederholt. Erfolgreiche Queuezeilen werden
-sofort gelöscht, dauerhaft fehlgeschlagene samt minimalem Fehlercode nach 30
-Tagen. Das Audit enthält weder Titel noch Zweck oder Eigentümer-UID und wird
-zwölf Monate nach dem Eingriff vollständig gelöscht. Seine API ist nur für
+sofort gelöscht. Für dauerhaft fehlgeschlagene Zustellungen gilt standardmäßig
+eine Frist von 30 Tagen ab dauerhaftem Fehler, für das Eingriffsaudit ein
+Kalenderjahr ab Eingriff. Das Audit enthält weder Titel noch Zweck oder
+Eigentümer-UID. Ausschließlich `Datenschutzbeauftragte` dürfen beide Fristen
+im app-lokalen Einstellungstab als neue Revision ändern: Audit 30 bis 1095
+ganze Tage oder ein bis drei Kalenderjahre, Fehlernachweis ein bis 365 ganze
+Tage. Die aktuelle Revision gilt ausdrücklich auch für vorhandene Datensätze;
+eine Verkürzung kann beim nächsten Joblauf eine frühere vollständige Löschung
+bewirken. Job, Vorschau und persönliche Auskunft beziehen diese Fristen aus
+derselben `RoomRetentionPolicyService`-Historie. Native Nextcloud-Schreibsperre
+und erwartete Revision schützen gleichzeitige Konfigurationsänderungen;
+ungültige, unberechtigte und veraltete Änderungen bleiben ohne Nebenwirkung.
+Die getrennte Buchungsfrist behält ihren ursprünglichen triggergebundenen
+Revisionsvertrag. Die Audit-API ist nur für
 `Datenschutzbeauftragte` lesbar; ein Betriebsratszugriff wird nicht als
 Produktrolle hardcodiert. Normale Raumansicht, eigene Buchungen und der
 getrennte temporäre Admin-Vollzugriff verwenden den Scopevertrag nicht.
@@ -75,14 +121,16 @@ bei zusätzlicher Datenschutzrolle gerendert.
 
 Für die direkte Abstimmung sind buchende Person und frei eingegebener Zweck
 erforderlich und für berechtigte Organisationskräfte sichtbar. Der Freititel
-wird serverseitig nur der buchenden Person und `flz-Sekretariat` ausgegeben.
+wird serverseitig ausschließlich Konten mit dem eigenständigen
+`booking.title.read`-Recht ausgegeben; standardmäßig sind dies alle
+Organigrammrollen außer AS und ASN.
 Zweck und Titel bleiben freie Eingaben, weil ein abschließender Zweckkatalog
 den Planungsbedarf nicht abbildet. Die Oberfläche muss deshalb sichtbar zur
 Datenminimierung auffordern und Namen, Gesundheits-, Fall- sowie andere
 unnötige Drittpersonenangaben ausdrücklich ausschließen.
 
 Organisationszuordnung, Seiten-/API-Zugriff, Freititelprojektion,
-Sekretariatsverwaltung, Begründungs- und Auditpflicht sowie persistente
+Fremdeingriffsrecht, Begründungs- und Auditpflicht sowie persistente
 Benachrichtigungswiederholung sind serverseitig umgesetzt. Die reale
 Nextcloud-Runtimeabnahme von Migration, nativer Benachrichtigung und Jobs
 bleibt ein Release-Gate. Der Datenschutzprovider liefert weiterhin nur

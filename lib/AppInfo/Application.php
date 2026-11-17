@@ -29,14 +29,17 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
 
 /** Zweck: Registriert Raumfähigkeiten und Standalone-Navigation im Nextcloud-Bootstrap. */
-final class Application extends App implements IBootstrap {
+final class Application extends App implements IBootstrap
+{
     public const APP_ID = AppId::VALUE;
 
-    public function __construct(array $urlParams = []) {
+    public function __construct(array $urlParams = [])
+    {
         parent::__construct(self::APP_ID, $urlParams);
     }
 
-    public function register(IRegistrationContext $context): void {
+    public function register(IRegistrationContext $context): void
+    {
         $context->registerEventListener(IntegrationCapabilityQueryEvent::class, IntegrationCapabilityQueryListener::class);
         $context->registerEventListener(RegisterPersonalDataProvidersEvent::class, RoomPersonalDataProviderListener::class);
         $context->registerEventListener(RegisterProcessingMetadataProvidersEvent::class, RoomProcessingMetadataProviderListener::class);
@@ -49,6 +52,7 @@ final class Application extends App implements IBootstrap {
         $context->registerServiceAlias(TemporaryAdminAccessRepositoryInterface::class, TemporaryAdminAccessRepository::class);
     }
 
-    public function boot(IBootContext $context): void {
+    public function boot(IBootContext $context): void
+    {
     }
 }

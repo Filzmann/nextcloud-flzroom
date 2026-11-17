@@ -37,7 +37,7 @@ namespace OCA\FlzRoom\AppInfo {
 }
 
 namespace OCA\FlzRoom\Service {
-    final class RoomAccessService { public bool $allowed=false; public function canManageRooms():bool{return $this->allowed;} }
+    final class RoomAccessService { public bool $allowed=false; public function canManageAllBookings():bool{return $this->allowed;} }
     final class RoomDemoPackService {
         public bool $fail = false;
         public function install(): array {

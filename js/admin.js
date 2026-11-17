@@ -1,10 +1,11 @@
 (function() {
     'use strict';
 
-    const byId = window.LocalBase.ui.byId;
-    const client = new window.LocalBase.api.ApiClient({ appId: 'flzroom' });
+    const shared = window.OCA.FlzRoom.Shared;
+    const byId = shared.ui.byId;
+    const client = new shared.api.ApiClient({ appId: 'flzroom' });
     const repository = new window.FlzRoom.RoomRepository(client);
-    const notice = new window.LocalBase.ui.Notice('flz-room-admin-notice', { baseClass: 'flz-room-notice', typeClassPrefix: 'is-' });
+    const notice = new shared.ui.Notice('flz-room-admin-notice', { baseClass: 'flz-room-notice', typeClassPrefix: 'is-' });
     const workflow = new window.FlzRoom.RoomWorkflow({ repository, notice, reload: load });
     const settings = new window.FlzRoom.RoomSettings({
         section: byId('flzroom-admin'),
@@ -50,10 +51,7 @@
 
     async function load() {
         try {
-            const now = new Date();
-            const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            const state = await repository.month(month);
-            if (!state.capabilities?.canManageRooms) throw new Error('Keine Berechtigung zur Raumverwaltung.');
+            const state = await repository.rooms();
             settings.render(state.rooms, true);
         } catch (error) {
             notice.error(error, 'Die Räume konnten nicht geladen werden.');

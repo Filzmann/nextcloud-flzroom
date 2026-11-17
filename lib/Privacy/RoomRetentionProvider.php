@@ -65,21 +65,21 @@ final class RoomRetentionProvider implements RetentionProvider {
         if ($this->interventionAudit !== null && $this->interventionQueue !== null) {
             $policies[] = new RetentionPolicy(
                 self::INTERVENTION_AUDIT_POLICY_ID,
-                'Audit begründeter Sekretariatseingriffe',
-                'Vollständige Löschung zwölf Monate nach dem Eingriff',
+                'Audit begründeter organisatorischer Fremdeingriffe',
+                'Vollständige Löschung nach der aktuellen app-lokalen Auditfrist',
                 'CREATED_AT',
-                'P1Y',
+                $policy['interventionAuditDurationPeriod'],
                 'REVIEW',
-                '1.0',
+                $version,
             );
             $policies[] = new RetentionPolicy(
                 self::FAILED_NOTIFICATION_POLICY_ID,
                 'Dauerhaft fehlgeschlagene Eingriffsbenachrichtigungen',
-                'Vollständige Löschung dreißig Tage nach dauerhaft fehlgeschlagener Zustellung',
+                'Vollständige Löschung nach der aktuellen Fehlerfrist',
                 'COMPLETED_AT',
-                'P30D',
+                $policy['failedNotificationDurationPeriod'],
                 'REVIEW',
-                '1.0',
+                $version,
             );
         }
         return $policies;
@@ -120,7 +120,7 @@ final class RoomRetentionProvider implements RetentionProvider {
 
     private function previewInterventionAudit(RetentionPreviewRequest $request): RetentionPreviewPage {
         $offset = $this->offset($request->cursor());
-        $cutoff = (new DateTimeImmutable($request->evaluatedAt()))->sub(new DateInterval('P1Y'));
+        $cutoff = (new DateTimeImmutable($request->evaluatedAt()))->sub(new DateInterval($this->policy->policy()['interventionAuditDurationPeriod']));
         $rows = $this->interventionAudit->olderThan($cutoff, $request->limit() + 1, $offset);
         $hasMore = count($rows) > $request->limit();
         if ($hasMore) array_pop($rows);
@@ -129,14 +129,14 @@ final class RoomRetentionProvider implements RetentionProvider {
             'intervention-audit:' . $entry['id'],
             $entry['occurredAt']->format(DATE_ATOM),
             'REVIEW',
-            'Auditnachweis liegt außerhalb der festen Zwölfmonatsfrist.',
+            'Auditnachweis liegt außerhalb der aktuellen konfigurierten Frist.',
         ), $rows);
         return new RetentionPreviewPage($hasMore ? 'partial' : 'complete', $candidates, [], $hasMore ? (string)($offset + $request->limit()) : null);
     }
 
     private function previewFailedNotifications(RetentionPreviewRequest $request): RetentionPreviewPage {
         $offset = $this->offset($request->cursor());
-        $cutoff = (new DateTimeImmutable($request->evaluatedAt()))->sub(new DateInterval('P30D'));
+        $cutoff = (new DateTimeImmutable($request->evaluatedAt()))->sub(new DateInterval($this->policy->policy()['failedNotificationDurationPeriod']));
         $rows = $this->interventionQueue->permanentlyFailedBefore($cutoff, $request->limit() + 1, $offset);
         $hasMore = count($rows) > $request->limit();
         if ($hasMore) array_pop($rows);
@@ -145,7 +145,7 @@ final class RoomRetentionProvider implements RetentionProvider {
             'intervention-notification:' . $entry['id'],
             $entry['failedAt']->format(DATE_ATOM),
             'REVIEW',
-            'Minimaler Fehlernachweis liegt außerhalb der festen Dreißigtagesfrist.',
+            'Minimaler Fehlernachweis liegt außerhalb der aktuellen konfigurierten Frist.',
         ), $rows);
         return new RetentionPreviewPage($hasMore ? 'partial' : 'complete', $candidates, [], $hasMore ? (string)($offset + $request->limit()) : null);
     }
