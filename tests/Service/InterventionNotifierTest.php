@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+namespace OCP
+{
+    interface IURLGenerator
+    {
+        public function linkToRouteAbsolute(string $routeName, array $arguments = []): string;
+    }
+}
+
 namespace OCP\Notification {
     interface INotification {
         public function getApp(): string;
@@ -56,9 +64,22 @@ namespace {
         public function setParsedSubject(string $subject): self { $this->parsedSubject = $subject; return $this; }
         public function setLink(string $link): self { $this->link = $link; return $this; }
     };
-    $notifier = new Notifier(new CalendarContextSettingsService());
+    $urls = new class implements \OCP\IURLGenerator
+    {
+        public function linkToRouteAbsolute(string $routeName, array $arguments = []): string
+        {
+            if ($routeName !== 'flzroom.page.index')
+            {
+                throw new RuntimeException('Der Benachrichtigungslink verweist nicht auf den Raumplaner.');
+            }
+            return 'https://nextcloud.example.test/index.php/apps/flzroom/';
+        }
+    };
+    $notifier = new Notifier(new CalendarContextSettingsService(), $urls);
 
     $notifier->prepare($notification, 'de');
+    $assert(filter_var($notification->link, FILTER_VALIDATE_URL) !== false, 'Der Benachrichtigungslink muss eine vollständige, von Nextcloud akzeptierte URL sein.');
+    $assert($notification->link === 'https://nextcloud.example.test/index.php/apps/flzroom/', 'Der Benachrichtigungslink berücksichtigt die native Nextcloud-Basisadresse nicht.');
     $assert(str_contains($notification->parsedSubject, 'durch eine berechtigte Stelle'), 'Änderungsbenachrichtigung bezeichnet den rollenübergreifenden Fremdeingriff nicht neutral.');
     $assert(!str_contains($notification->parsedSubject, 'Sekretariat'), 'Änderungsbenachrichtigung behauptet fälschlich einen Sekretariatseingriff.');
 

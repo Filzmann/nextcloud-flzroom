@@ -8,12 +8,18 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\FlzRoom\AppInfo\AppId;
 use OCA\LocalBase\Calendar\CalendarContextSettingsService;
+use OCP\IURLGenerator;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
 
 /** Renders only the minimized room/time/reason snapshot stored in the native notification. */
-final class Notifier implements INotifier {
-    public function __construct(private CalendarContextSettingsService $calendarContext) {
+final class Notifier implements INotifier
+{
+    public function __construct(
+        private CalendarContextSettingsService $calendarContext,
+        private IURLGenerator $urls,
+    )
+    {
     }
 
     public function getID(): string {
@@ -24,7 +30,8 @@ final class Notifier implements INotifier {
         return 'Filzmann Raumplaner';
     }
 
-    public function prepare(INotification $notification, string $languageCode): INotification {
+    public function prepare(INotification $notification, string $languageCode): INotification
+    {
         if ($notification->getApp() !== AppId::VALUE || $notification->getSubject() !== 'foreign_booking_intervention') {
             throw new InvalidArgumentException('Unbekannte Filzmann-Raumplaner-Benachrichtigung.');
         }
@@ -37,7 +44,9 @@ final class Notifier implements INotifier {
             $new = $this->slot((string)$parameters['newRoom'], (string)$parameters['newStartsAt'], (string)$parameters['newEndsAt']);
             $message = sprintf('Ihre Raumbuchung wurde durch eine berechtigte Stelle von %s auf %s geändert. Begründung: %s', $old, $new, $reason);
         }
-        return $notification->setParsedSubject($message)->setLink('/apps/flzroom/');
+        return $notification
+            ->setParsedSubject($message)
+            ->setLink($this->urls->linkToRouteAbsolute('flzroom.page.index'));
     }
 
     private function slot(string $room, string $startsAt, string $endsAt): string {
