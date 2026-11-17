@@ -22,6 +22,13 @@ namespace OCP\Config {
     }
 }
 namespace OCP\AppFramework\Utility { interface ITimeFactory { public function getTime(): int; public function now(): \DateTimeImmutable; } }
+namespace OCP\Lock {
+    interface ILockingProvider {
+        public const LOCK_EXCLUSIVE = 2;
+        public function acquireLock(string $path, int $type): void;
+        public function releaseLock(string $path, int $type): void;
+    }
+}
 namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
@@ -97,7 +104,7 @@ namespace OCA\FlzRoom\Repository {
                 'newStartsAt' => new \DateTimeImmutable('2026-10-05T10:00:00+00:00'),
                 'newEndsAt' => new \DateTimeImmutable('2026-10-05T11:00:00+00:00'),
                 'reason' => 'Organisatorischer Raumkonflikt wurde abgestimmt.',
-                'state' => 'pending',
+                'state' => 'failed',
             ]];
         }
     }
@@ -146,8 +153,12 @@ namespace {
         public function getTime(): int { return strtotime('2026-08-12T12:00:00+00:00'); }
         public function now(): DateTimeImmutable { return new DateTimeImmutable('2026-08-12T12:00:00+00:00'); }
     };
-    $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock);
-    $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'expectedRevision' => 0]);
+    $locking = new class implements OCP\Lock\ILockingProvider {
+        public function acquireLock(string $path, int $type): void {}
+        public function releaseLock(string $path, int $type): void {}
+    };
+    $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock, $locking);
+    $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'interventionAuditDurationPeriod' => 'P90D', 'failedNotificationDurationPeriod' => 'P7D', 'expectedRevision' => 0]);
     $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     if (count($report->entries()) !== 4 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie, persönliche Adminlayouts oder Policybearbeitungen der betroffenen UID aus.');
@@ -183,6 +194,8 @@ namespace {
     if ($policyAudit['reference'] !== 'retention-policy:1'
         || ($policyAudit['attributes']['Aufbewahrungsfrist Raumbuchungen'] ?? null) !== 'P30D'
         || ($policyAudit['attributes']['Aufbewahrungsfrist Adminfreigaben'] ?? null) !== 'P6M'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Eingriffsaudit'] ?? null) !== 'P90D'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Zustellfehler'] ?? null) !== 'P7D'
         || str_contains(json_encode($policyAudit, JSON_THROW_ON_ERROR), 'foreign-user')) {
         throw new RuntimeException('Die eigene Policybearbeitung fehlt oder legt eine fremde Kennung offen.');
     }
@@ -202,6 +215,9 @@ namespace {
     $auditEntry = $interventionEntries['intervention-audit:21'] ?? null;
     $queueEntry = $interventionEntries['intervention-notification:22'] ?? null;
     if ($auditEntry === null || $queueEntry === null) throw new RuntimeException('Fremdeingriff oder Zustellnachweis fehlt in der subjectgebundenen Auskunft.');
+    if (!str_contains($auditEntry['retention'], 'P90D') || !str_contains($queueEntry['retention'], 'P7D')) {
+        throw new RuntimeException('Die Auskunft zeigt nicht die aktuellen Eingriffsfristen.');
+    }
     $serializedInterventions = json_encode([$auditEntry, $queueEntry], JSON_THROW_ON_ERROR);
     if (str_contains($serializedInterventions, 'Sekretariat')
         || ($auditEntry['categoryLabel'] ?? null) !== 'Organisatorischer Fremdeingriff'
@@ -282,7 +298,8 @@ namespace {
     $retentionListener->handle($retentionRegistry);
     if (array_keys($personalRegistry->providers()) !== ['flzroom'] || array_keys($retentionRegistry->providers()) !== ['flzroom']) throw new RuntimeException('Filzmann Raumplaner registriert seine Privacy-Provider nicht.');
     $application = (string)file_get_contents(dirname(__DIR__, 2) . '/lib/AppInfo/Application.php');
-    if (!str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
+    if (!str_contains($application, 'use OCA\\FlzDataProtection\\PublicApi\\V1\\RegisterRetentionProvidersEvent;')
+        || !str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
         || str_contains($application, 'RetentionProviderRegistryEvent')) {
         throw new RuntimeException('Der Bootstrap verwendet nicht ausschließlich den Standalone-V1-Retention-Vertrag.');
     }

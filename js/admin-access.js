@@ -6,7 +6,7 @@
     const status = document.getElementById('flz-room-full-access-status');
     if (!form || !history || !status) return;
 
-    const client = new window.LocalBase.api.ApiClient({ appId: 'flzroom' });
+    const client = new window.OCA.FlzRoom.Shared.api.ApiClient({ appId: 'flzroom' });
 
     const setStatus = (message, isError = false) => {
         status.textContent = message;

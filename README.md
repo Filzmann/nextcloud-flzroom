@@ -6,24 +6,31 @@ Monatliche, zeitlich ausgerichtete Raumbelegung mit kollisionsfreien Buchungen, 
 
 - Nextcloud 33 bis 35
 - PHP 8.3 oder neuer innerhalb des von Nextcloud 33 bis 35 unterstützten Bereichs
-- Laufzeitbasis: `localbase`; `orgsuite` ist ab zwei FLZ-Fachprodukten optional aktiv
+- Laufzeitbasis: `localbase` und `flz_organization`; `orgsuite` ist ab zwei FLZ-Fachprodukten optional aktiv
+- Zustandslose Browser-Primitives: app-lokal gebündeltes und isoliertes `flz_shared`-Artefakt
 - App-ID und Installationsordner: `flzroom`
 
 ## Installation
 
-Für Staging und Auslieferung das Produktbundle `flz-product-flzroom-<release>.tar.gz` und dessen enthaltenes `install.sh` verwenden. Es prüft und installiert LocalBase automatisch; ab dem zweiten FLZ-Fachprodukt aktiviert es OrgSuite.
+Das vorhandene Produktbundle `flz-product-flzroom-<release>.tar.gz` ist bis zur
+Erweiterung seines Installers um die Prüfung und Installation von
+`flz_organization` nicht auslieferungsfähig. Der heutige Installer prüft nur
+LocalBase und aktiviert ab dem zweiten FLZ-Fachprodukt OrgSuite; das genügt für
+den aktuellen Raumplaner-Vertrag nicht mehr.
 
 Filzmann Raumplaner funktioniert einzeln; Buchungen bleiben ohne Kalender oder Assistenzplanung manuell nutzbar.
 
 Räume werden nach der Aktivierung im eigenen Nextcloud-Adminabschnitt `Filzmann Raumplaner` eingerichtet. `flzroom:demo:seed` ist ausschließlich für synthetische Testdaten bestimmt.
 
 Der Raumplan verwendet getrennte app-lokale Einzelrechte und semantische
-Organigrammrollen aus dem öffentlichen LocalBase-V1-Snapshot. Standardmäßig
+Organigrammrollen aus dem öffentlichen V1-Snapshot von `flz_organization`.
+Standardmäßig
 dürfen alle Organigrammrollen außer `flz-AS` und `flz-ASN-*` den Raumplan lesen,
 eigene Buchungen verwalten und freie Titel lesen. `Datenschutzbeauftragte`
 können die Rollen je Einzelrecht im App-Tab `Einstellungen` zuordnen, ohne
 Gruppenmitgliedschaften zu verändern. Ein fehlender oder ungültiger Snapshot
-oder eine ungültige Zuordnung sperrt den regulären Zugriff fail-closed.
+oder eine ungültige Zuordnung sperrt den regulären Zugriff fail-closed;
+LocalBase wird nicht als Fallback verwendet.
 
 Fremde Buchungen dürfen standardmäßig Sekretariat, (stellvertretende)
 Büroleitungen, (stellvertretende) PDL und Geschäftsführung ausschließlich mit
@@ -59,9 +66,32 @@ Monaten gelöscht; Zustellungen werden nach fünf Minuten, einer Stunde und 24
 Stunden wiederholt, erfolgreiche Queuezeilen sofort und dauerhaft
 fehlgeschlagene Einträge nach 30 Tagen gelöscht. Eigene Buchungen, normale
 Raumfunktionen und der getrennte temporäre Admin-Vollzugriff bleiben davon
-unabhängig.
+unabhängig. Der Zustellungsjob ist sowohl über die idempotente Migration als
+auch dauerhaft in `appinfo/info.xml` registriert; den aktuellen lokalen
+Abnahmestand dokumentiert [das manuelle Abnahmeformular](docs/manual-acceptance.md).
+Ein isolierter Nextcloud-34-Test mit ausschließlich synthetischen Daten hat
+Neuinstallation, Upgrade, Fremdeingriff, Audit, native Benachrichtigung,
+Wiederholung und Retention geprüft. Die synthetische Testfreigabe war keine
+reale Datenschutzbestätigung und erlaubt keinen Rückschluss auf eine Freigabe
+für einen konkreten Betrieb.
 
-Feiertage, Buchungszeiten und Monatsgrenzen richten sich nach dem gemeinsamen Kalenderkontext der Filzmann Nextcloud Plugins. Land, Region und fachliche Zeitzone werden zentral durch die Administration gepflegt; ohne Änderung gilt Deutschland/Berlin.
+Mitglieder der Nextcloud-Gruppe `Datenschutzbeauftragte` können die
+Eingriffsfristen im Einstellungsbereich ändern. Die Auditfrist beträgt
+standardmäßig ein Jahr und kann auf 30 bis 1095 Tage oder ein bis drei
+Kalenderjahre gesetzt werden. Die Frist für dauerhaft fehlgeschlagene
+Zustellungen beträgt standardmäßig 30 Tage und kann auf einen bis 365 Tage
+gesetzt werden. Erfolgreiche Queueeinträge werden weiterhin sofort gelöscht.
+Eine neue Fristenrevision gilt auch für bereits vorhandene Audit- und
+Fehlerdatensätze; eine Verkürzung kann sie beim nächsten Joblauf früher
+löschen. Änderungen werden versioniert; veraltete Revisionen werden
+abgewiesen.
+
+Feiertage richten sich nach dem öffentlichen V1-Feiertagssnapshot von
+`flz_organization`. Ein fehlender, deaktivierter, inkompatibler, ungültiger
+oder nicht verfügbarer Provider wird nicht durch LocalBase ersetzt; ohne
+verwendbaren Snapshot behauptet die Monatsansicht keine Feiertage.
+Buchungszeiten und Monatsgrenzen verwenden weiterhin den gemeinsamen
+fachlichen Kalenderkontext der Filzmann Nextcloud Plugins.
 
 ## Datenschutz
 

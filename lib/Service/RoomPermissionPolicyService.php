@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 use UnexpectedValueException;
 
-/** App-local capability assignments keyed by semantic LocalBase role identities. */
+/** App-local capability assignments keyed by semantic organization V1 role identities. */
 final class RoomPermissionPolicyService {
     public const ROOM_READ = 'room.read';
     public const BOOKING_MANAGE_OWN = 'booking.manage-own';

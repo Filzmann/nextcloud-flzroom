@@ -105,7 +105,7 @@
     const settings = new PermissionSettings({
         form,
         status,
-        client: new window.LocalBase.api.ApiClient({ appId: 'flzroom' }),
+        client: new window.OCA.FlzRoom.Shared.api.ApiClient({ appId: 'flzroom' }),
         document,
     });
     void settings.load().catch(error => settings.showError(error));

@@ -11,9 +11,30 @@ begründete Änderung oder Löschung fremder Buchungen; diese Rolle ist kein
 temporärer technischer Admin-Vollzugriff.
 
 Der begründete Fremdeingriff einschließlich neutralem Risikoscope, Audit,
-Benachrichtigungsqueue, festen Fristen sowie Providerprojektionen ist
-umgesetzt. Offen bleibt ausschließlich die Runtime-/Staging-Abnahme mit
-echter Nextcloud-Benachrichtigung und installierter Datenbankmigration.
+Benachrichtigungsqueue, durch die Datenschutzrolle änderbaren Fristen sowie
+Providerprojektionen ist implementiert. Am 17. November 2026 wurde er zusätzlich in einem isolierten
+Nextcloud-34-SQLite-Klon mit ausschließlich synthetischen Testkonten vollständig
+abgenommen: Fresh Install mit Migrationen 000001 bis 000004, Upgrade aus dem
+früheren Zustand ohne Jobdeklaration (Red), Registrierung nach der Korrektur
+(Green) und wiederholtes Upgrade mit genau einem Job. Geprüft wurden außerdem
+fehlender Scope, unberechtigte Rolle, ungültige Begründung, Update und Delete,
+Audit, DPO-only-Auditansicht, native Benachrichtigung einschließlich Rendering,
+Jobausführung, idempotente Wiederholung und Retention mit alten und jungen
+Datensätzen. Die Datenschutzrolle kann die Auditfrist auf 30 bis 1095 Tage
+oder ein bis drei Kalenderjahre und die Frist für dauerhaft fehlgeschlagene
+Zustellungen auf einen bis 365 Tage setzen. Änderungen gelten auch für
+Bestandsdaten; Verkürzungen können beim nächsten Joblauf früher löschen. Die
+Benachrichtigung verwendet jetzt den absoluten Link aus dem
+öffentlichen Nextcloud-URL-Generator. Der isolierte Klon und seine Testdaten
+wurden entfernt.
+
+Diese synthetische Abnahme ist keine echte DPO-Bestätigung und keine Freigabe
+für einen konkreten realen Betrieb. Eine solche Bestätigung liegt derzeit nicht
+vor; der bestehende lokale RiskScope meldet weiterhin `configuration_missing`.
+Die ursprüngliche Jobänderung erhielt nachträglich einen reproduzierbaren
+Red-Green-Regressionstest; die ursprüngliche zeitliche TDD-Reihenfolge ist
+nicht belegt. Datenschutzentscheidungen für einen konkreten Betrieb bleiben
+getrennt davon zu treffen.
 
 Diese Datei enthält ausschließlich offene Arbeit, zurückgestellte Vorhaben
 und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
@@ -24,8 +45,12 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - App-lokalen temporären Admin-Vollzugriff und seine rollenabhängige
   Freigabesteuerung in DDEV und auf Staging abnehmen.
-- Fremdeingriffe, Audit und Benachrichtigungswiederholung in DDEV und auf
-  Staging mit realen Rollen und nativen Nextcloud-Benachrichtigungen abnehmen.
+- Vollständige Ende-zu-Ende-Abnahme von Fremdeingriff, Audit und
+  Benachrichtigung in einem konkreten Betrieb erst nach echter
+  DPO-Entscheidung zum RiskScope und anschließend auf Staging mit den
+  vorgesehenen Organisationsrollen durchführen. Eine echte
+  Datenschutzbestätigung liegt derzeit nicht vor; die lokale synthetische
+  Abnahme erteilt keine Freigabe für den Betrieb.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
 - Löschbestätigung, Zeitraster, Wochenenden und die Feiertage der administrativ gewählten Organisationsregion sichtbar und barrierefrei prüfen.
 

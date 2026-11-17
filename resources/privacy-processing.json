@@ -156,7 +156,8 @@
       "data_categories": [
         "Audit: Aktion, handelnde Nextcloud-UID, Buchungs-ID, Zeitpunkt, alter und neuer Raum und Zeitraum sowie Begründung",
         "Benachrichtigungsqueue: Empfänger-UID, derselbe minimierte Raum-/Zeit-/Begründungssnapshot, Zustellversuch, nächster Versuch und minimaler Fehlercode",
-        "Keine Buchungstitel, Zwecke, Namen anderer Personen oder Inhalte anderer Buchungen"
+        "Keine Buchungstitel, Zwecke, Namen anderer Personen oder Inhalte anderer Buchungen",
+        "AppConfig-Policyhistorie: Aufbewahrungsfristen, Revision, Wirksamkeits- und Prüfzeitpunkt sowie UID der konfigurierenden Datenschutzrolle"
       ],
       "data_subjects": ["Handelnde Mitglieder zugewiesener Organigrammrollen", "Betroffene buchende Person"],
       "purposes": ["Nachvollziehbare organisatorische Konfliktlösung", "Information der betroffenen buchenden Person", "Technisch begrenzte Zustellwiederholung"],
@@ -181,18 +182,18 @@
       "retention": {
         "policy_id": "secretariat_intervention_fixed_retention",
         "trigger": "Eingriffszeitpunkt beziehungsweise Zeitpunkt der dauerhaft fehlgeschlagenen Zustellung",
-        "duration_or_deadline": "Audit P1Y; dauerhaft fehlgeschlagene Queue P30D; erfolgreiche Queue sofort",
+        "duration_or_deadline": "Audit standardmäßig P1Y, durch Datenschutzbeauftragte 30 bis 1095 Tage oder ein bis drei Kalenderjahre; dauerhaft fehlgeschlagene Queue standardmäßig P30D, konfigurierbar 1 bis 365 Tage; erfolgreiche Queue sofort",
         "action": "delete",
-        "conditions_or_holds": ["Audit nach zwölf Monaten vollständig löschen", "Erfolgreiche Queuezeile unmittelbar löschen", "Nach initialem Versuch genau nach 5 Minuten, 1 Stunde und 24 Stunden wiederholen", "Dauerhaft fehlgeschlagene Queue samt minimalem Fehlernachweis nach dreißig Tagen vollständig löschen"]
+        "conditions_or_holds": ["Audit nach der aktuellen konfigurierten Frist vollständig löschen; neue Fristen gelten auch für vorhandene Datensätze", "Erfolgreiche Queuezeile unmittelbar löschen", "Nach initialem Versuch genau nach 5 Minuten, 1 Stunde und 24 Stunden wiederholen", "Dauerhaft fehlgeschlagene Queue samt minimalem Fehlernachweis nach der aktuellen konfigurierten Fehlerfrist vollständig löschen; auch für bereits fehlgeschlagene Zustellungen", "Friständerung und jährliche Prüfung ausschließlich durch Datenschutzbeauftragte als neue akteursgebundene Policyrevision; veraltete oder ungültige Änderungen bleiben ohne Nebenwirkung"]
       },
       "logging": {"audit_requirements":["Schreib- und Zustellfehler ohne Begründung, Buchungstitel, Empfänger- oder Akteurs-UID diagnostizieren"],"personal_data_policy":"Nur technischer Fehlercode, Versuchszahl und Fehlerklasse; keine vollständigen Payloads."},
       "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Audit und Queue in der Nextcloud-Datenbank","planned_processing":"Betriebliche Sicherung und Wiederherstellung","missing_decision":"Kundenlokale Backup-Aufbewahrung und Löschgrenze","reason":"Der App-Code kennt den betrieblichen Backupzyklus nicht.","technical_impact":"Die App kann keinen Entfall aus Sicherungen behaupten.","privacy_preserving_alternative":"Keine app-eigene Sicherungskopie anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":"Fristen aus ursprünglichem Eingriffs- beziehungsweise Fehlerzeitpunkt neu bewerten; abgelaufene Datensätze erneut löschen."},
-      "exports_and_reports": {"article_15_relevance":"Handelnde Person erhält eigene Auditeinträge; Empfänger*in erhält noch persistente Queuewerte subjectgebunden.","other_outputs":["DPO-geschützte Auditansicht", "Native Nextcloud-Benachrichtigung"],"minimization":"Keine Titel, Zwecke, anderen Personen oder Buchungen ausgeben."},
-      "data_subject_rights": {"article_15":"Subjectgebundene Projektion ist im app-eigenen PersonalDataProvider enthalten.","rectification":"Append-only Audit wird nicht überschrieben; Fehler brauchen einen gesondert zu entscheidenden Korrekturpfad.","restriction":"Keine kundenspezifische Sperrentscheidung wird technisch erfunden.","erasure_or_anonymization":"Feste vollständige Löschung nach P1Y beziehungsweise P30D; erfolgreiche Queue sofort."},
+      "exports_and_reports": {"article_15_relevance":"Handelnde Person erhält eigene Auditeinträge; Empfänger*in erhält noch persistente Queuewerte subjectgebunden. Eigene Policyrevisionen der Datenschutzrolle und aktuelle wirksame Fristen sind in der Auskunft enthalten.","other_outputs":["DPO-geschützte Auditansicht", "Native Nextcloud-Benachrichtigung"],"minimization":"Keine Titel, Zwecke, anderen Personen oder Buchungen ausgeben."},
+      "data_subject_rights": {"article_15":"Subjectgebundene Projektion ist im app-eigenen PersonalDataProvider enthalten.","rectification":"Append-only Audit wird nicht überschrieben; Fehler brauchen einen gesondert zu entscheidenden Korrekturpfad.","restriction":"Keine kundenspezifische Sperrentscheidung wird technisch erfunden.","erasure_or_anonymization":"Vollständige Löschung nach der aktuellen konfigurierten Audit- beziehungsweise Fehlerfrist; Defaults P1Y/P30D, neue Fristen gelten auch für Bestand; erfolgreiche Queue sofort."},
       "international_transfers": "Filzmann Raumplaner übermittelt diese Daten selbst nicht an Drittländer.",
       "automated_decisions": "Die Scope-Prüfung und Zustellwiederholung treffen keine Entscheidung mit rechtlicher oder vergleichbar erheblicher Wirkung.",
       "special_safeguards": ["Fail-closed Risikoscope", "Aktuelle Session, Fachrolle und Zielobjekt serverseitig prüfen", "Mutation, Audit und Outbox atomar", "Datenminimierte Pflichtbegründung mit 10 bis 500 Zeichen", "Keine Leistungs- oder Verhaltenskontrolle"],
-      "systems": ["Nextcloud", "Filzmann Raumplaner", "App-eigene Tabellen flz_room_booking_audit und flz_room_notify_queue"]
+      "systems": ["Nextcloud", "Filzmann Raumplaner", "App-eigene Tabellen flz_room_booking_audit und flz_room_notify_queue", "Native Nextcloud-AppConfig retention_policy_history_v1"]
     },
     {
       "processing_id": "temporary_admin_full_access",

@@ -1,8 +1,8 @@
 <?php
-\OCP\Util::addScript('localbase','api/api-client');
-\OCP\Util::addScript('localbase','models/model');
-\OCP\Util::addScript('localbase','repositories/repository');
-\OCP\Util::addScript('localbase','ui/ui');
+\OCP\Util::addScript('flzroom','shared/api-client');
+\OCP\Util::addScript('flzroom','shared/model');
+\OCP\Util::addScript('flzroom','shared/repository');
+\OCP\Util::addScript('flzroom','shared/ui');
 \OCP\Util::addScript('flzroom','models/room');
 \OCP\Util::addScript('flzroom','models/booking');
 \OCP\Util::addScript('flzroom','repositories/room-repository');
@@ -84,12 +84,17 @@ $hasSettings = ($_['canConfigurePermissions'] ?? false)
     <?php if ($_['canConfigureRetention'] ?? false): ?>
         <section id="flz-room-retention-policy" class="flz-room-admin-access" aria-labelledby="flz-room-retention-policy-heading">
             <h2 id="flz-room-retention-policy-heading">Aufbewahrungsprüfung</h2>
-            <p>Standard sind ein Jahr ab Buchungsende und sechs Monate ab tatsächlichem Ende einer Adminfreigabe. Die Versionierung ändert nur die REVIEW-Vorschau; automatische Löschung oder Anonymisierung bleibt deaktiviert.</p>
+            <p>Standard sind ein Jahr ab Buchungsende und sechs Monate ab tatsächlichem Ende einer Adminfreigabe. Die automatische Löschung dieser Daten wird getrennt im Datenschutz-Center technisch aktiviert.</p>
             <form id="flz-room-retention-policy-form">
                 <label>Kalenderfrist <input name="durationPeriod" value="P1Y" pattern="P[1-9][0-9]*[YMD]" required aria-describedby="flz-room-retention-period-hint"></label>
                 <small id="flz-room-retention-period-hint">ISO-8601, zum Beispiel P1Y, P6M oder P180D.</small>
                 <label>Adminfreigabehistorie <input name="adminHistoryDurationPeriod" value="P6M" pattern="P[1-9][0-9]*[YMD]" required aria-describedby="flz-room-admin-history-retention-period-hint"></label>
                 <small id="flz-room-admin-history-retention-period-hint">Standardmäßig sechs Monate ab dem tatsächlichen Ende der Freigabe.</small>
+                <label>Eingriffsaudit <input name="interventionAuditDurationPeriod" value="P1Y" pattern="P[1-9][0-9]*[YD]" required aria-describedby="flz-room-intervention-audit-retention-hint flz-room-intervention-retention-warning"></label>
+                <small id="flz-room-intervention-audit-retention-hint">30 bis 1095 ganze Tage (zum Beispiel P90D) oder ein bis drei Kalenderjahre (P1Y bis P3Y) ab dem Eingriff.</small>
+                <label>Dauerhaft fehlgeschlagene Benachrichtigungen <input name="failedNotificationDurationPeriod" value="P30D" pattern="P[1-9][0-9]*D" required aria-describedby="flz-room-failed-notification-retention-hint flz-room-intervention-retention-warning"></label>
+                <small id="flz-room-failed-notification-retention-hint">Ein bis 365 ganze Tage, zum Beispiel P7D, ab dem dauerhaften Zustellfehler. Erfolgreiche Zustellungen werden sofort gelöscht.</small>
+                <p id="flz-room-intervention-retention-warning"><strong>Diese beiden Fristen gelten auch für vorhandene Eingriffsaudits und Fehlernachweise.</strong> Eine Verkürzung kann beim nächsten Hintergrundlauf zur früheren vollständigen Löschung führen.</p>
                 <input name="expectedRevision" type="hidden" value="0">
                 <button type="submit" class="primary">Frist als neue Version speichern</button>
                 <button type="button" data-retention-review>Jährliche Prüfung protokollieren</button>

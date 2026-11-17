@@ -4,119 +4,89 @@ declare(strict_types=1);
 
 namespace OCA\FlzRoom\Service;
 
-use DateTimeImmutable;
-use OCA\FlzOrganization\PublicApi\V1\HolidayCalendarProvider as FlzOrganizationHolidayCalendarProvider;
-use OCA\LocalBase\Calendar\HolidayCalendarService as LocalBaseHolidayCalendarService;
+use OCA\FlzOrganization\PublicApi\V1\Contract;
+use OCA\FlzOrganization\PublicApi\V1\HolidayCalendarProvider;
 use OCP\App\IAppManager;
 use OCP\Server;
+use Psr\Log\LoggerInterface;
 
-/**
- * Holiday Calendar Service Adapter für flzroom.
- * 
- * Priorität:
- * 1. flz_organization (neue kanonische Quelle für Kalenderkontext und Feiertage)
- * 2. localbase (historischer Fallback für Kompatibilität)
- * 
- * Diese Klasse implementiert die gleiche Schnittstelle wie LocalBaseHolidayCalendarService
- * für die forYear()-Methode, die ein Array mit publicHolidays erwartet.
- */
-class OrganizationHolidayCalendarService extends LocalBaseHolidayCalendarService {
-    private const FLZ_ORGANIZATION_CLASS = 'OCA\\FlzOrganization\\PublicApi\\V1\\HolidayCalendarProvider';
+/** Lazy public-V1 holiday projection from the standalone organization runtime. */
+class OrganizationHolidayCalendarService
+{
+    private const PROVIDER_APP_ID = 'flz_organization';
+    private const SUPPORTED_CONTRACT_VERSION = '1.0';
 
     public function __construct(
-        IAppManager $apps,
-        private ?LocalBaseHolidayCalendarService $fallbackService = null
-    ) {
-        parent::__construct($apps);
+        private IAppManager $apps,
+        private LoggerInterface $logger,
+    )
+    {
     }
 
-    /**
-     * Liefert Feiertage für ein bestimmtes Jahr im LocalBase-Format.
-     * 
-     * @return array{publicHolidays: list<array{name: string, startDate: string, endDate: string}>}
-     */
-    public function forYear(int $year): object {
-        // 1. Versuche flz_organization (neue kanonische Quelle)
-        $flzOrgResult = $this->tryFlzOrganization($year);
-        if ($flzOrgResult !== null) {
-            return $flzOrgResult;
+    /** @return array<string,mixed>|null */
+    public function forYear(int $year): ?array
+    {
+        if ($year < 2000 || $year > 2100)
+        {
+            throw new \InvalidArgumentException('Jahr ist ungültig.');
         }
 
-        // 2. Fallback zu LocalBase (historische Kompatibilität)
-        if ($this->fallbackService !== null) {
-            return $this->fallbackService->forYear($year);
-        }
-
-        // Kein Provider verfügbar - gib leeres Array zurück
-        return (object)['publicHolidays' => []];
-    }
-
-    /**
-     * Versucht, Feiertage von flz_organization zu holen und ins LocalBase-Format zu konvertieren.
-     *
-     * @return object|null Array im LocalBase-Format oder null bei Fehler
-     */
-    private function tryFlzOrganization(int $year): ?object {
-        if (!in_array('flz_organization', $this->apps->getEnabledApps(), true)) {
-            return null;
-        }
-
-        if (!class_exists(self::FLZ_ORGANIZATION_CLASS)) {
-            return null;
-        }
-
-        try {
-            $provider = Server::get(self::FLZ_ORGANIZATION_CLASS);
-            $snapshot = $provider->calendar($year);
-            
-            if ($snapshot->contractVersion() !== '1.0' || !$snapshot->isUsable()) {
+        try
+        {
+            if (!in_array(self::PROVIDER_APP_ID, $this->apps->getEnabledApps(), true))
+            {
                 return null;
             }
+        }
+        catch (\Throwable $error)
+        {
+            $this->logFailure($error);
+            return null;
+        }
 
-            // Konvertiere flz_organization Format zu LocalBase Format
-            // flz_organization: publicHolidayDates() gibt [Datum => Name]
-            // LocalBase: publicHolidays gibt [{name, startDate, endDate}]
-            $publicHolidays = [];
-            $timezone = $snapshot->timezone();
-            
-            foreach ($snapshot->publicHolidayDates() as $date => $label) {
-                // Flz_organization liefert einzelne Tage, wir behandeln sie als Ein-Tages-Perioden
-                $publicHolidays[] = [
-                    'name' => $label,
-                    'startDate' => $date,
-                    'endDate' => $date,
-                ];
+        if (!class_exists(Contract::class)
+            || !Contract::supports(self::SUPPORTED_CONTRACT_VERSION)
+            || !class_exists(HolidayCalendarProvider::class))
+        {
+            return null;
+        }
+
+        try
+        {
+            $provider = $this->resolveProvider();
+            $snapshot = $provider->calendar($year);
+            if ($snapshot->contractVersion() !== self::SUPPORTED_CONTRACT_VERSION || !$snapshot->isUsable())
+            {
+                return null;
             }
-
-            return (object)['publicHolidays' => $publicHolidays];
-        } catch (\Throwable) {
+            return $snapshot->toArray();
+        }
+        catch (\Throwable $error)
+        {
+            $this->logFailure($error);
             return null;
         }
     }
 
-    /**
-     * Gibt die Zeitzone zurück.
-     */
-    public function timezone(): string {
-        // Try flz_organization first
-        if (in_array('flz_organization', $this->apps->getEnabledApps(), true)
-            && class_exists(self::FLZ_ORGANIZATION_CLASS)) {
-            try {
-                $provider = Server::get(self::FLZ_ORGANIZATION_CLASS);
-                $snapshot = $provider->calendar(2024); // Any year for timezone
-                if ($snapshot->contractVersion() === '1.0' && $snapshot->isUsable()) {
-                    return $snapshot->timezone();
-                }
-            } catch (\Throwable) {
-                // Fall through to fallback
-            }
+    protected function resolveProvider(): HolidayCalendarProvider
+    {
+        $provider = Server::get(HolidayCalendarProvider::class);
+        if (!$provider instanceof HolidayCalendarProvider)
+        {
+            throw new \UnexpectedValueException('Holiday V1 provider is not resolvable.');
         }
+        return $provider;
+    }
 
-        // Fallback to LocalBase or default
-        if ($this->fallbackService !== null) {
-            return $this->fallbackService->timezone();
-        }
-
-        return 'Europe/Berlin';
+    private function logFailure(\Throwable $error): void
+    {
+        $this->logger->warning(
+            'Raumplaner holiday snapshot unavailable',
+            [
+                'app' => 'flzroom',
+                'provider' => self::PROVIDER_APP_ID,
+                'exceptionClass' => $error::class,
+            ],
+        );
     }
 }

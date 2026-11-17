@@ -11,4 +11,6 @@ execFileSync('node',['--check',new URL('../js/room-management-settings.js',impor
 execFileSync('node',['--check',new URL('../js/retention-policy.js',import.meta.url).pathname],{stdio:'inherit'});
 execFileSync('node',[new URL('./js/frontend-smoke.mjs',import.meta.url).pathname],{stdio:'inherit'});
 execFileSync('node',[new URL('./js/settings-controls-smoke.mjs',import.meta.url).pathname],{stdio:'inherit'});
+execFileSync(process.execPath,[new URL('./js/category-a-bundle-smoke.mjs',import.meta.url).pathname],{stdio:'inherit'});
+execFileSync('node',[new URL('./js/runtime-behavior-tests.mjs',import.meta.url).pathname],{stdio:'inherit'});
 console.log('Filzmann Raumplaner JavaScript tests passed');

@@ -1,8 +1,11 @@
 import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {runInNewContext} from 'node:vm';
 
-const tabsSource=readFileSync(new URL('../../js/settings-tabs.js',import.meta.url),'utf8');
-const permissionsSource=readFileSync(new URL('../../js/permission-settings.js',import.meta.url),'utf8');
+const tabsPath=fileURLToPath(new URL('../../js/settings-tabs.js',import.meta.url));
+const permissionsPath=fileURLToPath(new URL('../../js/permission-settings.js',import.meta.url));
+const tabsSource=readFileSync(tabsPath,'utf8');
+const permissionsSource=readFileSync(permissionsPath,'utf8');
 
 const element=(attributes={})=>({
     attributes:new Map(Object.entries(attributes)),listeners:{},hidden:false,focused:false,disabled:false,
@@ -19,7 +22,7 @@ settingsPanel.contains=node=>node===settingsTarget;
 const tablist={querySelectorAll:()=>[calendarTab,settingsTab]};
 const tabDocument={querySelector:selector=>selector==='[role="tablist"]'?tablist:null,getElementById:id=>({calendar:calendarPanel,settings:settingsPanel,'flz-room-full-access':settingsTarget}[id]??null)};
 const tabsContext={window:{location:{hash:'#flz-room-full-access'}},document:tabDocument};
-runInNewContext(tabsSource,tabsContext,{filename:'settings-tabs.js'});
+runInNewContext(tabsSource,tabsContext,{filename:tabsPath});
 if(settingsTab.getAttribute('aria-selected')!=='true'||settingsPanel.hidden||!calendarPanel.hidden)throw new Error('Ein direkter Einstellungslink aktiviert den zugehörigen Tab nicht.');
 let prevented=false;
 settingsTab.listeners.keydown({key:'ArrowLeft',preventDefault:()=>{prevented=true;}});
@@ -36,8 +39,8 @@ const permissionDocument={
 };
 const calls=[];
 const client={request:async(path,options)=>{calls.push([path,options]);return {assignments:{'room.read':['pfk'],'room.manage':[]}};}};
-const permissionsContext={window:{LocalBase:{api:{ApiClient:class{}}}},document:permissionDocument,Array,JSON,Set};
-runInNewContext(permissionsSource,permissionsContext,{filename:'permission-settings.js'});
+const permissionsContext={window:{OCA:{FlzRoom:{Shared:{api:{ApiClient:class{}}}}}},document:permissionDocument,Array,JSON,Set};
+runInNewContext(permissionsSource,permissionsContext,{filename:permissionsPath});
 const settings=new permissionsContext.window.FlzRoom.PermissionSettings({form,status,client,document:permissionDocument});
 if(!submit.disabled)throw new Error('Die Rechtezuordnung ist vor dem vollständigen Laden des Organigrammkatalogs schreibbar.');
 settings.render({

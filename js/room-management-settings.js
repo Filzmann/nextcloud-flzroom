@@ -1,15 +1,15 @@
 (function() {
     'use strict';
 
-    const byId = window.LocalBase.ui.byId;
+    const byId = window.OCA.FlzRoom.Shared.ui.byId;
     const section = byId('flz-room-settings-rooms');
     const body = byId('flz-room-settings-room-body');
     const form = byId('flz-room-settings-room-form');
     if (!section || !body || !form) return;
 
-    const client = new window.LocalBase.api.ApiClient({ appId: 'flzroom' });
+    const client = new window.OCA.FlzRoom.Shared.api.ApiClient({ appId: 'flzroom' });
     const repository = new window.FlzRoom.RoomRepository(client);
-    const notice = new window.LocalBase.ui.Notice('flz-room-notice', { baseClass: 'flz-room-notice', typeClassPrefix: 'is-' });
+    const notice = new window.OCA.FlzRoom.Shared.ui.Notice('flz-room-notice', { baseClass: 'flz-room-notice', typeClassPrefix: 'is-' });
     const workflow = new window.FlzRoom.RoomWorkflow({ repository, notice, reload: load });
     const settings = new window.FlzRoom.RoomSettings({
         section,

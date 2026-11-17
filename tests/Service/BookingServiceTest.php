@@ -25,7 +25,8 @@ namespace OCA\FlzRoom\Service {
 namespace {
     $repo=new OCA\FlzRoom\Repository\BookingRepository();
     $users=new class implements OCP\IUserManager { public function get(string $uid){ return null; } };
-    $service=new OCA\FlzRoom\Service\BookingService($repo,new OCA\FlzRoom\Service\RoomService(),$users,new OCA\FlzRoom\Service\HolidayService(new OCA\LocalBase\Calendar\HolidayCalendarService()),new OCA\LocalBase\Calendar\CalendarContextSettingsService());
+    $holidayCalendar=new class extends OCA\FlzRoom\Service\OrganizationHolidayCalendarService { public function __construct(){} public function forYear(int $year):?array{return ['publicHolidays'=>[]];} };
+    $service=new OCA\FlzRoom\Service\BookingService($repo,new OCA\FlzRoom\Service\RoomService(),$users,new OCA\FlzRoom\Service\HolidayService($holidayCalendar),new OCA\LocalBase\Calendar\CalendarContextSettingsService());
     if ($service->create(1,'2026-07-13T08:00','2026-07-13T09:00','Sitzung','Büroteam','admin')!==7) throw new RuntimeException('Gültige Buchung wurde nicht gespeichert.');
     if ($repo->saved?->startsAt()->format('H:i')!=='12:00') throw new RuntimeException('Administrative Fachzeitzone wurde nicht nach UTC normalisiert.');
     if ($repo->saved?->title()!=='Büroteam') throw new RuntimeException('Buchungstitel wurde nicht gespeichert.');

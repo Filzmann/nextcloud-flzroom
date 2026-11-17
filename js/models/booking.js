@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const BaseModel = window.LocalBase.models.Model;
+    const BaseModel = window.OCA.FlzRoom.Shared.models.Model;
 
     /** Zweck: Repräsentiert eine Raumbuchung einschließlich Besitzeranzeige und serverseitig berechneter UI-Capability. */
     class Booking extends BaseModel {

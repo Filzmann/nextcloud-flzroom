@@ -1,9 +1,9 @@
 (function() {
     'use strict';
 
-    const BaseRepository = window.LocalBase.repositories.Repository;
+    const BaseRepository = window.OCA.FlzRoom.Shared.repositories.Repository;
 
-    /** Zweck: Kapselt Raum-, Buchungs- und Monatsendpunkte hinter dem gemeinsamen LocalBase-Repositoryvertrag. */
+    /** Zweck: Kapselt Raum-, Buchungs- und Monatsendpunkte hinter dem app-lokal gebündelten Repositoryvertrag. */
     class RoomRepository extends BaseRepository {
         async month(month) {
             const data = await this.request(`/api/month/${this.encode(month)}`);
