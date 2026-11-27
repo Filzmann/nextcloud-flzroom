@@ -30,7 +30,8 @@ if(!prevented||calendarTab.getAttribute('aria-selected')!=='true'||!calendarTab.
 
 const submit={disabled:false};
 const matrixBody={children:[],replaceChildren(){this.children=[];},append(node){this.children.push(node);}};
-const form={listeners:{},addEventListener(name,listener){this.listeners[name]=listener;},querySelector:selector=>selector==='[type="submit"]'?submit:matrixBody};
+const matrixHead={children:[],replaceChildren(){this.children=[];},append(node){this.children.push(node);}};
+const form={listeners:{},addEventListener(name,listener){this.listeners[name]=listener;},querySelector:selector=>selector==='[type="submit"]'?submit:selector==='[data-permission-matrix-head]'?matrixHead:matrixBody};
 const status={attributes:new Map(),textContent:'',setAttribute(name,value){this.attributes.set(name,value);}};
 const created=[];
 const permissionDocument={
@@ -50,7 +51,9 @@ settings.render({
     assignments:{'room.read':['pfk','secretariat'],'room.manage':['secretariat']},
 });
 const checkboxes=created.filter(node=>node.tag==='input');
-if(checkboxes.length!==4||!checkboxes[0].checked||checkboxes[1].checked||!checkboxes[3].checked||checkboxes[0].attributes.get('aria-label')!=='Raumplan lesen: Pflegefachkraft')throw new Error('Semantische Rollen und Einzelrechte werden nicht als zugängliche Matrix dargestellt.');
+const headings=created.filter(node=>node.tag==='th');
+if(headings.length!==5||headings[0].textContent!=='Berechtigung'||headings[1].textContent!=='Pflegefachkraft'||headings[2].textContent!=='Sekretariat'||headings[3].textContent!=='Raumplan lesen'||headings[4].textContent!=='Räume verwalten')throw new Error('Die Matrix zeigt Berechtigungen als Zeilen und Rollen als Spalten.');
+if(checkboxes.length!==4||!checkboxes[0].checked||!checkboxes[1].checked||checkboxes[2].checked||!checkboxes[3].checked||checkboxes[0].attributes.get('aria-label')!=='Raumplan lesen: Pflegefachkraft'||checkboxes[0].dataset.permissionKey!=='room.read')throw new Error('Semantische Berechtigungen und Einzelrollen werden nicht als zugängliche Matrix dargestellt.');
 checkboxes.forEach(box=>{box.checked=box.dataset.permissionKey==='room.manage'&&box.value==='pfk';});
 await settings.save();
 const body=JSON.parse(calls.at(-1)[1].body);
