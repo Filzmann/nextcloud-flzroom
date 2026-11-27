@@ -328,12 +328,23 @@ function baseContext(window, document)
         'DELETE /api/admin/full-access/admin1': {},
     });
     const window = {OCA: {FlzRoom: {Shared: shared}}};
+    const overlay = makeElement('div');
+    overlay.hidden = true;
+    const trigger = makeElement('button');
+    const closeButton = makeElement('button');
     const document = {
-        getElementById: id => ({'flz-room-full-access-form': form, 'flz-room-full-access-history': history, 'flz-room-full-access-status': status}[id] ?? null),
+        getElementById: id => ({'flz-room-full-access-form': form, 'flz-room-full-access-history': history, 'flz-room-full-access-status': status, 'flz-room-admin-access-overlay': overlay, 'flz-room-admin-grant-warning': trigger, 'flz-room-admin-access-overlay-close': closeButton}[id] ?? null),
         createElement: tag => makeElement(tag),
+        addEventListener() {},
+        querySelectorAll: () => [],
     };
+    runInNewContext(loadSource('shared/overlay.js'), baseContext(window, document), {filename: jsPath('shared/overlay.js')});
     runInNewContext(loadSource('admin-access.js'), baseContext(window, document), {filename: jsPath('admin-access.js')});
     await flush();
+    if (calls.length) throw new Error('Admin-Access lädt die Historie vor dem Öffnen des Overlays.');
+    await trigger.dispatch('click', {target: trigger});
+    await flush();
+    if (overlay.hidden !== false || trigger.getAttribute('aria-expanded') !== 'true' || !closeButton.focused) throw new Error('Warn-Icon öffnet das Overlay nicht korrekt.');
     if (history.children.length !== 3) throw new Error('Admin-Access rendert nicht alle Freigaben.');
     const [activeRow, expiredRow, revokedRow] = history.children;
     if (!activeRow.children[4].textContent.includes('aktiv') || activeRow.children[4].textContent.includes('abgelaufen'))
@@ -392,13 +403,22 @@ function baseContext(window, document)
         'POST /api/admin/full-access': new Error('Serverfehler'),
     });
     const window2 = {OCA: {FlzRoom: {Shared: shared2}}};
+    const overlay2 = makeElement('div');
+    overlay2.hidden = true;
+    const trigger2 = makeElement('button');
     const document2 = {
-        getElementById: id => ({'flz-room-full-access-form': form2, 'flz-room-full-access-history': history2, 'flz-room-full-access-status': status2}[id] ?? null),
+        getElementById: id => ({'flz-room-full-access-form': form2, 'flz-room-full-access-history': history2, 'flz-room-full-access-status': status2, 'flz-room-admin-access-overlay': overlay2, 'flz-room-admin-grant-warning': trigger2, 'flz-room-admin-access-overlay-close': makeElement('button')}[id] ?? null),
         createElement: tag => makeElement(tag),
+        addEventListener() {},
+        querySelectorAll: () => [],
     };
+    runInNewContext(loadSource('shared/overlay.js'), baseContext(window2, document2), {filename: jsPath('shared/overlay.js')});
     runInNewContext(loadSource('admin-access.js'), baseContext(window2, document2), {filename: jsPath('admin-access.js')});
     await flush();
-    if (history2.children.length !== 1 || history2.children[0].children[0].textContent !== 'Noch keine Freigabe protokolliert.' || history2.children[0].children[0].colSpan !== 6)
+    await trigger2.dispatch('click', {target: trigger2});
+    await flush();
+    if (overlay2.hidden !== false) throw new Error('Warn-Icon öffnet das Overlay nicht.');
+    if (history2.children.length !== 1 || history2.children[0].children[0].textContent !== 'Noch keine Freigaben protokolliert.' || history2.children[0].children[0].colSpan !== 6)
         throw new Error('Admin-Access rendert die Leer-Historie nicht.');
     await history2.dispatch('click', {target: makeElement('span')});
     if (calls2.some(call => call[0] === 'request' && call[2]?.method === 'DELETE')) throw new Error('Klick ohne Widerrufen-Button darf kein DELETE auslösen.');
@@ -407,6 +427,7 @@ function baseContext(window, document)
         throw new Error('Admin-Access zeigt Aktivierungsfehler nicht als Alert.');
 
     // Negativ: DOM fehlt -> kein Werfen
+    runInNewContext(loadSource('shared/overlay.js'), baseContext({OCA: {}}, {getElementById: () => null, createElement: t => makeElement(t)}), {filename: jsPath('shared/overlay.js')});
     runInNewContext(loadSource('admin-access.js'), baseContext({OCA: {}}, {getElementById: () => null, createElement: t => makeElement(t)}), {filename: jsPath('admin-access.js')});
     console.log('admin-access.js Verhaltenscharakterisierung OK');
 }

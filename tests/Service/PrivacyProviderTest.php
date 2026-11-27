@@ -11,6 +11,9 @@ namespace OCP {
         public function getValueString(string $appId, string $key, string $default = ''): string;
         public function setValueString(string $appId, string $key, string $value): void;
     }
+    interface IConfig {
+        public function getSystemValueString(string $key, string $default = ''): string;
+    }
     interface IUser { public function getUID(): string; }
     interface IUserSession { public function getUser(): ?IUser; }
     interface IGroupManager { public function isInGroup(string $uid, string $gid): bool; }
@@ -136,6 +139,9 @@ namespace {
         Booking::get(['id' => 2, 'roomId' => 3, 'userUid' => 'foreign', 'purpose' => 'BQ', 'title' => 'Fremd', 'startsAt' => '2026-08-03T08:00:00+00:00', 'endsAt' => '2026-08-03T09:00:00+00:00']),
     ];
     $subject = new DataSubjectRef('nextcloud-user', 'user-17');
+    $systemConfig = new class implements OCP\IConfig {
+        public function getSystemValueString(string $key, string $default = ''): string { return $key === 'timezone' ? 'Europe/Berlin' : $default; }
+    };
     $config = new class implements OCP\IAppConfig, OCP\Config\IUserConfig {
         public array $values = [];
         public array $userValues = [];
@@ -159,7 +165,7 @@ namespace {
     };
     $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock, $locking);
     $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'interventionAuditDurationPeriod' => 'P90D', 'failedNotificationDurationPeriod' => 'P7D', 'expectedRevision' => 0]);
-    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
+    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config, $systemConfig), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     if (count($report->entries()) !== 4 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie, persönliche Adminlayouts oder Policybearbeitungen der betroffenen UID aus.');
     $item = $report->entries()[0]->toArray();
@@ -203,7 +209,7 @@ namespace {
         $repository,
         new RoomRepository(),
         $policy,
-        new CalendarContextSettingsService($config),
+        new CalendarContextSettingsService($config, $systemConfig),
         new TemporaryAdminAccessRepository(),
         new RoomAdminLayoutService($config, $logger),
         new BookingInterventionAuditRepository(),

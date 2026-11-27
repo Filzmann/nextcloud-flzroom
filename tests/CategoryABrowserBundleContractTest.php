@@ -6,7 +6,7 @@ $root = dirname(__DIR__);
 $bundleRoot = $root . '/js/shared';
 $violations = [];
 
-foreach (['api-client.js', 'model.js', 'repository.js', 'ui.js', 'LICENSE', 'flz-shared.lock.json'] as $asset) {
+foreach (['api-client.js', 'model.js', 'overlay.js', 'repository.js', 'ui.js', 'LICENSE', 'flz-shared.lock.json'] as $asset) {
     if (!is_file($bundleRoot . '/' . $asset)) {
         $violations[] = 'js/shared/' . $asset . ': app-lokales Kategorie-A-Artefakt fehlt';
     }
@@ -47,6 +47,13 @@ foreach (['api-client', 'model', 'repository', 'ui'] as $asset) {
             $violations[] = "{$path}: shared/{$asset} wird nicht app-lokal geladen";
         }
     }
+}
+if (!str_contains($indexTemplate, "addScript('flzroom','shared/overlay')")
+    && !str_contains($indexTemplate, "addScript('flzroom', 'shared/overlay')")) {
+    $violations[] = 'templates/index.php: shared/overlay wird nicht app-lokal geladen';
+}
+if (strpos($indexTemplate, 'shared/overlay') > strpos($indexTemplate, "addScript('flzroom','admin-access')")) {
+    $violations[] = 'templates/index.php: shared/overlay wird nicht vor admin-access geladen';
 }
 if (!str_contains($adminTemplate, "addScript('localbase', 'components/organization-dashboard')")
     || !str_contains($adminSource, 'window.LocalBase.components.OrganizationDashboard')) {

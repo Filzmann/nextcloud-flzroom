@@ -11,6 +11,7 @@
 \OCP\Util::addScript('flzroom','modules/booking-workflow');
 \OCP\Util::addScript('flzroom','components/month-calendar');
 \OCP\Util::addScript('flzroom','components/booking-dialog');
+\OCP\Util::addScript('flzroom','shared/overlay');
 \OCP\Util::addScript('flzroom','admin-access');
 \OCP\Util::addScript('flzroom','retention-policy');
 \OCP\Util::addScript('flzroom','permission-settings');
@@ -32,7 +33,7 @@ $hasSettings = ($_['canConfigurePermissions'] ?? false)
 <main id="flzroom-app" class="flz-room-app">
     <div class="orgsuite-host" data-orgsuite data-suite="flz" data-current-app="flzroom"></div>
     <header class="flz-room-header">
-        <div class="flz-room-title-row"><h1>Filzmann Raumplaner</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="flz-room-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="flz-room-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#flz-room-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?><p>Räume und Buchungen im Monatsüberblick</p></div>
+        <div class="flz-room-title-row"><h1>Filzmann Raumplaner</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><button type="button" id="flz-room-admin-grant-warning" class="flz-shared-warn-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="flz-room-admin-access-overlay" aria-label="Fehlender fachlicher Admin-Vollzugriff: Freigabesteuerung im Overlay öffnen"><span aria-hidden="true">⚠</span></button><?php endif; ?><p>Räume und Buchungen im Monatsüberblick</p></div>
     </header>
     <div id="flz-room-notice" class="flz-room-notice" role="status" aria-live="polite" hidden></div>
     <?php if ($canViewRoomPlan || $hasSettings): ?>
@@ -61,7 +62,7 @@ $hasSettings = ($_['canConfigurePermissions'] ?? false)
             <h2 id="flz-room-admin-access-required-heading">Kein fachlicher Admin-Vollzugriff</h2>
             <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Für die Verwaltung aller Buchungen fehlt eine aktive app-lokale Freigabe.</p>
             <?php if ($_['showAdminAccessLink'] ?? false): ?>
-                <p><a href="#flz-room-full-access">Zur app-lokalen Freigabesteuerung</a></p>
+                <p><button type="button" data-open-admin-access>Zur app-lokalen Freigabesteuerung</button></p>
             <?php endif; ?>
         </section>
     <?php endif; ?>
@@ -100,31 +101,6 @@ $hasSettings = ($_['canConfigurePermissions'] ?? false)
                 <button type="button" data-retention-review>Jährliche Prüfung protokollieren</button>
             </form>
             <p id="flz-room-retention-policy-status" role="status" aria-live="polite"></p>
-        </section>
-    <?php endif; ?>
-    <?php if ($_['canManageAdminAccess'] ?? false): ?>
-        <section id="flz-room-full-access" class="flz-room-admin-access" aria-labelledby="flz-room-full-access-heading">
-            <h2 id="flz-room-full-access-heading">Zeitlich begrenzter Admin-Vollzugriff</h2>
-            <p>Ausschließlich Mitglieder von Datenschutzbeauftragte dürfen einem aktuellen Nextcloud-Administrationskonto fachlichen Vollzugriff erteilen oder ihn widerrufen. Maximal 24 Stunden sind zulässig.</p>
-            <form id="flz-room-full-access-form">
-                <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
-                <label>Dauer
-                    <select name="durationMinutes" required>
-                        <option value="60">1 Stunde</option>
-                        <option value="240">4 Stunden</option>
-                        <option value="480">8 Stunden</option>
-                        <option value="1440">24 Stunden</option>
-                    </select>
-                </label>
-                <label><input id="flz-room-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
-                <button type="submit" class="primary">Freigabe aktivieren</button>
-            </form>
-            <p id="flz-room-full-access-status" role="status" aria-live="polite"></p>
-            <div class="flz-room-table-wrap"><table>
-                <caption>Protokollierte Admin-Vollzugriffszeiträume</caption>
-                <thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead>
-                <tbody id="flz-room-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody>
-            </table></div>
         </section>
     <?php endif; ?>
     </section>
@@ -168,5 +144,50 @@ $hasSettings = ($_['canConfigurePermissions'] ?? false)
         </form>
     </dialog>
     </section>
+    <?php endif; ?>
+
+    <?php if (($_['showMissingAdminGrant'] ?? false) || ($_['canManageAdminAccess'] ?? false)): ?>
+    <div id="flz-room-admin-access-overlay" class="flz-shared-overlay" hidden>
+        <div class="flz-shared-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="flz-room-admin-access-overlay-title">
+            <div class="flz-shared-overlay__head">
+                <h2 id="flz-room-admin-access-overlay-title">Zeitlich begrenzter Admin-Vollzugriff</h2>
+                <button type="button" id="flz-room-admin-access-overlay-close" class="flz-room-icon-button" aria-label="Schließen" title="Schließen"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="flz-shared-overlay__content">
+                <?php if ($_['showMissingAdminGrant'] ?? false): ?>
+                    <div class="flz-shared-overlay__warning">
+                        <p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p>
+                        <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p>
+                        <p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p>
+                    </div>
+                <?php endif; ?>
+                <?php if ($_['canManageAdminAccess'] ?? false): ?>
+                    <section id="flz-room-full-access" class="flz-room-admin-access" aria-labelledby="flz-room-full-access-heading">
+                        <h2 id="flz-room-full-access-heading">Freigabesteuerung</h2>
+                        <p>Ausschließlich Mitglieder von Datenschutzbeauftragte dürfen einem aktuellen Nextcloud-Administrationskonto fachlichen Vollzugriff erteilen oder ihn widerrufen. Maximal 24 Stunden sind zulässig.</p>
+                        <form id="flz-room-full-access-form">
+                            <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
+                            <label>Dauer
+                                <select name="durationMinutes" required>
+                                    <option value="60">1 Stunde</option>
+                                    <option value="240">4 Stunden</option>
+                                    <option value="480">8 Stunden</option>
+                                    <option value="1440">24 Stunden</option>
+                                </select>
+                            </label>
+                            <label><input id="flz-room-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
+                            <button type="submit" class="primary">Freigabe aktivieren</button>
+                        </form>
+                        <p id="flz-room-full-access-status" role="status" aria-live="polite"></p>
+                        <div class="flz-room-table-wrap"><table>
+                            <caption>Protokollierte Admin-Vollzugriffszeiträume</caption>
+                            <thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead>
+                            <tbody id="flz-room-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody>
+                        </table></div>
+                    </section>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
     <?php endif; ?>
 </main>

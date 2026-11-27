@@ -65,7 +65,10 @@ if(!readFileSync(new URL('../../js/repositories/room-repository.js',import.meta.
 const adminBookingModel=adminTemplate.indexOf("\\OCP\\Util::addScript('flzroom', 'models/booking');");
 const adminRepository=adminTemplate.indexOf("\\OCP\\Util::addScript('flzroom', 'repositories/room-repository');");
 if(adminBookingModel<0||adminRepository<0||adminBookingModel>adminRepository) throw new Error('Der Raum-Adminbereich lädt das Buchungsmodell nicht vor dem gemeinsamen Monats-Repository.');
-for(const contract of ['flz-room-admin-grant-warning','<details','Datenschutzbeauftragte','target="_blank"']) if(!indexTemplate.includes(contract)) throw new Error(`Titelwarnung für fehlenden Admin-Vollzugriff fehlt: ${contract}`);
-if(!styleSource.includes('.flz-room-admin-grant-warning')) throw new Error('Titelwarnung für fehlenden Admin-Vollzugriff ist nicht als kleines Floating-Icon gestaltet.');
+for(const contract of ['id="flz-room-admin-access-overlay"','role="dialog"','aria-modal="true"','id="flz-room-admin-grant-warning"','aria-haspopup="dialog"','aria-controls="flz-room-admin-access-overlay"','aria-expanded','Datenschutzbeauftragte']) if(!indexTemplate.includes(contract)) throw new Error(`Overlay für fehlenden Admin-Vollzugriff fehlt: ${contract}`);
+if(indexTemplate.includes('<details class="flz-room-admin-grant-warning"')||indexTemplate.includes('href="#flz-room-full-access"')) throw new Error('Warn-Icon/Verweis ist noch als details-Element bzw. Anchor umgesetzt.');
+const overlayBundleSource=readFileSync(new URL('../../js/shared/overlay.js',import.meta.url),'utf8');
+for(const contract of ['class="flz-shared-warn-trigger"','class="flz-shared-overlay"','\\OCP\\Util::addScript(\'flzroom\',\'shared/overlay\')']) if(!indexTemplate.includes(contract)) throw new Error(`Geteilte Overlay-Klassen/Registrierung fehlen in der Vorlage: ${contract}`);
+if(!overlayBundleSource.includes('.flz-shared-warn-trigger')||!overlayBundleSource.includes('.flz-shared-overlay')) throw new Error('Warn-Icon und Overlay werden nicht mehr durch das geteilte Bundle gestaltet.');
 for(const contract of ['adminHistoryDurationPeriod','durationPeriod','expectedRevision']) if(!retentionPolicySource.includes(contract)||!indexTemplate.includes(contract)) throw new Error(`Retention-Konfigurationsfeld fehlt in Oberfläche oder Request: ${contract}`);
 console.log('Filzmann Raumplaner frontend smoke test passed');

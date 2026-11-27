@@ -36,7 +36,7 @@ const context = vm.createContext({
     String,
     window,
 });
-for (const file of ['api-client.js', 'model.js', 'repository.js', 'ui.js']) {
+for (const file of ['api-client.js', 'model.js', 'overlay.js', 'repository.js', 'ui.js']) {
     const sourcePath = fileURLToPath(new URL(file, bundleRoot));
     vm.runInContext(readFileSync(sourcePath, 'utf8'), context, { filename: sourcePath });
 }
@@ -50,7 +50,7 @@ for (const file of ['models/room.js', 'models/booking.js', 'repositories/room-re
 }
 
 const shared = window.OCA?.FlzRoom?.Shared;
-if (!shared?.api?.ApiClient || !shared?.models?.Model || !shared?.repositories?.Repository || !shared?.ui?.Notice) {
+if (!shared?.api?.ApiClient || !shared?.models?.Model || !shared?.repositories?.Repository || !shared?.ui?.Notice || !shared?.ui?.Overlay || !shared?.ui?.AdminAccessOverlay) {
     throw new Error('Das app-lokale Browser-Bundle stellt seine Primitives nicht vollständig isoliert bereit.');
 }
 if ('LocalBase' in window) {
