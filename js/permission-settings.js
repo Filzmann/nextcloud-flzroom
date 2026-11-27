@@ -112,6 +112,7 @@
                 }
             });
             if (this.submit) this.submit.disabled = true;
+            this.setStatus(translate('flzroom', 'Berechtigungen werden gespeichert …'));
             try {
                 const response = await this.client.request('/api/privacy/permission-settings', {
                     method: 'PUT',

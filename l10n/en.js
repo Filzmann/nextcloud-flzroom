@@ -1,6 +1,7 @@
 OC.L10N.register(
     "flzroom",
     {
+    "Berechtigungen werden gespeichert …" : "Permissions are being saved …",
     "Berechtigungsmatrix" : "Permission matrix",
     "Berechtigung" : "Permission",
     "Rollen stammen ausschließlich aus dem Organigramm. Die Berechtigungsmatrix zeigt Berechtigungen als Zeilen und Organigrammrollen als Spalten. Die Auswahl erteilt einzelne Raumplaner-Rechte; sie verändert keine Gruppenmitgliedschaften. AS und ASN bleiben unabhängig von der Matrix ausgeschlossen." : "Roles come exclusively from the organization chart. The permission matrix shows permissions as rows and organization chart roles as columns. The selection grants individual room planner rights; it does not change group memberships. AS and ASN remain excluded from the matrix regardless.",
