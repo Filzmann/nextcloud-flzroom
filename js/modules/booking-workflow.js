@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     /**
      * Zweck: Koordiniert Speichern und Löschen von Raumbuchungen einschließlich Rückmeldung und Neuladen.
@@ -19,29 +21,29 @@
                 if (data.id) await this.repository.updateBooking(data.id, data.payload);
                 else await this.repository.createBooking(data.payload);
                 this.dialog.close();
-                this.notice.success('Buchung gespeichert.');
+                this.notice.success(translate('flzroom', 'Buchung gespeichert.'));
                 await this.reload();
             } catch (error) {
-                this.dialog.showError(error, 'Die Buchung konnte nicht gespeichert werden.');
+                this.dialog.showError(error, translate('flzroom', 'Die Buchung konnte nicht gespeichert werden.'));
             }
         }
 
         async remove(booking) {
-            if (!window.confirm('Diese Raumbuchung löschen?')) return;
+            if (!window.confirm(translate('flzroom', 'Diese Raumbuchung löschen?'))) return;
             let reason = '';
             if (booking.requiresInterventionReason) {
-                reason = window.prompt('Begründung (10–500 Zeichen). Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben:') ?? '';
+                reason = window.prompt(translate('flzroom', 'Begründung (10–500 Zeichen). Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben:')) ?? '';
                 if (reason.trim().length < 10 || reason.trim().length > 500) {
-                    this.notice.error(new Error('Die Begründung muss 10 bis 500 Zeichen enthalten.'), 'Die Buchung konnte nicht gelöscht werden.');
+                    this.notice.error(new Error(translate('flzroom', 'Die Begründung muss 10 bis 500 Zeichen enthalten.')), translate('flzroom', 'Die Buchung konnte nicht gelöscht werden.'));
                     return;
                 }
             }
             try {
                 await this.repository.deleteBooking(booking.id, { reason });
-                this.notice.success('Buchung gelöscht.');
+                this.notice.success(translate('flzroom', 'Buchung gelöscht.'));
                 await this.reload();
             } catch (error) {
-                this.notice.error(error, 'Die Buchung konnte nicht gelöscht werden.');
+                this.notice.error(error, translate('flzroom', 'Die Buchung konnte nicht gelöscht werden.'));
             }
         }
     }

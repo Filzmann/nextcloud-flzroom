@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     window.FlzRoom = window.FlzRoom || {};
 
@@ -27,7 +29,7 @@
             const available = configuration.status === 'VALID';
             if (!available) {
                 if (this.submit) this.submit.disabled = true;
-                this.setStatus(configuration.message || 'Die Organigrammrollen sind derzeit nicht verfügbar.', true);
+                this.setStatus(configuration.message || translate('flzroom', 'Die Organigrammrollen sind derzeit nicht verfügbar.'), true);
                 return;
             }
 
@@ -56,7 +58,7 @@
                 this.body.append(row);
             });
             if (this.submit) this.submit.disabled = false;
-            this.setStatus('Die Rechtezuordnung ist geladen. Änderungen werden erst mit „Rechte speichern“ wirksam.');
+            this.setStatus(translate('flzroom', 'Die Rechtezuordnung ist geladen. Änderungen werden erst mit „Rechte speichern“ wirksam.'));
         }
 
         setStatus(message, isError = false) {
@@ -65,7 +67,7 @@
         }
 
         showError(error) {
-            this.setStatus(error?.message || 'Die Rechtezuordnung konnte nicht gespeichert werden.', true);
+            this.setStatus(error?.message || translate('flzroom', 'Die Rechtezuordnung konnte nicht gespeichert werden.'), true);
         }
 
         async load() {
@@ -89,7 +91,7 @@
                     body: JSON.stringify({ assignments }),
                 });
                 this.render({ ...this.configuration, ...response, status: 'VALID', message: null });
-                this.setStatus('Die Rechtezuordnung wurde gespeichert.');
+                this.setStatus(translate('flzroom', 'Die Rechtezuordnung wurde gespeichert.'));
             } catch (error) {
                 this.showError(error);
                 if (this.submit && this.configuration?.status === 'VALID') this.submit.disabled = false;

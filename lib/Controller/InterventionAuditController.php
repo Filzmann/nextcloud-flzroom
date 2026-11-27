@@ -14,6 +14,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IL10N;
 
 /** Read-only DPO audit projection; customer-local BR review stays outside app role mapping. */
 final class InterventionAuditController extends Controller {
@@ -21,18 +22,25 @@ final class InterventionAuditController extends Controller {
         IRequest $request,
         private RoomPermissionPolicyService $privacyRole,
         private BookingInterventionAuditRepository $audit,
+        private ?IL10N $l10n = null
     ) {
         parent::__construct(AppId::VALUE, $request);
+    }
+
+    /** Lokalisierung fachlicher Texte; im Test ohne IL10N identity. */
+    private function t(string $text): string
+    {
+        return $this->l10n?->t($text) ?? $text;
     }
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function index(int $limit = 50, int $offset = 0): JSONResponse {
         if (!$this->privacyRole->canConfigure()) {
-            return new JSONResponse(['message' => 'Keine Berechtigung.'], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['message' => $this->t('Keine Berechtigung.')], Http::STATUS_FORBIDDEN);
         }
         if ($limit < 1 || $limit > 200 || $offset < 0) {
-            return new JSONResponse(['message' => 'Die Paginierung ist ungültig.'], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['message' => $this->t('Die Paginierung ist ungültig.')], Http::STATUS_BAD_REQUEST);
         }
         $entries = array_map(static function (array $entry): array {
             foreach ($entry as $key => $value) {

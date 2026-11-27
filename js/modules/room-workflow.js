@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     /**
      * Zweck: Koordiniert administrative Raumänderungen, Rückmeldungen und das anschließende Neuladen.
@@ -15,16 +17,16 @@
         create(payload) {
             return this.perform(
                 () => this.repository.createRoom(payload),
-                'Raum angelegt.',
-                'Der Raum konnte nicht angelegt werden.',
+                translate('flzroom', 'Raum angelegt.'),
+                translate('flzroom', 'Der Raum konnte nicht angelegt werden.'),
             );
         }
 
         update(id, payload) {
             return this.perform(
                 () => this.repository.updateRoom(id, payload),
-                'Raum gespeichert.',
-                'Der Raum konnte nicht gespeichert werden.',
+                translate('flzroom', 'Raum gespeichert.'),
+                translate('flzroom', 'Der Raum konnte nicht gespeichert werden.'),
             );
         }
 
@@ -32,8 +34,8 @@
             if (!window.confirm(`Raum „${room.name}“ und alle zugehörigen Buchungen löschen?`)) return false;
             return this.perform(
                 () => this.repository.deleteRoom(room.id),
-                'Raum gelöscht.',
-                'Der Raum konnte nicht gelöscht werden.',
+                translate('flzroom', 'Raum gelöscht.'),
+                translate('flzroom', 'Der Raum konnte nicht gelöscht werden.'),
             );
         }
 

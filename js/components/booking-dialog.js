@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     /** Zweck: Zeigt das Buchungsformular und übergibt Formularwerte an den Buchungsworkflow. */
     class BookingDialog {
@@ -33,7 +35,7 @@
             this.form.elements.startTime.value = '08:00';
             this.form.elements.endTime.value = '09:00';
             this.configureReason(false);
-            this.open('Raumbuchung anlegen');
+            this.open(translate('flzroom', 'Raumbuchung anlegen'));
         }
 
         edit(booking) {
@@ -47,7 +49,7 @@
             this.form.elements.purpose.value = booking.purpose;
             this.form.elements.title.value = booking.title;
             this.configureReason(booking.requiresInterventionReason);
-            this.open('Raumbuchung bearbeiten');
+            this.open(translate('flzroom', 'Raumbuchung bearbeiten'));
         }
 
         open(title) {

@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     const dayNames = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
     const pad = value => String(value).padStart(2, '0');
@@ -26,7 +28,7 @@
             const row = document.createElement('tr');
             const day = document.createElement('th');
             day.scope = 'col';
-            day.textContent = 'Tag';
+            day.textContent = translate('flzroom', 'Tag');
             row.append(day);
             for (const room of this.state.rooms) {
                 const heading = document.createElement('th');
@@ -43,7 +45,7 @@
             if (this.state.rooms.length === 0) {
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
-                cell.textContent = 'Noch keine Räume angelegt.';
+                cell.textContent = translate('flzroom', 'Noch keine Räume angelegt.');
                 row.append(cell);
                 this.body.replaceChildren(row);
                 return;
@@ -132,8 +134,8 @@
                 const actions = document.createElement('div');
                 actions.className = 'flz-room-booking-actions';
                 actions.append(
-                    this.actionButton('✎', 'Buchung bearbeiten', 'flzroom:edit-booking', booking),
-                    this.actionButton('×', 'Buchung löschen', 'flzroom:delete-booking', booking),
+                    this.actionButton('✎', translate('flzroom', 'Buchung bearbeiten'), 'flzroom:edit-booking', booking),
+                    this.actionButton('×', translate('flzroom', 'Buchung löschen'), 'flzroom:delete-booking', booking),
                 );
                 card.append(actions);
             }

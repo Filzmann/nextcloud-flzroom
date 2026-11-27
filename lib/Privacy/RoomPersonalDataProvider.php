@@ -48,7 +48,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
             return new PersonalDataPage('not_applicable');
         }
         if ($request->cursor() !== null) {
-            throw new InvalidArgumentException('Filzmann Raumplaner does not support cursor paging.');
+            throw new InvalidArgumentException('Filzmann Raumplaner unterstützt kein Cursor-Paging.');
         }
 
         $policy = $this->retentionPolicy->policy();

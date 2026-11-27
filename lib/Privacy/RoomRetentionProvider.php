@@ -176,7 +176,7 @@ final class RoomRetentionProvider implements RetentionProvider {
 
     private function offset(?string $cursor): int {
         if ($cursor === null) return 0;
-        if (!preg_match('/^(?:0|[1-9][0-9]{0,8})$/', $cursor)) throw new InvalidArgumentException('Invalid room retention cursor.');
+        if (!preg_match('/^(?:0|[1-9][0-9]{0,8})$/', $cursor)) throw new InvalidArgumentException('Ungültiger Raum-Retention-Cursor.');
         return (int)$cursor;
     }
 }

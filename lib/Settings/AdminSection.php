@@ -6,6 +6,7 @@ namespace OCA\FlzRoom\Settings;
 
 use OCA\FlzRoom\AppInfo\Application;
 use OCP\IURLGenerator;
+use OCP\IL10N;
 use OCP\Settings\IIconSection;
 
 /** Zweck: Registriert den eigenen, nur für Nextcloud-Admins sichtbaren Raumplaner-Abschnitt. */

@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     const byId = window.OCA.FlzRoom.Shared.ui.byId;
     const section = byId('flz-room-settings-rooms');
@@ -25,7 +27,7 @@
             const state = await repository.rooms();
             settings.render(state.rooms, true);
         } catch (error) {
-            notice.error(error, 'Die Räume konnten nicht geladen werden.');
+            notice.error(error, translate('flzroom', 'Die Räume konnten nicht geladen werden.'));
             form.querySelector('button[type="submit"]').disabled = true;
         }
     }

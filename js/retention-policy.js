@@ -1,6 +1,8 @@
 (function()
 {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     const form = document.getElementById('flz-room-retention-policy-form');
     const status = document.getElementById('flz-room-retention-policy-status');
@@ -26,8 +28,8 @@
         form.elements.expectedRevision.value = String(policy.revision);
         status.setAttribute('role', 'status');
         status.textContent = policy.reviewDue
-            ? 'Die jährliche Prüfung ist fällig.'
-            : 'Policyversion ' + policy.revision + ' ist aktuell.';
+            ? translate('flzroom', 'Die jährliche Prüfung ist fällig.')
+            : translate('flzroom', 'Policyversion {revision} ist aktuell.', {revision: policy.revision});
     };
 
     const showError = (error, fallback) =>
@@ -56,7 +58,7 @@
         }
         catch (error)
         {
-            showError(error, 'Die Policy konnte nicht gespeichert werden.');
+            showError(error, translate('flzroom', 'Die Policy konnte nicht gespeichert werden.'));
         }
     });
 
@@ -72,11 +74,11 @@
         }
         catch (error)
         {
-            showError(error, 'Die Prüfung konnte nicht protokolliert werden.');
+            showError(error, translate('flzroom', 'Die Prüfung konnte nicht protokolliert werden.'));
         }
     });
 
     void client.request('/api/privacy/retention-policy')
         .then(response => render(response.retentionPolicy))
-        .catch(error => showError(error, 'Die Policy konnte nicht geladen werden.'));
+        .catch(error => showError(error, translate('flzroom', 'Die Policy konnte nicht geladen werden.')));
 }());

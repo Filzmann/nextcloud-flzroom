@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- L10N-Migration (ZM-06): sichtbare Texte über Nextcloud-l10n (deutsche Quelltexte, Kataloge `l10n/en.*` + `l10n/en_GB.*`), inkl. `tests/Ui/L10nCatalogContractTest.php` und `docs/l10n-inventory.md`.
+
 - Die Datenschutzrolle kann die Retention für Fremdeingriffe ändern: Audit
   standardmäßig ein Jahr (30 bis 1095 Tage oder ein bis drei Kalenderjahre),
   dauerhaft fehlgeschlagene Benachrichtigungen standardmäßig 30 Tage (ein bis

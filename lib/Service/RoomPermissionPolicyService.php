@@ -187,7 +187,7 @@ final class RoomPermissionPolicyService {
             }
             return ['status' => 'VALID', 'message' => null, 'roles' => $catalog['roles'], 'assignments' => $normalized];
         } catch (Throwable $error) {
-            $this->logger->warning('Raumplaner permission configuration invalid', ['exceptionClass' => $error::class]);
+            $this->logger->warning('Ungültige Berechtigungskonfiguration des Raumplaners', ['exceptionClass' => $error::class]);
             return [
                 'status' => 'INVALID_CONFIGURATION',
                 'message' => 'Die gespeicherte Rechtezuordnung ist ungültig.',

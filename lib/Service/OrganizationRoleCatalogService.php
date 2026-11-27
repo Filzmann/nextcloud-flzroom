@@ -69,13 +69,13 @@ class OrganizationRoleCatalogService
             {
                 if (!is_string($roleKey) || !is_array($mapping))
                 {
-                    throw new UnexpectedValueException('Invalid organization role mapping.');
+                    throw new UnexpectedValueException('Ungültige Organisationsrollen-Zuordnung.');
                 }
                 $groupId = $mapping['groupId'] ?? null;
                 $label = $mapping['label'] ?? null;
                 if (!is_string($groupId) || !is_string($label))
                 {
-                    throw new UnexpectedValueException('Invalid organization role fields.');
+                    throw new UnexpectedValueException('Ungültige Organisationsrollen-Felder.');
                 }
                 if ($groupId === 'flz-AS' || str_starts_with($groupId, 'flz-ASN-'))
                 {

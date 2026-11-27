@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     const shared = window.OCA.FlzRoom.Shared;
     const byId = shared.ui.byId;
@@ -22,7 +24,7 @@
             layoutSave = layoutSave.then(() => client.request('/api/admin/layout', {
                 method: 'PUT',
                 body: JSON.stringify({ layout }),
-            })).catch(error => notice.error(error, 'Das persönliche Kartenlayout konnte nicht gespeichert werden.'));
+            })).catch(error => notice.error(error, translate('flzroom', 'Das persönliche Kartenlayout konnte nicht gespeichert werden.')));
         },
     });
 
@@ -35,7 +37,7 @@
         demoButton.disabled = true;
         demoNotice.hidden = false;
         demoNotice.className = 'flz-room-notice';
-        demoNotice.textContent = 'Demo-Pack wird geprüft und installiert …';
+        demoNotice.textContent = translate('flzroom', 'Demo-Pack wird geprüft und installiert …');
         try {
             const response = await client.request('/api/admin/demo-pack/install', { method: 'POST', body: '{}' });
             demoNotice.classList.add('is-success');
@@ -44,7 +46,7 @@
             await load();
         } catch (error) {
             demoNotice.classList.add('is-error');
-            demoNotice.textContent = error.message || 'Das Demo-Pack konnte nicht installiert werden.';
+            demoNotice.textContent = error.message || translate('flzroom', 'Das Demo-Pack konnte nicht installiert werden.');
             demoButton.disabled = false;
         }
     });
@@ -54,7 +56,7 @@
             const state = await repository.rooms();
             settings.render(state.rooms, true);
         } catch (error) {
-            notice.error(error, 'Die Räume konnten nicht geladen werden.');
+            notice.error(error, translate('flzroom', 'Die Räume konnten nicht geladen werden.'));
             byId('flz-room-admin-room-form').querySelector('button[type="submit"]').disabled = true;
         }
     }
@@ -64,7 +66,7 @@
             const response = await client.request('/api/admin/settings');
             dashboard.set(response.dashboardLayout);
         } catch (error) {
-            notice.error(error, 'Die Admin-Einstellungen konnten nicht geladen werden.');
+            notice.error(error, translate('flzroom', 'Die Admin-Einstellungen konnten nicht geladen werden.'));
         }
     }
 

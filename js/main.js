@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     const shared = window.OCA.FlzRoom.Shared;
     const byId = shared.ui.byId;
@@ -27,7 +29,7 @@
             calendar.render(data);
             dialog.setRooms(data.rooms);
         } catch (error) {
-            if (sequence === loadSequence) notice.error(error, 'Der Raumplan konnte nicht geladen werden.');
+            if (sequence === loadSequence) notice.error(error, translate('flzroom', 'Der Raumplan konnte nicht geladen werden.'));
         }
     }
 
