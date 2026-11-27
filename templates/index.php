@@ -69,14 +69,14 @@ $hasSettings = ($_['canConfigurePermissions'] ?? false)
     <?php if ($_['canConfigurePermissions'] ?? false): ?>
         <section id="flz-room-permission-settings" class="flz-room-admin-access" aria-labelledby="flz-room-permission-settings-heading">
             <h2 id="flz-room-permission-settings-heading">Berechtigungen nach Organigrammrolle</h2>
-            <p>Rollen stammen ausschließlich aus dem Organigramm. Die Auswahl erteilt einzelne Raumplaner-Rechte; sie verändert keine Gruppenmitgliedschaften. AS und ASN bleiben unabhängig von der Matrix ausgeschlossen.</p>
+            <p>Rollen stammen ausschließlich aus dem Organigramm. Die Berechtigungsmatrix zeigt Berechtigungen als Zeilen und Organigrammrollen als Spalten. Die Auswahl erteilt einzelne Raumplaner-Rechte; sie verändert keine Gruppenmitgliedschaften. AS und ASN bleiben unabhängig von der Matrix ausgeschlossen.</p>
             <form id="flz-room-permission-settings-form">
-                <div class="flz-room-table-wrap"><table>
-                    <caption>App-lokale Rechtezuordnung</caption>
-                    <thead><tr><th scope="col">Organigrammrolle</th><th scope="col">Raumplan lesen</th><th scope="col">Eigene Buchungen</th><th scope="col">Freie Titel lesen</th><th scope="col">Fremde Buchungen</th><th scope="col">Räume verwalten</th></tr></thead>
-                    <tbody data-permission-matrix-body><tr><td colspan="6">Rechte werden geladen.</td></tr></tbody>
+                <div class="flz-room-table-wrap"><table class="flz-room-matrix">
+                    <caption>Berechtigungsmatrix</caption>
+                    <thead data-permission-matrix-head><tr><th scope="col">Berechtigung</th></tr></thead>
+                    <tbody data-permission-matrix-body><tr><td colspan="1">Berechtigungen werden geladen.</td></tr></tbody>
                 </table></div>
-                <button type="submit" class="primary">Rechte speichern</button>
+                <button type="submit" class="primary">Berechtigungen speichern</button>
             </form>
             <p>Fest zugeordnet: Eingriffsaudit, Rechteverwaltung, Retention und Adminfreigaben für Datenschutz; alle Buchungen nur für native Nextcloud-Admins mit aktiver app-lokaler Freigabe.</p>
             <p id="flz-room-permission-settings-status" role="status" aria-live="polite"></p>
