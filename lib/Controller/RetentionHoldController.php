@@ -13,6 +13,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IL10N;
 
 final class RetentionHoldController extends Controller {
     public function __construct(IRequest $request,private RetentionHoldService $holds){parent::__construct(AppId::VALUE,$request);}

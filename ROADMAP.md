@@ -11,9 +11,30 @@ begründete Änderung oder Löschung fremder Buchungen; diese Rolle ist kein
 temporärer technischer Admin-Vollzugriff.
 
 Der begründete Fremdeingriff einschließlich neutralem Risikoscope, Audit,
-Benachrichtigungsqueue, festen Fristen sowie Providerprojektionen ist
-umgesetzt. Offen bleibt ausschließlich die Runtime-/Staging-Abnahme mit
-echter Nextcloud-Benachrichtigung und installierter Datenbankmigration.
+Benachrichtigungsqueue, durch die Datenschutzrolle änderbaren Fristen sowie
+Providerprojektionen ist implementiert. Am 17. November 2026 wurde er zusätzlich in einem isolierten
+Nextcloud-34-SQLite-Klon mit ausschließlich synthetischen Testkonten vollständig
+abgenommen: Fresh Install mit Migrationen 000001 bis 000004, Upgrade aus dem
+früheren Zustand ohne Jobdeklaration (Red), Registrierung nach der Korrektur
+(Green) und wiederholtes Upgrade mit genau einem Job. Geprüft wurden außerdem
+fehlender Scope, unberechtigte Rolle, ungültige Begründung, Update und Delete,
+Audit, DPO-only-Auditansicht, native Benachrichtigung einschließlich Rendering,
+Jobausführung, idempotente Wiederholung und Retention mit alten und jungen
+Datensätzen. Die Datenschutzrolle kann die Auditfrist auf 30 bis 1095 Tage
+oder ein bis drei Kalenderjahre und die Frist für dauerhaft fehlgeschlagene
+Zustellungen auf einen bis 365 Tage setzen. Änderungen gelten auch für
+Bestandsdaten; Verkürzungen können beim nächsten Joblauf früher löschen. Die
+Benachrichtigung verwendet jetzt den absoluten Link aus dem
+öffentlichen Nextcloud-URL-Generator. Der isolierte Klon und seine Testdaten
+wurden entfernt.
+
+Diese synthetische Abnahme ist keine echte DPO-Bestätigung und keine Freigabe
+für einen konkreten realen Betrieb. Eine solche Bestätigung liegt derzeit nicht
+vor; der bestehende lokale RiskScope meldet weiterhin `configuration_missing`.
+Die ursprüngliche Jobänderung erhielt nachträglich einen reproduzierbaren
+Red-Green-Regressionstest; die ursprüngliche zeitliche TDD-Reihenfolge ist
+nicht belegt. Datenschutzentscheidungen für einen konkreten Betrieb bleiben
+getrennt davon zu treffen.
 
 Diese Datei enthält ausschließlich offene Arbeit, zurückgestellte Vorhaben
 und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
@@ -24,10 +45,12 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 - App-lokalen temporären Admin-Vollzugriff und seine rollenabhängige
   Freigabesteuerung in DDEV und auf Staging abnehmen.
-- Fremdeingriffe, Audit und Benachrichtigungswiederholung in DDEV und auf
-  Staging mit realen Rollen und nativen Nextcloud-Benachrichtigungen abnehmen.
-- Die manuellen Prüfungen werden im ausfüllbaren
-  [`docs/manual-acceptance.md`](docs/manual-acceptance.md) dokumentiert.
+- Vollständige Ende-zu-Ende-Abnahme von Fremdeingriff, Audit und
+  Benachrichtigung in einem konkreten Betrieb erst nach echter
+  DPO-Entscheidung zum RiskScope und anschließend auf Staging mit den
+  vorgesehenen Organisationsrollen durchführen. Eine echte
+  Datenschutzbestätigung liegt derzeit nicht vor; die lokale synthetische
+  Abnahme erteilt keine Freigabe für den Betrieb.
 - Monatsansicht, Kollisionsschutz, eigene Buchungsrechte und administrative Raumverwaltung auf einem realitätsnahen Staging fachlich abnehmen.
 - Löschbestätigung, Zeitraster, Wochenenden und die Feiertage der administrativ gewählten Organisationsregion sichtbar und barrierefrei prüfen.
 
@@ -42,8 +65,8 @@ Arbeitsschritten.
 
 | Reihenfolge | Arbeitspaket | `execution_class` | Ziel und Abschlussgate |
 | --- | --- | --- | --- |
-| ROOM-STORE-01 | Aktuelle Store-Anforderungen und Produktfreigabe prüfen | `COMPLEX` | Zu Beginn die dann aktuellen offiziellen Nextcloud-Vorgaben für Store-Zulassung, `info.xml`, erlaubte APIs und Abhängigkeiten, Lizenz/Urheberrecht/Marken, Paketaufbau, Kompatibilität, Code Signing und Releaseprozess neu erheben. App-ID und öffentliche Namen erst nach Verfügbarkeits-, Konflikt- und Eignungsprüfung festschreiben; die zeitabhängigen Vorgaben werden vor dem Release Candidate erneut verifiziert. |
-| ROOM-STORE-02 | Zielidentität und Umbenennungsmatrix festlegen | `COMPLEX` | Den sichtbaren Namen **Filzmann Rooms** sowie die technischen Zielwerte für App-ID, PHP-Namespace, interne Identifier, Routen-/Asset-/Konfigurationsschlüssel, Übersetzungsdomäne, Paket-, Archiv- und Repository-Namen in einer einzigen Umbenennungsmatrix festhalten. Alle heutigen `flzroom`-/`FlzRoom`-/Filzmann-Raumplaner-Bezüge und ihre Consumer werden inventarisiert. Erhaltungsbedarf, Fresh-Install-/Reinstall-Weg und Rückbau werden vor jeder technischen Umbenennung entschieden; andere Repositories werden nur in jeweils separat freigegebenen Aufträgen angepasst. |
+| ROOM-STORE-01 | Aktuelle Store-Anforderungen und Produktfreigabe prüfen | `COMPLEX` | **Erhoben 27.11.2026** (`docs/store-readiness.md`: offizielle Quellen docs.nextcloud.com + nextcloud/appstore developer.rst; vor RC erneut verifizieren). Ursprünglich: zu Beginn die dann aktuellen offiziellen Nextcloud-Vorgaben für Store-Zulassung, `info.xml`, erlaubte APIs und Abhängigkeiten, Lizenz/Urheberrecht/Marken, Paketaufbau, Kompatibilität, Code Signing und Releaseprozess neu erheben. App-ID und öffentliche Namen erst nach Verfügbarkeits-, Konflikt- und Eignungsprüfung festschreiben; die zeitabhängigen Vorgaben werden vor dem Release Candidate erneut verifiziert. |
+| ROOM-STORE-02 | Zielidentität und Umbenennungsmatrix festlegen | `COMPLEX` | **Festgelegt 27.11.2026** (`docs/store-readiness.md`: App-ID `flzrooms`, Name „Filzmann Rooms“, Namespace `FlzRooms`; 87 produktive Dateien inventarisiert; Fresh-Install/Reinstall als Weg). Ursprünglich: den sichtbaren Namen **Filzmann Rooms** sowie die technischen Zielwerte für App-ID, PHP-Namespace, interne Identifier, Routen-/Asset-/Konfigurationsschlüssel, Übersetzungsdomäne, Paket-, Archiv- und Repository-Namen in einer einzigen Umbenennungsmatrix festhalten. Alle heutigen `flzroom`-/`FlzRoom`-/Filzmann-Raumplaner-Bezüge und ihre Consumer werden inventarisiert. Erhaltungsbedarf, Fresh-Install-/Reinstall-Weg und Rückbau werden vor jeder technischen Umbenennung entschieden; andere Repositories werden nur in jeweils separat freigegebenen Aufträgen angepasst. |
 | ROOM-STORE-03 | Standalone-Migrationsgrenze festlegen | `COMPLEX` | Eine Abhängigkeitsmanifestation aller PHP-Klassen, Browser-Assets, Templates, Events, Konfigurations-/Datenquellen und Testhilfen erstellen und nach ADR 0001 einordnen. Filzmann Rooms muss mit allein seinem Store-Paket auf einer sauberen Nextcloud-Installation vollständig nutzbar sein. Für heute kernfunktionsrelevante Kategorie-B-Bezüge wird eine Nextcloud-native oder app-eigene führende Standalone-Quelle entschieden; gebündelte Kategorie-A-Bestandteile liegen reproduzierbar und isoliert im eigenen Paket. Andere Filzmann-Apps einschließlich LocalBase, OrgSuite, Kalender, Assistenzplanung und Datenschutz-Center bleiben ausschließlich optionale, aktivierungs- und versionsgeprüfte Integrationen. Direkte heutige LocalBase-Klassen- und Assetbezüge sind bis zum positiven Standalone-Nachweis Releaseblocker. |
 | ROOM-STORE-04 | Rebranding und Standalone-Umstellung umsetzen | `COMPLEX` | Nach Freigabe von Umbenennungs- und Migrationsmatrix die App-ID-/Namespace-/Identifier-Umstellung, App-/Admin-/Kommando- und UI-Namen, Repository-/Buildprojektionen sowie die Entkopplung der Kernfunktion in einem kontrollierten Breaking-Change-Lauf konsistent umsetzen. Provider, Processing-Metadaten, Berechtigungsprojektionen, Tests, Fixtures und Consumer-Verträge werden auf semantische Gleichheit geprüft; technische Identifier werden nicht allein wegen ihres alten Namens ungeprüft geändert. Das Ergebnis besitzt keine gemischte alte und neue Produktidentität und ist per sauberer Installation beziehungsweise dem zuvor belegten Erhaltungsweg nachgewiesen. |
 | ROOM-STORE-05 | Zweisprachige Produkt- und Store-Dokumentation erstellen | `STANDARD` | `info.xml`, README, Dokumentationsindex und fachliche Dokumentation, About-/Info-Bereich sowie die erforderlichen Store-Metadaten auf Filzmann Rooms ausrichten. Die Store-Beschreibung wird vollständig auf Deutsch und Englisch erstellt; Deutsch ist die primäre Fassung für den deutschen Markt, Englisch die vollständige internationale Fassung. Die bereits zurückgestellte vollständige UI-Lokalisierung `ROOM-L10N` wird dadurch nicht vorgezogen. |
@@ -58,22 +81,6 @@ produktübergreifender Werbung.
 
 ## Offene Datenschutz- und Runtime-Nachweise
 
-- Den implementierten V2-DELETE-Provider für Buchungen und
-  Adminfreigabehistorien gemeinsam mit der technischen Aktivierung des
-  Datenschutz-Centers auf der unterstützten realen Datenbank- und
-  Nextcloud-Runtime abnehmen. Nachzuweisen sind frische Installation
-  beziehungsweise Reinstall, Migration, Job-Wiederanlauf, echte
-  Transaktionsgrenze, Nebenläufigkeit, Hold-Rennen, Rollback vor Commit,
-  Provider-/Consumer-Versionen und Restore-Quarantäne. Bis dahin besteht kein
-  Releaseurteil für automatische Löschung.
-- In der Runtime-Abnahme positiv und negativ belegen, dass der technische
-  Operatorpfad standardmäßig deaktiviert ist, nur native
-  Nextcloud-Administration zulässt und bei fehlender, zukünftiger, fälliger,
-  beschädigter oder veralteter Konfiguration sowie ungültiger
-  Backup-/Restore-Prüfung fail-closed bleibt. Rechtsgrundlage,
-  Betriebsvereinbarung, DPO-/Betriebsratsbestätigung und Kundenevidenz bleiben
-  außerhalb des Produktpakets und sind keine Aktivierungsfelder oder
-  technischen DELETE-Gates.
 - Den entschiedenen Lifecycle für den bereits subjectgebunden ausgegebenen
   Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umsetzen: nur der
   jeweilige Kontoinhaber darf den eigenen Wert zurücksetzen; der Wert ist beim

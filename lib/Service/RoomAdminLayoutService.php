@@ -30,7 +30,7 @@ final class RoomAdminLayoutService {
             return $this->storedLayout($uid);
         } catch (\Throwable $error) {
             $this->logInvalidLayout($error);
-            throw new InvalidArgumentException('Personal admin layout is unavailable.', 0, $error);
+            throw new InvalidArgumentException('Das persönliche Admin-Layout ist nicht verfügbar.', 0, $error);
         }
     }
 

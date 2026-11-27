@@ -1,5 +1,7 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
+
 
     /** Zweck: Rendert die administrative Raumtabelle und übergibt Änderungen an den Raumworkflow. */
     class RoomSettings {
@@ -21,20 +23,20 @@
 
         row(room) {
             const row = document.createElement('tr');
-            const name = this.input(room.name, 'Raumname');
-            const description = this.input(room.description, 'Beschreibung');
-            const order = this.input(String(room.sortOrder), 'Reihenfolge', 'number');
+            const name = this.input(room.name, translate('flzroom', 'Raumname'));
+            const description = this.input(room.description, translate('flzroom', 'Beschreibung'));
+            const order = this.input(String(room.sortOrder), translate('flzroom', 'Reihenfolge'), 'number');
             for (const input of [name, description, order]) {
                 const cell = document.createElement('td');
                 cell.append(input);
                 row.append(cell);
             }
             const actions = document.createElement('td');
-            const save = this.button('✓', 'Raum speichern');
+            const save = this.button('✓', translate('flzroom', 'Raum speichern'));
             save.addEventListener('click', () => {
                 void this.onUpdate(room.id, this.payload(name.value, description.value, order.value));
             });
-            const remove = this.button('×', 'Raum samt Buchungen löschen');
+            const remove = this.button('×', translate('flzroom', 'Raum samt Buchungen löschen'));
             remove.addEventListener('click', () => { void this.onRemove(room); });
             actions.append(save, remove);
             row.append(actions);

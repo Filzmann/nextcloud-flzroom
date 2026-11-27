@@ -24,6 +24,13 @@ namespace {
     if (array_key_exists('personal_runtime_data', $catalog->toArray())) {
         throw new RuntimeException('Der Processing-Katalog enthält personenbezogene Laufzeitdaten.');
     }
+    $serializedCatalog = json_encode($catalog->toArray(), JSON_THROW_ON_ERROR);
+    foreach (['Eingriff ausschließlich flz-Sekretariat', 'Freititel ausschließlich für buchende Person und flz-Sekretariat', 'Mitglieder der durch Datenschutzbeauftragte konfigurierten Nextcloud-Organisationsgruppen'] as $obsolete) {
+        if (str_contains($serializedCatalog, $obsolete)) throw new RuntimeException("Veralteter Gruppen-/Berechtigungsvertrag im Processing-Katalog: {$obsolete}");
+    }
+    foreach (['app-lokale Einzelrechte', 'zugewiesene Organigrammrollen', 'Organisatorischer Fremdeingriff'] as $contract) {
+        if (!str_contains($serializedCatalog, $contract)) throw new RuntimeException("Aktueller Berechtigungsvertrag fehlt im Processing-Katalog: {$contract}");
+    }
 
     $registration = new RegisterProcessingMetadataProvidersEvent();
     $listener = new RoomProcessingMetadataProviderListener($provider);

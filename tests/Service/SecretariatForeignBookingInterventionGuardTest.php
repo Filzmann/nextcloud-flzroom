@@ -21,15 +21,16 @@ namespace OCA\FlzRoom\AppInfo {
 }
 
 namespace OCA\FlzRoom\Service {
-    final class OrganizationGroupPolicyService {
-        public bool $secretariat = false;
-        public function isSecretariat(string $uid): bool { return $this->secretariat && $uid === 'secretariat-user'; }
+    final class RoomPermissionPolicyService {
+        public const BOOKING_INTERVENE_FOREIGN='booking.intervene-foreign';
+        public bool $allowed = false;
+        public function isGranted(string $uid,string $permission): bool { return $this->allowed && $uid === 'secretariat-user' && $permission === self::BOOKING_INTERVENE_FOREIGN; }
     }
 }
 
 namespace {
     use OCA\FlzRoom\Model\Booking;
-    use OCA\FlzRoom\Service\OrganizationGroupPolicyService;
+    use OCA\FlzRoom\Service\RoomPermissionPolicyService;
     use OCA\FlzRoom\Service\SecretariatForeignBookingInterventionGuard;
     use OCA\FlzDataProtection\PublicApi\V1\ScopeAuthorizationQueryEvent;
     use OCP\EventDispatcher\Event;
@@ -50,7 +51,7 @@ namespace {
             };
         }
     };
-    $groups = new OrganizationGroupPolicyService();
+    $permissions = new RoomPermissionPolicyService();
     $events = new class implements IEventDispatcher {
         public string $mode = 'unanswered';
         public int $calls = 0;
@@ -68,7 +69,7 @@ namespace {
         public array $warnings = [];
         public function warning(string $message, array $context = []): void { $this->warnings[] = [$message, $context]; }
     };
-    $guard = new SecretariatForeignBookingInterventionGuard($session, $groups, $events, $logger);
+    $guard = new SecretariatForeignBookingInterventionGuard($session, $permissions, $events, $logger);
     $foreign = Booking::get([
         'id' => 17,
         'roomId' => 4,
@@ -91,7 +92,7 @@ namespace {
     $assertSame(false, $guard->allows($foreign), 'Ohne Sekretariatsrolle wurde der Fremdeingriff freigegeben.');
     $assertSame(0, $events->calls, 'Ohne Fachrolle wurde unnötig eine Scope-Entscheidung abgefragt.');
 
-    $groups->secretariat = true;
+    $permissions->allowed = true;
     $assertSame(false, $guard->allows($own), 'Der Fremdeingriffs-Guard darf nicht für eigene Buchungen verwendet werden.');
     $assertSame(0, $events->calls, 'Für eine eigene Buchung wurde unnötig eine Scope-Entscheidung abgefragt.');
 

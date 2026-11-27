@@ -11,6 +11,9 @@ namespace OCP {
         public function getValueString(string $appId, string $key, string $default = ''): string;
         public function setValueString(string $appId, string $key, string $value): void;
     }
+    interface IConfig {
+        public function getSystemValueString(string $key, string $default = ''): string;
+    }
     interface IUser { public function getUID(): string; }
     interface IUserSession { public function getUser(): ?IUser; }
     interface IGroupManager { public function isInGroup(string $uid, string $gid): bool; }
@@ -22,6 +25,13 @@ namespace OCP\Config {
     }
 }
 namespace OCP\AppFramework\Utility { interface ITimeFactory { public function getTime(): int; public function now(): \DateTimeImmutable; } }
+namespace OCP\Lock {
+    interface ILockingProvider {
+        public const LOCK_EXCLUSIVE = 2;
+        public function acquireLock(string $path, int $type): void;
+        public function releaseLock(string $path, int $type): void;
+    }
+}
 namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
@@ -66,6 +76,41 @@ namespace OCA\FlzRoom\Repository {
             return array_slice($this->items, $offset, $limit);
         }
     }
+    class BookingInterventionAuditRepository {
+        public function byActor(string $uid, int $limit): array {
+            if ($uid !== 'user-17') return [];
+            return [[
+                'id' => 21,
+                'action' => 'update',
+                'bookingId' => 17,
+                'occurredAt' => new \DateTimeImmutable('2026-10-05T09:00:00+00:00'),
+                'oldRoom' => 'Raum 4',
+                'newRoom' => 'Raum 8',
+                'oldStartsAt' => new \DateTimeImmutable('2026-10-05T08:00:00+00:00'),
+                'oldEndsAt' => new \DateTimeImmutable('2026-10-05T09:00:00+00:00'),
+                'newStartsAt' => new \DateTimeImmutable('2026-10-05T10:00:00+00:00'),
+                'newEndsAt' => new \DateTimeImmutable('2026-10-05T11:00:00+00:00'),
+                'reason' => 'Organisatorischer Raumkonflikt wurde abgestimmt.',
+            ]];
+        }
+    }
+    class InterventionNotificationQueueRepository {
+        public function byRecipient(string $uid, int $limit): array {
+            if ($uid !== 'user-17') return [];
+            return [[
+                'id' => 22,
+                'action' => 'update',
+                'oldRoom' => 'Raum 4',
+                'newRoom' => 'Raum 8',
+                'oldStartsAt' => new \DateTimeImmutable('2026-10-05T08:00:00+00:00'),
+                'oldEndsAt' => new \DateTimeImmutable('2026-10-05T09:00:00+00:00'),
+                'newStartsAt' => new \DateTimeImmutable('2026-10-05T10:00:00+00:00'),
+                'newEndsAt' => new \DateTimeImmutable('2026-10-05T11:00:00+00:00'),
+                'reason' => 'Organisatorischer Raumkonflikt wurde abgestimmt.',
+                'state' => 'failed',
+            ]];
+        }
+    }
 }
 
 namespace {
@@ -75,6 +120,8 @@ namespace {
     use OCA\FlzRoom\Privacy\RoomPrivacyProviderListener;
     use OCA\FlzRoom\Privacy\RoomRetentionProvider;
     use OCA\FlzRoom\Repository\BookingRepository;
+    use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
+    use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
     use OCA\FlzRoom\Repository\RoomRepository;
     use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
     use OCA\FlzRoom\Service\RoomAdminLayoutService;
@@ -92,6 +139,9 @@ namespace {
         Booking::get(['id' => 2, 'roomId' => 3, 'userUid' => 'foreign', 'purpose' => 'BQ', 'title' => 'Fremd', 'startsAt' => '2026-08-03T08:00:00+00:00', 'endsAt' => '2026-08-03T09:00:00+00:00']),
     ];
     $subject = new DataSubjectRef('nextcloud-user', 'user-17');
+    $systemConfig = new class implements OCP\IConfig {
+        public function getSystemValueString(string $key, string $default = ''): string { return $key === 'timezone' ? 'Europe/Berlin' : $default; }
+    };
     $config = new class implements OCP\IAppConfig, OCP\Config\IUserConfig {
         public array $values = [];
         public array $userValues = [];
@@ -109,9 +159,13 @@ namespace {
         public function getTime(): int { return strtotime('2026-08-12T12:00:00+00:00'); }
         public function now(): DateTimeImmutable { return new DateTimeImmutable('2026-08-12T12:00:00+00:00'); }
     };
-    $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock);
-    $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'expectedRevision' => 0]);
-    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
+    $locking = new class implements OCP\Lock\ILockingProvider {
+        public function acquireLock(string $path, int $type): void {}
+        public function releaseLock(string $path, int $type): void {}
+    };
+    $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock, $locking);
+    $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'interventionAuditDurationPeriod' => 'P90D', 'failedNotificationDurationPeriod' => 'P7D', 'expectedRevision' => 0]);
+    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config, $systemConfig), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     if (count($report->entries()) !== 4 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie, persönliche Adminlayouts oder Policybearbeitungen der betroffenen UID aus.');
     $item = $report->entries()[0]->toArray();
@@ -146,8 +200,36 @@ namespace {
     if ($policyAudit['reference'] !== 'retention-policy:1'
         || ($policyAudit['attributes']['Aufbewahrungsfrist Raumbuchungen'] ?? null) !== 'P30D'
         || ($policyAudit['attributes']['Aufbewahrungsfrist Adminfreigaben'] ?? null) !== 'P6M'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Eingriffsaudit'] ?? null) !== 'P90D'
+        || ($policyAudit['attributes']['Aufbewahrungsfrist Zustellfehler'] ?? null) !== 'P7D'
         || str_contains(json_encode($policyAudit, JSON_THROW_ON_ERROR), 'foreign-user')) {
         throw new RuntimeException('Die eigene Policybearbeitung fehlt oder legt eine fremde Kennung offen.');
+    }
+    $personalWithInterventions = new RoomPersonalDataProvider(
+        $repository,
+        new RoomRepository(),
+        $policy,
+        new CalendarContextSettingsService($config, $systemConfig),
+        new TemporaryAdminAccessRepository(),
+        new RoomAdminLayoutService($config, $logger),
+        new BookingInterventionAuditRepository(),
+        new InterventionNotificationQueueRepository(),
+    );
+    $interventionReport = $personalWithInterventions->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
+    $interventionEntries = [];
+    foreach ($interventionReport->entries() as $entry) $interventionEntries[$entry->toArray()['reference']] = $entry->toArray();
+    $auditEntry = $interventionEntries['intervention-audit:21'] ?? null;
+    $queueEntry = $interventionEntries['intervention-notification:22'] ?? null;
+    if ($auditEntry === null || $queueEntry === null) throw new RuntimeException('Fremdeingriff oder Zustellnachweis fehlt in der subjectgebundenen Auskunft.');
+    if (!str_contains($auditEntry['retention'], 'P90D') || !str_contains($queueEntry['retention'], 'P7D')) {
+        throw new RuntimeException('Die Auskunft zeigt nicht die aktuellen Eingriffsfristen.');
+    }
+    $serializedInterventions = json_encode([$auditEntry, $queueEntry], JSON_THROW_ON_ERROR);
+    if (str_contains($serializedInterventions, 'Sekretariat')
+        || ($auditEntry['categoryLabel'] ?? null) !== 'Organisatorischer Fremdeingriff'
+        || !str_contains((string)($auditEntry['source'] ?? ''), 'berechtigte Organigrammrolle')
+        || !str_contains((string)($queueEntry['purpose'] ?? ''), 'organisatorischen Fremdeingriff')) {
+        throw new RuntimeException('Die Datenschutz-Auskunft behauptet trotz rollenübergreifender Berechtigung einen Sekretariatseingriff.');
     }
     unset($config->userValues['user-17']['flzroom']['admin_dashboard_layout']);
     $reportWithoutStoredLayout = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
@@ -222,7 +304,8 @@ namespace {
     $retentionListener->handle($retentionRegistry);
     if (array_keys($personalRegistry->providers()) !== ['flzroom'] || array_keys($retentionRegistry->providers()) !== ['flzroom']) throw new RuntimeException('Filzmann Raumplaner registriert seine Privacy-Provider nicht.');
     $application = (string)file_get_contents(dirname(__DIR__, 2) . '/lib/AppInfo/Application.php');
-    if (!str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
+    if (!str_contains($application, 'use OCA\\FlzDataProtection\\PublicApi\\V1\\RegisterRetentionProvidersEvent;')
+        || !str_contains($application, 'registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class)')
         || str_contains($application, 'RetentionProviderRegistryEvent')) {
         throw new RuntimeException('Der Bootstrap verwendet nicht ausschließlich den Standalone-V1-Retention-Vertrag.');
     }

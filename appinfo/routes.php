@@ -5,6 +5,7 @@ declare(strict_types=1);
 return ['routes' => [
     ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
     ['name' => 'api#month', 'url' => '/api/month/{month}', 'verb' => 'GET'],
+    ['name' => 'api#rooms', 'url' => '/api/rooms', 'verb' => 'GET'],
     ['name' => 'api#createBooking', 'url' => '/api/bookings', 'verb' => 'POST'],
     ['name' => 'api#updateBooking', 'url' => '/api/bookings/{id}', 'verb' => 'PUT'],
     ['name' => 'api#deleteBooking', 'url' => '/api/bookings/{id}', 'verb' => 'DELETE'],
@@ -18,8 +19,8 @@ return ['routes' => [
     ['name' => 'retention_admin#reviewPolicy', 'url' => '/api/privacy/retention-policy/review', 'verb' => 'POST'],
     ['name' => 'retention_hold#place', 'url' => '/api/privacy/retention-holds', 'verb' => 'POST'],
     ['name' => 'retention_hold#release', 'url' => '/api/privacy/retention-holds', 'verb' => 'DELETE'],
-    ['name' => 'organization_group#configuration', 'url' => '/api/privacy/organization-groups', 'verb' => 'GET'],
-    ['name' => 'organization_group#save', 'url' => '/api/privacy/organization-groups', 'verb' => 'PUT'],
+    ['name' => 'permission_settings#configuration', 'url' => '/api/privacy/permission-settings', 'verb' => 'GET'],
+    ['name' => 'permission_settings#save', 'url' => '/api/privacy/permission-settings', 'verb' => 'PUT'],
     ['name' => 'intervention_audit#index', 'url' => '/api/privacy/intervention-audit', 'verb' => 'GET'],
     ['name' => 'retention_admin#saveLayout', 'url' => '/api/admin/layout', 'verb' => 'PUT'],
     ['name' => 'temporary_admin_access#status', 'url' => '/api/admin/full-access', 'verb' => 'GET'],

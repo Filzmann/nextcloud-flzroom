@@ -14,6 +14,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IL10N;
 use Psr\Log\LoggerInterface;
 
 final class RetentionAdminController extends Controller {
@@ -27,7 +28,7 @@ final class RetentionAdminController extends Controller {
 
     #[NoCSRFRequired]
     public function settings(): JSONResponse {
-        if (!$this->access->canManageRooms()) return $this->denied();
+        if (!$this->access->canManageAllBookings()) return $this->denied();
         return new JSONResponse([
             'dashboardLayout' => $this->layout->layout($this->access->currentUser()->getUID()),
         ]);
@@ -41,10 +42,23 @@ final class RetentionAdminController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function savePolicy(string $durationPeriod, string $adminHistoryDurationPeriod, int $expectedRevision): JSONResponse {
+    public function savePolicy(
+        string $durationPeriod,
+        string $adminHistoryDurationPeriod,
+        int $expectedRevision,
+        string $interventionAuditDurationPeriod,
+        string $failedNotificationDurationPeriod,
+    ): JSONResponse
+    {
         if (!$this->policy->canConfigure()) return $this->denied();
         try {
-            return new JSONResponse(['retentionPolicy' => $this->policy->save(compact('durationPeriod','adminHistoryDurationPeriod','expectedRevision'))]);
+            return new JSONResponse(['retentionPolicy' => $this->policy->save(compact(
+                'durationPeriod',
+                'adminHistoryDurationPeriod',
+                'expectedRevision',
+                'interventionAuditDurationPeriod',
+                'failedNotificationDurationPeriod',
+            ))]);
         } catch (\DomainException $error) {
             return new JSONResponse(['message'=>$error->getMessage()], Http::STATUS_CONFLICT);
         } catch (\Throwable $error) {
@@ -62,7 +76,7 @@ final class RetentionAdminController extends Controller {
     }
 
     public function saveLayout(array $layout): JSONResponse {
-        if (!$this->access->canManageRooms()) return $this->denied();
+        if (!$this->access->canManageAllBookings()) return $this->denied();
         try {
             return new JSONResponse(['dashboardLayout'=>$this->layout->save($this->access->currentUser()->getUID(),$layout)]);
         } catch (\Throwable $error) {

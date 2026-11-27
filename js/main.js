@@ -1,10 +1,13 @@
 (function() {
     'use strict';
+    const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
 
-    const byId = window.LocalBase.ui.byId;
-    const client = new window.LocalBase.api.ApiClient({ appId: 'flzroom' });
+
+    const shared = window.OCA.FlzRoom.Shared;
+    const byId = shared.ui.byId;
+    const client = new shared.api.ApiClient({ appId: 'flzroom' });
     const repository = new window.FlzRoom.RoomRepository(client);
-    const notice = new window.LocalBase.ui.Notice('flz-room-notice', { baseClass: 'flz-room-notice', typeClassPrefix: 'is-' });
+    const notice = new shared.ui.Notice('flz-room-notice', { baseClass: 'flz-room-notice', typeClassPrefix: 'is-' });
     const calendar = new window.FlzRoom.MonthCalendar(byId('flz-room-calendar-head'), byId('flz-room-calendar-body'));
     let month = formatMonth(new Date());
     let loadSequence = 0;
@@ -26,7 +29,7 @@
             calendar.render(data);
             dialog.setRooms(data.rooms);
         } catch (error) {
-            if (sequence === loadSequence) notice.error(error, 'Der Raumplan konnte nicht geladen werden.');
+            if (sequence === loadSequence) notice.error(error, translate('flzroom', 'Der Raumplan konnte nicht geladen werden.'));
         }
     }
 

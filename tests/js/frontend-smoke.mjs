@@ -12,8 +12,11 @@ const styleSource=readFileSync(new URL('../../css/style.css',import.meta.url),'u
 const roomWorkflowSource=readFileSync(new URL('../../js/modules/room-workflow.js',import.meta.url),'utf8');
 const adminTemplate=readFileSync(new URL('../../templates/admin.php',import.meta.url),'utf8');
 const retentionPolicySource=readFileSync(new URL('../../js/retention-policy.js',import.meta.url),'utf8');
+const permissionSettingsSource=readFileSync(new URL('../../js/permission-settings.js',import.meta.url),'utf8');
+const settingsTabsSource=readFileSync(new URL('../../js/settings-tabs.js',import.meta.url),'utf8');
+const roomManagementSettingsSource=readFileSync(new URL('../../js/room-management-settings.js',import.meta.url),'utf8');
 const sources=['models/room.js','models/booking.js','repositories/room-repository.js','components/booking-dialog.js','components/room-settings.js','main.js','admin.js'].map((file)=>readFileSync(new URL(`../../js/${file}`,import.meta.url),'utf8')).join('\n')+calendarSource+wallTimeSource+timelineSource+workflowSource+roomWorkflowSource;
-for(const contract of ['class Room extends BaseModel','class Booking extends BaseModel','class RoomRepository extends BaseRepository','this.post(\'/api/bookings\'','class MonthCalendar','class BookingDialog','class BookingWorkflow','class RoomSettings','class RoomWorkflow','flzroom:add-booking','flz-room-admin-room-body','canManageRooms','window.confirm','this.title = String','title: String(values.get','requiresInterventionReason','reason: String(values.get']) if(!sources.includes(contract)) throw new Error(`Frontendvertrag fehlt: ${contract}`);
+for(const contract of ['class Room extends BaseModel','class Booking extends BaseModel','class RoomRepository extends BaseRepository','this.post(\'/api/bookings\'','class MonthCalendar','class BookingDialog','class BookingWorkflow','class RoomSettings','class RoomWorkflow','flzroom:add-booking','flz-room-admin-room-body','window.confirm','this.title = String','title: String(values.get','requiresInterventionReason','reason: String(values.get']) if(!sources.includes(contract)) throw new Error(`Frontendvertrag fehlt: ${contract}`);
 for(const contract of ['name="reason"','minlength="10"','maxlength="500"','Keine Namen, Gesundheits-, Fall- oder anderen unnötigen Drittpersonenangaben']) if(!indexTemplate.includes(contract)) throw new Error(`Datenminimierter Begründungsvertrag fehlt: ${contract}`);
 for(const contract of ['const sequence = ++loadSequence','if (sequence !== loadSequence) return;','if (sequence === loadSequence) notice.error','let month = formatMonth(new Date())']) if(!sources.includes(contract)) throw new Error(`Monatsladevertrag fehlt: ${contract}`);
 for(const contract of ['class BookingTimeline','flz-room-day-schedule','gridTemplateRows = this.timeline.rows(points)','gridRow = `${this.timeline.line','points(bookings)','rows(points)']) if(!sources.includes(contract)) throw new Error(`Gemeinsamer Zeitachsenvertrag fehlt: ${contract}`);
@@ -51,11 +54,21 @@ const roomWorkflow=new roomWorkflowContext.window.FlzRoom.RoomWorkflow({
 });
 await roomWorkflow.create({name:'Nord'}); await roomWorkflow.update(3,{name:'Süd'}); await roomWorkflow.remove({id:3,name:'Süd'});
 if(roomCalls.filter(call=>call[0]==='create').length!==1||roomCalls.filter(call=>call[0]==='update').length!==1||roomCalls.filter(call=>call[0]==='delete').length!==1) throw new Error('Raumworkflow unterscheidet Anlegen, Bearbeiten und Löschen nicht korrekt.');
-for(const removed of ['flz-room-tab-settings',"showView('settings')"]) if(sources.includes(removed)) throw new Error(`Administrative Raumverwaltung liegt noch in der Fachansicht: ${removed}`);
+for(const contract of ['class SettingsTabs','role="tablist"','flz-room-tab-settings','flz-room-settings-view','aria-controls','aria-selected','ArrowLeft','ArrowRight','Home','End']) if(!settingsTabsSource.includes(contract)&&!indexTemplate.includes(contract)) throw new Error(`Zugänglicher Einstellungstab fehlt: ${contract}`);
+for(const contract of ['class PermissionSettings','data-permission-matrix-body','dataset.permissionKey','selectedOptions','organizationGroupIds']) {
+    const expectedPresent=!['selectedOptions','organizationGroupIds'].includes(contract);
+    if(expectedPresent&&!permissionSettingsSource.includes(contract)&&!indexTemplate.includes(contract)) throw new Error(`Rechtematrix fehlt: ${contract}`);
+    if(!expectedPresent&&(permissionSettingsSource.includes(contract)||indexTemplate.includes(contract))) throw new Error(`Veraltete freie Gruppenzuordnung ist noch aktiv: ${contract}`);
+}
+for(const contract of ['repository.rooms()','flz-room-settings-room-body','flz-room-settings-room-form','new window.FlzRoom.RoomSettings','new window.FlzRoom.RoomWorkflow']) if(!roomManagementSettingsSource.includes(contract)&&!indexTemplate.includes(contract)) throw new Error(`Raumverwaltung im Einstellungstab fehlt: ${contract}`);
+if(!readFileSync(new URL('../../js/repositories/room-repository.js',import.meta.url),'utf8').includes("this.request('/api/rooms')")) throw new Error('Die administrative Raumliste ist nicht von Buchungsdaten getrennt.');
 const adminBookingModel=adminTemplate.indexOf("\\OCP\\Util::addScript('flzroom', 'models/booking');");
 const adminRepository=adminTemplate.indexOf("\\OCP\\Util::addScript('flzroom', 'repositories/room-repository');");
 if(adminBookingModel<0||adminRepository<0||adminBookingModel>adminRepository) throw new Error('Der Raum-Adminbereich lädt das Buchungsmodell nicht vor dem gemeinsamen Monats-Repository.');
-for(const contract of ['flz-room-admin-grant-warning','<details','Datenschutzbeauftragte','target="_blank"']) if(!indexTemplate.includes(contract)) throw new Error(`Titelwarnung für fehlenden Admin-Vollzugriff fehlt: ${contract}`);
-if(!styleSource.includes('.flz-room-admin-grant-warning')) throw new Error('Titelwarnung für fehlenden Admin-Vollzugriff ist nicht als kleines Floating-Icon gestaltet.');
+for(const contract of ['id="flz-room-admin-access-overlay"','role="dialog"','aria-modal="true"','id="flz-room-admin-grant-warning"','aria-haspopup="dialog"','aria-controls="flz-room-admin-access-overlay"','aria-expanded','Datenschutzbeauftragte']) if(!indexTemplate.includes(contract)) throw new Error(`Overlay für fehlenden Admin-Vollzugriff fehlt: ${contract}`);
+if(indexTemplate.includes('<details class="flz-room-admin-grant-warning"')||indexTemplate.includes('href="#flz-room-full-access"')) throw new Error('Warn-Icon/Verweis ist noch als details-Element bzw. Anchor umgesetzt.');
+const overlayBundleSource=readFileSync(new URL('../../js/shared/overlay.js',import.meta.url),'utf8');
+for(const contract of ['class="flz-shared-warn-trigger"','class="flz-shared-overlay"','\\OCP\\Util::addScript(\'flzroom\',\'shared/overlay\')']) if(!indexTemplate.includes(contract)) throw new Error(`Geteilte Overlay-Klassen/Registrierung fehlen in der Vorlage: ${contract}`);
+if(!overlayBundleSource.includes('.flz-shared-warn-trigger')||!overlayBundleSource.includes('.flz-shared-overlay')) throw new Error('Warn-Icon und Overlay werden nicht mehr durch das geteilte Bundle gestaltet.');
 for(const contract of ['adminHistoryDurationPeriod','durationPeriod','expectedRevision']) if(!retentionPolicySource.includes(contract)||!indexTemplate.includes(contract)) throw new Error(`Retention-Konfigurationsfeld fehlt in Oberfläche oder Request: ${contract}`);
 console.log('Filzmann Raumplaner frontend smoke test passed');

@@ -50,7 +50,9 @@ namespace OCA\FlzRoom\Service {
         public bool $manageBooking = true;
         public bool $ownBooking = true;
         public bool $manageRooms = true;
+        public bool $createOwnBooking = true;
         public function canView(): bool { return $this->view; }
+        public function canCreateOwnBooking(): bool { return $this->createOwnBooking; }
         public function currentUid(): string { return 'anna'; }
         public function canManageBooking(object $booking): bool { return $this->manageBooking; }
         public function isOwnBooking(object $booking): bool { return $this->ownBooking; }
@@ -116,6 +118,14 @@ namespace OCA\FlzRoom\Service {
     final class RoomService {
         public string $mode = 'success';
         public ?int $deleted = null;
+        public int $listCalls = 0;
+
+        public function all(): array {
+            $this->listCalls++;
+            return [new class {
+                public function toArray(): array { return ['id' => 2, 'name' => 'Nord', 'description' => '', 'sortOrder' => 0]; }
+            }];
+        }
 
         public function save(?int $id, string $name, string $description, int $sortOrder): int {
             if ($this->mode === 'missing') throw new \OutOfBoundsException('Raum nicht gefunden.');
@@ -152,6 +162,11 @@ namespace {
     };
     $controller = new ApiController($request, $access, $bookings, $interventions, $rooms, $logger);
 
+    foreach (['rooms', 'createRoom', 'updateRoom', 'deleteRoom'] as $method) {
+        $attributes = (new ReflectionMethod(ApiController::class, $method))->getAttributes(OCP\AppFramework\Http\Attribute\NoAdminRequired::class);
+        if (count($attributes) !== 1) throw new RuntimeException("Das fachliche Raumverwaltungsrecht ist für Nichtadmins am Controller nicht erreichbar: {$method}");
+    }
+
     $assert = static function (bool $condition, string $message): void {
         if (!$condition) throw new RuntimeException($message);
     };
@@ -159,10 +174,12 @@ namespace {
     $data = static fn ($response): array => $response->getData();
 
     $access->view = false;
+    $access->createOwnBooking = false;
     $assert($status($controller->month('2026-07')) === Http::STATUS_FORBIDDEN, 'Monatsansicht ignoriert das Leserecht.');
     $assert($status($controller->createBooking(1, '2026-07-13T08:00', '2026-07-13T09:00', 'AT', 'Team A')) === Http::STATUS_FORBIDDEN, 'Buchungsanlage ignoriert das Leserecht.');
     $assert($bookings->creates === 0, 'Eine verweigerte Buchungsanlage hat den Schreibservice erreicht.');
     $access->view = true;
+    $access->createOwnBooking = true;
 
     $assert($data($controller->month('2026-07'))['month'] === '2026-07', 'Monatsdaten werden nicht durchgereicht.');
     $bookings->mode = 'generic';
@@ -202,10 +219,16 @@ namespace {
     }
 
     $access->manageRooms = false;
+    $beforeListCalls = $rooms->listCalls;
+    $assert($status($controller->rooms()) === Http::STATUS_FORBIDDEN, 'Raumliste kann ohne Raumverwaltungsrecht gelesen werden.');
+    $assert($rooms->listCalls === $beforeListCalls, 'Eine verweigerte Raumlistenabfrage hat den Fachservice erreicht.');
     $assert($status($controller->createRoom('Nord')) === Http::STATUS_FORBIDDEN, 'Raum kann ohne Adminrecht angelegt werden.');
     $assert($status($controller->updateRoom(2, 'Nord')) === Http::STATUS_FORBIDDEN, 'Raum kann ohne Adminrecht geändert werden.');
     $assert($status($controller->deleteRoom(2)) === Http::STATUS_FORBIDDEN, 'Raum kann ohne Adminrecht gelöscht werden.');
     $access->manageRooms = true;
+
+    $roomList = $controller->rooms();
+    $assert($status($roomList) === 200 && count($data($roomList)['rooms'] ?? []) === 1, 'Berechtigte Raumverwaltung erhält keine isolierte Raumliste.');
 
     $rooms->mode = 'success';
     $assert($status($controller->createRoom('Nord')) === Http::STATUS_CREATED, 'Raumanlage liefert keinen Created-Vertrag.');

@@ -15,24 +15,39 @@ final class RoomAccessService {
         private IUserSession $session,
         private IGroupManager $groups,
         private TemporaryAdminAccessChecker $temporaryAdminAccess,
-        private OrganizationGroupPolicyService $organizationGroups,
+        private RoomPermissionPolicyService $permissions,
         private ?SecretariatForeignBookingInterventionGuard $foreignIntervention = null,
     ) {}
     public function currentUser(): ?IUser { return $this->session->getUser(); }
     public function currentUid(): string { return $this->currentUser()?->getUID() ?? ''; }
     public function canView(): bool {
         $uid = $this->currentUid();
-        return $uid !== '' && ($this->organizationGroups->isOrganizationMember($uid) || $this->canManageRooms());
+        return $uid !== '' && ($this->permissions->isGranted($uid, RoomPermissionPolicyService::ROOM_READ) || $this->canManageAllBookings());
     }
-    public function canManageRooms(): bool {
+    public function canManageAllBookings(): bool {
         $uid = $this->currentUid();
         return $uid !== ''
             && $this->groups->isAdmin($uid)
             && $this->temporaryAdminAccess->hasActiveGrant($uid);
     }
+    public function canManageRooms(): bool {
+        $uid = $this->currentUid();
+        return $uid !== '' && (
+            $this->groups->isAdmin($uid)
+            || $this->permissions->isGranted($uid, RoomPermissionPolicyService::ROOM_MANAGE)
+        );
+    }
+    public function canCreateOwnBooking(): bool {
+        $uid = $this->currentUid();
+        return $uid !== '' && $this->permissions->isGranted($uid, RoomPermissionPolicyService::BOOKING_MANAGE_OWN);
+    }
     public function canManageBooking(Booking $booking): bool {
         $uid = $this->currentUid();
-        return $this->canManageRooms() || ($this->canView() && $uid !== '' && hash_equals($booking->userUid(), $uid));
+        return $this->canManageAllBookings() || (
+            $uid !== ''
+            && hash_equals($booking->userUid(), $uid)
+            && $this->permissions->isGranted($uid, RoomPermissionPolicyService::BOOKING_MANAGE_OWN)
+        );
     }
     public function isOwnBooking(Booking $booking): bool {
         $uid = $this->currentUid();
@@ -43,9 +58,6 @@ final class RoomAccessService {
     }
     public function canViewBookingTitle(Booking $booking): bool {
         $uid = $this->currentUid();
-        return $uid !== '' && (
-            hash_equals($booking->userUid(), $uid)
-            || $this->organizationGroups->isSecretariat($uid)
-        );
+        return $uid !== '' && $this->permissions->isGranted($uid, RoomPermissionPolicyService::BOOKING_TITLE_READ);
     }
 }
