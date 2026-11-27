@@ -22,7 +22,7 @@ return [
     'postGrantUiStatuses' => [200],
     'grantService' => OCA\FlzRoom\Service\TemporaryAdminAccessService::class,
     'grantManagerGroups' => static fn(): array => [OCA\FlzRoom\Service\TemporaryAdminAccessService::GRANT_MANAGER_GROUP],
-    'permissionProbe' => static fn(string $uid): bool => OCP\Server::get(RoomAccessService::class)->canManageRooms(),
+    'permissionProbe' => static fn(string $uid): bool => OCP\Server::get(RoomAccessService::class)->canManageAllBookings(),
     'apiSmokes' => [
         ['/index.php/apps/flzroom/api/month/2035-01', [200]],
     ],
