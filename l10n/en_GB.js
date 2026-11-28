@@ -1,6 +1,12 @@
 OC.L10N.register(
     "flzroom",
     {
+  "Um alle Buchungen verwalten zu können, ist zusätzlich eine temporäre Admin-Freigabe von höchstens 24 Stunden erforderlich, die ebenfalls im Tab „Einstellungen“ erteilt wird.":"To manage all bookings, an additional temporary admin grant of no more than 24 hours is required, which is also issued in the \"Settings\" tab.",
+  "Lesen und eigene Buchungen verwalten sind standardmäßig allen Organigrammrollen erlaubt. Die Rechtezuordnung verwaltet die Datenschutzbeauftragte im Tab „Einstellungen“.":"By default, all organization chart roles may read and manage their own bookings. The permission assignment is managed by the data protection officer in the \"Settings\" tab.",
+  "Zum Raumformular springen":"Jump to the room form",
+  "Legen Sie im Formular der Karte „Räume“ einen ersten Raum an.":"Create the first room using the form in the \"Rooms\" card.",
+  "Sobald mindestens ein Raum angelegt ist, ist der Raumplaner für die berechtigten Rollen nutzbar. Diese Karte verschwindet dann automatisch.":"As soon as at least one room has been created, the room planner can be used by the authorized roles. This card then disappears automatically.",
+  "Erste Schritte":"Getting started",
     "Der Block mit dem ungültigen Pflichtfeld wurde geöffnet." : "The block with the invalid required field was opened.",
     "wurde" : "was",
     "wurde an Position" : "was moved to position",

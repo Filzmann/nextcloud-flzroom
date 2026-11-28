@@ -17,6 +17,11 @@
         onUpdate: (id, payload) => workflow.update(id, payload),
         onRemove: room => workflow.remove(room),
     });
+    const firstStart = new window.FlzRoom.FirstStart({
+        card: byId('flz-room-first-start'),
+        button: byId('flz-room-first-start-button'),
+        focusTarget: byId('flz-room-admin-room-form')?.querySelector('input[name="name"]') ?? null,
+    });
     let layoutSave = Promise.resolve();
     const dashboard = new window.FlzRoom.OrganizationDashboard({
         root: byId('flzroom-admin'),
@@ -55,6 +60,7 @@
         try {
             const state = await repository.rooms();
             settings.render(state.rooms, true);
+            firstStart.render(state.rooms);
         } catch (error) {
             notice.error(error, translate('flzroom', 'Die Räume konnten nicht geladen werden.'));
             byId('flz-room-admin-room-form').querySelector('button[type="submit"]').disabled = true;

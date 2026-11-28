@@ -487,12 +487,28 @@ function baseContext(window, document)
 {
     const calls = [];
     const ids = {};
-    for (const id of ['flzroom-admin', 'flz-room-admin-room-body', 'flz-room-admin-room-form', 'flz-room-demo-confirm', 'flz-room-demo-install', 'flz-room-demo-notice', 'flz-room-admin-notice'])
+    for (const id of ['flzroom-admin', 'flz-room-admin-room-body', 'flz-room-admin-room-form', 'flz-room-demo-confirm', 'flz-room-demo-install', 'flz-room-demo-notice', 'flz-room-admin-notice', 'flz-room-first-start', 'flz-room-first-start-button'])
         ids[id] = makeElement();
     const submit = makeElement('button');
-    ids['flz-room-admin-room-form']._queries = {'button[type="submit"]': submit};
+    const nameInput = makeElement('input');
+    ids['flz-room-admin-room-form']._queries = {'button[type="submit"]': submit, 'input[name="name"]': nameInput};
     ids['flz-room-demo-install'].disabled = true; // initialer Zustand laut Template
     const rendered = [];
+    const firstStartRenders = [];
+    class FirstStart
+    {
+        constructor(deps)
+        {
+            this.deps = deps;
+            calls.push(['first-start-init', Boolean(deps.card), Boolean(deps.button), Boolean(deps.focusTarget)]);
+        }
+
+        render(rooms)
+        {
+            firstStartRenders.push(rooms);
+            calls.push(['first-start-render', Array.isArray(rooms) ? rooms.length : 'invalid']);
+        }
+    }
     class RoomRepository
     {
         async rooms()
@@ -545,7 +561,7 @@ function baseContext(window, document)
     shared.ui.byId = id => ids[id] ?? null;
     const window = {
         OCA: {FlzRoom: {Shared: shared}},
-        FlzRoom: {RoomRepository, RoomWorkflow, RoomSettings, OrganizationDashboard},
+        FlzRoom: {RoomRepository, RoomWorkflow, RoomSettings, OrganizationDashboard, FirstStart},
     };
     const document = {getElementById: () => null};
     runInNewContext(loadSource('admin.js'), baseContext(window, document), {filename: jsPath('admin.js')});
@@ -553,6 +569,10 @@ function baseContext(window, document)
     if (rendered.length !== 1 || rendered[0][0][0].name !== 'Süd') throw new Error('Admin rendert die Räume nicht.');
     if (!calls.some(call => call[0] === 'dashboard-set' && JSON.stringify(call[1]) === '{"cards":["a"]}'))
         throw new Error('Admin lädt das Dashboard-Layout nicht.');
+    if (firstStartRenders.length !== 1 || firstStartRenders[0][0].name !== 'Süd')
+        throw new Error('Admin übergibt die geladenen Räume nicht an die Erste-Schritte-Karte.');
+    if (!calls.some(call => call[0] === 'first-start-init' && call[1] && call[2] && call[3]))
+        throw new Error('Admin verdrahtet die Erste-Schritte-Karte nicht vollständig (Karte, Button, Fokusziel).');
 
     const demoConfirmation = ids['flz-room-demo-confirm'];
     const demoButton = ids['flz-room-demo-install'];
@@ -573,12 +593,24 @@ function baseContext(window, document)
     const calls2 = [];
     const ids2 = {};
     for (const id of Object.keys(ids)) ids2[id] = makeElement();
-    ids2['flz-room-admin-room-form']._queries = {'button[type="submit"]': makeElement('button')};
+    ids2['flz-room-admin-room-form']._queries = {'button[type="submit"]': makeElement('button'), 'input[name="name"]': makeElement('input')};
     class FailingRepository
     {
         async rooms()
         {
             throw new Error('kaputt');
+        }
+    }
+    class FirstStart2
+    {
+        constructor(deps)
+        {
+            this.deps = deps;
+        }
+
+        render(rooms)
+        {
+            calls2.push(['first-start-render', rooms]);
         }
     }
     class OrganizationDashboard2
@@ -598,12 +630,13 @@ function baseContext(window, document)
     shared2.ui.byId = id => ids2[id] ?? null;
     const window2 = {
         OCA: {FlzRoom: {Shared: shared2}},
-        FlzRoom: {RoomRepository: FailingRepository, RoomWorkflow, RoomSettings, OrganizationDashboard: OrganizationDashboard2},
+        FlzRoom: {RoomRepository: FailingRepository, RoomWorkflow, RoomSettings, OrganizationDashboard: OrganizationDashboard2, FirstStart: FirstStart2},
     };
     runInNewContext(loadSource('admin.js'), baseContext(window2, document), {filename: jsPath('admin.js')});
     await flush();
     if (!calls2.some(call => call[0] === 'notice-error' && call[1] === 'kaputt')) throw new Error('Admin meldet Raum-Ladefehler nicht.');
     if (!ids2['flz-room-admin-room-form']._queries['button[type="submit"]'].disabled) throw new Error('Admin deaktiviert den Submit-Button nach Ladefehler nicht.');
+    if (calls2.some(call => call[0] === 'first-start-render')) throw new Error('Admin rendert die Erste-Schritte-Karte trotz Ladefehler.');
     const demoButton2 = ids2['flz-room-demo-install'];
     await demoButton2.dispatch('click');
     if (calls2.some(call => call[0] === 'request' && call[1] === '/api/admin/demo-pack/install'))
@@ -758,6 +791,44 @@ function baseContext(window, document)
     if (!calls.some(call => call[0] === 'edit' && call[1] === 9)) throw new Error('edit-booking-Event öffnet keinen Dialog.');
     if (!calls.some(call => call[0] === 'remove' && call[1] === 10)) throw new Error('delete-booking-Event ruft keinen Workflow auf.');
     console.log('main.js Verhaltenscharakterisierung OK');
+}
+
+// ---------------------------------------------------------------------------
+// js/components/first-start.js (Erste-Schritte-Karte im Adminbereich)
+// ---------------------------------------------------------------------------
+{
+    const window = {FlzRoom: {}};
+    runInNewContext(loadSource('components/first-start.js'), baseContext(window, {getElementById: () => null}), {filename: jsPath('components/first-start.js')});
+    const FirstStart = window.FlzRoom.FirstStart;
+    if (typeof FirstStart !== 'function') throw new Error('FirstStart registriert kein window.FlzRoom.FirstStart.');
+
+    const card = makeElement('section');
+    card.hidden = true; // initialer Zustand laut Template
+    const button = makeElement('button');
+    const nameInput = makeElement('input');
+    const firstStart = new FirstStart({card, button, focusTarget: nameInput});
+    firstStart.render([]);
+    if (card.hidden !== false) throw new Error('Leere Raumliste blendet die Erste-Schritte-Karte nicht ein.');
+    firstStart.render([{id: 1, name: 'Nord'}]);
+    if (card.hidden !== true) throw new Error('Vorhandene Räume blenden die Erste-Schritte-Karte nicht aus.');
+    firstStart.render([{id: 2}, {id: 3}]);
+    if (card.hidden !== true) throw new Error('Mehrere Räume blenden die Erste-Schritte-Karte nicht aus.');
+    firstStart.render('kaputt');
+    if (card.hidden !== false) throw new Error('Ungültige Raumantwort wird nicht als leerer Zustand behandelt.');
+    await button.dispatch('click');
+    if (!nameInput.focused) throw new Error('Erste-Schritte-Button fokussiert nicht das Namensfeld des Raumformulars.');
+
+    // Negativ: fehlende/optionale Elemente -> kein Werfen, kein Listener
+    const lonelyCard = makeElement('section');
+    const lonely = new FirstStart({card: lonelyCard});
+    lonely.render([]);
+    if (lonelyCard.hidden !== false) throw new Error('FirstStart ohne Button rendert die Karte nicht.');
+    const noButton = new FirstStart({card: makeElement(), focusTarget: makeElement('input')});
+    noButton.render([]);
+    const empty = new FirstStart({});
+    empty.render([]);
+    empty.render([{id: 1}]);
+    console.log('first-start.js Verhaltenscharakterisierung OK');
 }
 
 console.log('Filzmann Raumplaner runtime behavior tests passed');

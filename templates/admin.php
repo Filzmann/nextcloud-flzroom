@@ -4,6 +4,7 @@
 \OCP\Util::addScript('flzroom', 'shared/repository');
 \OCP\Util::addScript('flzroom', 'shared/ui');
 \OCP\Util::addScript('flzroom', 'components/organization-dashboard');
+\OCP\Util::addScript('flzroom', 'components/first-start');
 \OCP\Util::addScript('flzroom', 'models/room');
 \OCP\Util::addScript('flzroom', 'models/booking');
 \OCP\Util::addScript('flzroom', 'repositories/room-repository');
@@ -18,6 +19,17 @@
     <p><?php p($l->t('Die Karten können persönlich ein- und ausgeklappt sowie per Tastatur oder Drag-and-drop verschoben werden. Fachwerte werden dadurch nicht verändert.')); ?></p>
     <div id="flz-room-admin-notice" class="flz-room-notice" role="status" aria-live="polite" aria-atomic="true" hidden></div>
     <p class="orgs-feedback" data-dashboard-feedback role="status" aria-live="polite"></p>
+    <section class="orgs-panel flz-room-first-start" id="flz-room-first-start" aria-labelledby="flz-room-first-start-heading" hidden>
+        <header class="orgs-dashboard-header"><h3 id="flz-room-first-start-heading"><?php p($l->t('Erste Schritte')); ?></h3></header>
+        <div class="flz-room-first-start-body">
+            <p><?php p($l->t('Sobald mindestens ein Raum angelegt ist, ist der Raumplaner für die berechtigten Rollen nutzbar. Diese Karte verschwindet dann automatisch.')); ?></p>
+            <ol>
+                <li><?php p($l->t('Legen Sie im Formular der Karte „Räume“ einen ersten Raum an.')); ?> <button type="button" id="flz-room-first-start-button"><?php p($l->t('Zum Raumformular springen')); ?></button></li>
+                <li><?php p($l->t('Lesen und eigene Buchungen verwalten sind standardmäßig allen Organigrammrollen erlaubt. Die Rechtezuordnung verwaltet die Datenschutzbeauftragte im Tab „Einstellungen“.')); ?></li>
+                <li><?php p($l->t('Um alle Buchungen verwalten zu können, ist zusätzlich eine temporäre Admin-Freigabe von höchstens 24 Stunden erforderlich, die ebenfalls im Tab „Einstellungen“ erteilt wird.')); ?></li>
+            </ol>
+        </div>
+    </section>
     <div class="orgs-dashboard-grid" data-dashboard-scope="main">
         <section class="orgs-panel orgs-dashboard-widget" data-dashboard-widget data-widget-id="rooms" aria-labelledby="flz-room-rooms-heading">
             <header class="orgs-dashboard-header"><h3 id="flz-room-rooms-heading" data-dashboard-title><?php p($l->t('Räume')); ?></h3><div class="orgs-dashboard-actions"><button type="button" data-dashboard-move="-1" aria-label="<?php p($l->t('Räume eine Position zurück verschieben')); ?>">↑</button><button type="button" data-dashboard-handle draggable="true" aria-label="<?php p($l->t('Räume per Drag-and-drop verschieben')); ?>">⠿</button><button type="button" data-dashboard-move="1" aria-label="<?php p($l->t('Räume eine Position weiter verschieben')); ?>">↓</button><button type="button" data-dashboard-toggle aria-expanded="true" aria-controls="flz-room-rooms-content" aria-label="<?php p($l->t('Räume ein- oder ausklappen')); ?>"><span aria-hidden="true">▾</span></button></div></header>

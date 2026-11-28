@@ -8,6 +8,12 @@
 
 ## Unreleased
 
+- „Erste Schritte“-Karte im Adminbereich: Solange kein Raum existiert, weist eine
+  Hinweis-Karte auf die Erstinbetriebnahme hin (ersten Raum anlegen,
+  Standard-Rechtezuordnung über die Organigrammrollen, temporäre Admin-Freigabe
+  im Tab „Einstellungen“). Die Karte verschwindet automatisch, sobald mindestens
+  ein Raum geladen ist, ist rein informativ und erteilt keine Rechte.
+
 - Lifecycle des persönlichen Admin-Layouts (`admin_dashboard_layout`):
   Self-Reset nur durch den Kontoinhaber (`DELETE /api/admin/layout`,
   CSRF-geschützt), Löschung bei Kontolöschung (`UserDeletedEvent`) und bei
