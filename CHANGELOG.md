@@ -8,6 +8,11 @@
 
 ## Unreleased
 
+- Lifecycle des persönlichen Admin-Layouts (`admin_dashboard_layout`):
+  Self-Reset nur durch den Kontoinhaber (`DELETE /api/admin/layout`,
+  CSRF-geschützt), Löschung bei Kontolöschung (`UserDeletedEvent`) und bei
+  App-Deinstallation (Uninstall-Repair-Step `UninstallLayoutCleanup`).
+
 - L10N-Migration (ZM-06): sichtbare Texte über Nextcloud-l10n (deutsche Quelltexte, Kataloge `l10n/en.*` + `l10n/en_GB.*`), inkl. `tests/Ui/L10nCatalogContractTest.php` und `docs/l10n-inventory.md`.
 
 - Die Datenschutzrolle kann die Retention für Fremdeingriffe ändern: Audit
