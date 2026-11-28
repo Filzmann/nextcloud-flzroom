@@ -81,14 +81,13 @@ produktübergreifender Werbung.
 
 ## Offene Datenschutz- und Runtime-Nachweise
 
-- Den entschiedenen Lifecycle für den bereits subjectgebunden ausgegebenen
-  Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umsetzen: nur der
-  jeweilige Kontoinhaber darf den eigenen Wert zurücksetzen; der Wert ist beim
-  Self-Reset, bei Nextcloud-Kontolöschung und bei App-Deinstallation zu
-  löschen. Native Administration und `Datenschutzbeauftragte` dürfen keine
-  fremden Layouts zurücksetzen. Reset-Endpunkt, Konto-/App-Lifecycle-Anbindung
-  und Tests fehlen; Backup- und Restore-Verhalten bleiben offen.
-
+- Erledigt 28. November 2026: Lifecycle für den subjectgebundenen
+  Nextcloud-`IUserConfig`-Wert `admin_dashboard_layout` umgesetzt — Self-Reset
+  nur durch den Kontoinhaber (`DELETE /api/admin/layout`, CSRF-geschützt),
+  Löschung bei Nextcloud-Kontolöschung (`UserDeletedEvent`-Listener) und bei
+  App-Deinstallation (Uninstall-Repair-Step `UninstallLayoutCleanup`). Native
+  Administration und `Datenschutzbeauftragte` können keine fremden Layouts
+  zurücksetzen. Backup- und Restore-Verhalten bleiben offen.
 ## Geplante Erweiterungen
 
 - Persönliche Einstellungen erhalten erst bei einem konkreten dauerhaften Nutzerwert einen eigenen App-Tab.

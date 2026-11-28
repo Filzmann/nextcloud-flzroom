@@ -27,4 +27,9 @@
         <admin>OCA\FlzRoom\Settings\Admin</admin>
         <admin-section>OCA\FlzRoom\Settings\AdminSection</admin-section>
     </settings>
+    <repair-steps>
+        <uninstall>
+            <step>OCA\FlzRoom\Repair\UninstallLayoutCleanup</step>
+        </uninstall>
+    </repair-steps>
 </info>

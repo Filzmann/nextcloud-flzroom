@@ -6,6 +6,8 @@ namespace OCP\Config {
     interface IUserConfig {
         public function getValueArray(string $userId, string $appId, string $key, array $default = [], bool $lazy = false): array;
         public function setValueArray(string $userId, string $appId, string $key, array $value, bool $lazy = false): void;
+        public function deleteUserConfig(string $userId, string $app, string $key): void;
+        public function deleteApp(string $app): void;
     }
 }
 namespace Psr\Log { interface LoggerInterface { public function warning(string $message, array $context=[]):void; } }
@@ -17,6 +19,8 @@ namespace {
         public array $values=[];
         public function getValueArray(string $userId,string $appId,string $key,array $default=[],bool $lazy=false):array{return $this->values[$userId][$appId][$key]??$default;}
         public function setValueArray(string $userId,string $appId,string $key,array $value,bool $lazy=false):void{$this->values[$userId][$appId][$key]=$value;}
+        public function deleteUserConfig(string $userId,string $app,string $key):void{unset($this->values[$userId][$app][$key]);}
+        public function deleteApp(string $app):void{foreach($this->values as $uid=>&$apps){unset($apps[$app]);} }
     };
     $logger = new class implements Psr\Log\LoggerInterface { public array $warnings=[]; public function warning(string $message,array $context=[]):void{$this->warnings[]=$message;} };
     $service = new RoomAdminLayoutService($config,$logger);
@@ -41,5 +45,14 @@ namespace {
     }
     if ($logger->warnings === []) throw new RuntimeException('Ungültiges persönliches Layout wird nicht diagnostizierbar ausgeschlossen.');
     if ($service->layout('other') !== $default) throw new RuntimeException('Persönliche Layouts sind nicht getrennt.');
+    $reset = $service->reset('admin');
+    if ($reset !== $default || isset($config->values['admin']['flzroom']['admin_dashboard_layout'])) throw new RuntimeException('Self-Reset löscht das eigene Layout nicht und liefert nicht das Standardlayout.');
+    $service->save('admin', $saved);
+    $service->deleteForUser('admin');
+    if (isset($config->values['admin']['flzroom']['admin_dashboard_layout'])) throw new RuntimeException('Kontolöschung löscht das Layout des Kontoinhabers nicht.');
+    $service->save('admin', $saved);
+    $service->save('other', $saved);
+    $service->deleteAll();
+    if (($config->values['admin']['flzroom'] ?? null) !== null || ($config->values['other']['flzroom'] ?? null) !== null) throw new RuntimeException('App-Deinstallation löscht nicht alle persönlichen Layouts der App.');
     echo "Filzmann Raumplaner admin layout test passed\n";
 }

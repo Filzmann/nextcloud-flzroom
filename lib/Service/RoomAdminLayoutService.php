@@ -43,6 +43,19 @@ final class RoomAdminLayoutService {
         $this->logger->warning('Persönliches Raumplaner-Adminlayout ist ungültig; Standard wird verwendet.', ['exception' => $error]);
     }
 
+    public function reset(string $uid): array {
+        $this->config->deleteUserConfig($uid, AppId::VALUE, self::KEY);
+        return $this->default();
+    }
+
+    public function deleteForUser(string $uid): void {
+        $this->config->deleteUserConfig($uid, AppId::VALUE, self::KEY);
+    }
+
+    public function deleteAll(): void {
+        $this->config->deleteApp(AppId::VALUE);
+    }
+
     public function save(string $uid, array $layout): array {
         $normalized = $this->normalize($layout);
         $this->config->setValueArray($uid, AppId::VALUE, self::KEY, $normalized, true);

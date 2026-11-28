@@ -75,6 +75,12 @@ final class RetentionAdminController extends Controller {
         catch (\Throwable $error) { return new JSONResponse(['message'=>'Die Retention-Prüfung konnte nicht protokolliert werden.'],Http::STATUS_BAD_REQUEST); }
     }
 
+    #[NoAdminRequired]
+    public function resetLayout(): JSONResponse {
+        if (!$this->access->canManageAllBookings()) return $this->denied();
+        return new JSONResponse(['dashboardLayout'=>$this->layout->reset($this->access->currentUser()->getUID())]);
+    }
+
     public function saveLayout(array $layout): JSONResponse {
         if (!$this->access->canManageAllBookings()) return $this->denied();
         try {
