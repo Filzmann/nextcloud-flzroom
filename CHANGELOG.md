@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0 (2026-11-28)
+
+- Release für den offiziellen Nextcloud App Store: stabile Version 0.13.0
+  (vorher 0.13.0-rc.2); Store-Artefakt rc3/rc4 über `scripts/build-app-store-candidate.sh`
+  mit reproduzierbarem sha256 und Evidence geprüft.
+
 ## Unreleased
 
 - L10N-Migration (ZM-06): sichtbare Texte über Nextcloud-l10n (deutsche Quelltexte, Kataloge `l10n/en.*` + `l10n/en_GB.*`), inkl. `tests/Ui/L10nCatalogContractTest.php` und `docs/l10n-inventory.md`.
