@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace OCA\FlzRoom\AppInfo;
 
 use OCA\FlzRoom\Listener\IntegrationCapabilityQueryListener;
-use OCA\FlzRoom\Listener\StandaloneNavigationListener;
+use OCA\FlzRoom\Listener\StandaloneNavigationListener;use OCA\FlzRoom\Listener\UserDeletedLayoutListener;
+
 use OCA\FlzRoom\Notification\Notifier;
 use OCA\FlzRoom\Privacy\RoomPrivacyProviderListener;
 use OCA\FlzRoom\Privacy\RoomRetentionExecutionProviderListener;
@@ -27,6 +28,7 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
+use OCP\User\Events\UserDeletedEvent;
 
 /** Zweck: Registriert Raumfähigkeiten und Standalone-Navigation im Nextcloud-Bootstrap. */
 final class Application extends App implements IBootstrap
@@ -48,6 +50,7 @@ final class Application extends App implements IBootstrap
         $context->registerEventListener(RegisterRetentionProvidersEvent::class, RoomPrivacyProviderListener::class);
         $context->registerEventListener(RegisterRetentionExecutionProvidersEvent::class, RoomRetentionExecutionProviderListener::class);
         $context->registerEventListener(LoadAdditionalEntriesEvent::class, StandaloneNavigationListener::class);
+        $context->registerEventListener(UserDeletedEvent::class, UserDeletedLayoutListener::class);
         $context->registerNotifierService(Notifier::class);
         $context->registerServiceAlias(TemporaryAdminAccessChecker::class, TemporaryAdminAccessService::class);
         $context->registerServiceAlias(TemporaryAdminAccessRepositoryInterface::class, TemporaryAdminAccessRepository::class);

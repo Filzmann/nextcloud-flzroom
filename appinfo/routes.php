@@ -23,6 +23,7 @@ return ['routes' => [
     ['name' => 'permission_settings#save', 'url' => '/api/privacy/permission-settings', 'verb' => 'PUT'],
     ['name' => 'intervention_audit#index', 'url' => '/api/privacy/intervention-audit', 'verb' => 'GET'],
     ['name' => 'retention_admin#saveLayout', 'url' => '/api/admin/layout', 'verb' => 'PUT'],
+    ['name' => 'retention_admin#resetLayout', 'url' => '/api/admin/layout', 'verb' => 'DELETE'], 
     ['name' => 'temporary_admin_access#status', 'url' => '/api/admin/full-access', 'verb' => 'GET'],
     ['name' => 'temporary_admin_access#activate', 'url' => '/api/admin/full-access', 'verb' => 'POST'],
     ['name' => 'temporary_admin_access#revoke', 'url' => '/api/admin/full-access/{targetUid}', 'verb' => 'DELETE'],

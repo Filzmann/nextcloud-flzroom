@@ -10,7 +10,7 @@ namespace Psr\Log { interface LoggerInterface { public function warning(string $
 namespace OCA\FlzRoom\Service {
     class RoomAccessService { public bool $allowed=false; public function canManageAllBookings():bool{return $this->allowed;} public function currentUser():?\OCP\IUser{return $this->allowed?new class implements \OCP\IUser{public function getUID():string{return 'admin';}}:null;} }
     class RoomRetentionPolicyService { public array $value=['enabled'=>true,'durationPeriod'=>'P1Y','adminHistoryDurationPeriod'=>'P6M','action'=>'REVIEW','revision'=>0]; public int $saves=0; public bool $allowed=false; public function canConfigure():bool{return $this->allowed;} public function policy():array{return $this->value;} public function history():array{return [];} public function save(array $policy):array{$this->saves++;if(($policy['durationPeriod']??'')==='invalid')throw new \InvalidArgumentException('ungültig');return $this->value=['enabled'=>true,'durationPeriod'=>$policy['durationPeriod'],'adminHistoryDurationPeriod'=>$policy['adminHistoryDurationPeriod'],'interventionAuditDurationPeriod'=>$policy['interventionAuditDurationPeriod']??null,'failedNotificationDurationPeriod'=>$policy['failedNotificationDurationPeriod']??null,'action'=>'REVIEW','revision'=>$policy['expectedRevision']+1];} public function recordReview(int $revision):array{return ['revision'=>$revision+1];} }
-    class RoomAdminLayoutService { public int $saves=0; public function layout(string $uid):array{return ['version'=>1,'scopes'=>['main'=>['order'=>['rooms','demo'],'collapsed'=>[]]],'organigram'=>['zoom'=>100]];} public function save(string $uid,array $layout):array{$this->saves++;return $layout;} }
+    class RoomAdminLayoutService { public int $saves=0; public int $resets=0; public function layout(string $uid):array{return ['version'=>1,'scopes'=>['main'=>['order'=>['rooms','demo'],'collapsed'=>[]]],'organigram'=>['zoom'=>100]];} public function save(string $uid,array $layout):array{$this->saves++;return $layout;} public function reset(string $uid):array{$this->resets++;return $this->layout($uid);} }
 }
 
 namespace {
@@ -34,5 +34,9 @@ namespace {
     if($controller->savePolicy('invalid','P6M',1,'P90D','P7D')->getStatus()!==Http::STATUS_BAD_REQUEST||$policy->saves!==2)throw new RuntimeException('Ungültige Retention wird nicht sicher abgelehnt.');
     $newLayout=['version'=>1,'scopes'=>['main'=>['order'=>['rooms','demo'],'collapsed'=>[]]],'organigram'=>['zoom'=>100]];
     if($controller->saveLayout($newLayout)->getData()['dashboardLayout']!==$newLayout||$layout->saves!==1)throw new RuntimeException('Persönliches Kartenlayout wird nicht gespeichert.');
+    if($controller->resetLayout()->getData()['dashboardLayout']!==$newLayout||$layout->resets!==1)throw new RuntimeException('Eigener Self-Reset des Kartenlayouts fehlt.');
+    $access->allowed=false;
+    if($controller->resetLayout()->getStatus()!==Http::STATUS_FORBIDDEN||$layout->resets!==1)throw new RuntimeException('Self-Reset ohne Fachberechtigung wird nicht abgelehnt.');
+    $access->allowed=true;
     echo "Filzmann Raumplaner retention admin controller test passed\n";
 }
