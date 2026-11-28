@@ -7,7 +7,7 @@ namespace OCA\FlzRoom\Notification;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\FlzRoom\AppInfo\AppId;
-use OCA\LocalBase\Calendar\CalendarContextSettingsService;
+use OCA\FlzRoom\Service\OrganizationCalendarContextService;
 use OCP\IURLGenerator;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
@@ -16,7 +16,7 @@ use OCP\Notification\INotifier;
 final class Notifier implements INotifier
 {
     public function __construct(
-        private CalendarContextSettingsService $calendarContext,
+        private OrganizationCalendarContextService $calendarContext,
         private IURLGenerator $urls,
     )
     {
@@ -52,7 +52,7 @@ final class Notifier implements INotifier
     private function slot(string $room, string $startsAt, string $endsAt): string {
         $start = new DateTimeImmutable($startsAt);
         $end = new DateTimeImmutable($endsAt);
-        $timezone = $this->calendarContext->context()->timezone();
+        $timezone = $this->calendarContext->timezone();
         $start = $start->setTimezone($timezone);
         $end = $end->setTimezone($timezone);
         return sprintf('%s am %s von %s bis %s Uhr', $room, $start->format('d.m.Y'), $start->format('H:i'), $end->format('H:i'));

@@ -36,6 +36,9 @@ namespace Psr\Log {
     interface LoggerInterface { public function warning(string $message, array $context = []): void; }
 }
 
+namespace OCA\FlzRoom\Service {
+    class OrganizationCalendarContextService { public function timezone(): \DateTimeZone { return new \DateTimeZone('Europe/Berlin'); } }
+}
 namespace OCA\FlzRoom\Repository {
     use OCA\FlzRoom\Model\Booking;
     use OCA\FlzRoom\Model\Room;
@@ -126,7 +129,7 @@ namespace {
     use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
     use OCA\FlzRoom\Service\RoomAdminLayoutService;
     use OCA\FlzRoom\Service\RoomRetentionPolicyService;
-    use OCA\LocalBase\Calendar\CalendarContextSettingsService;
+    use OCA\FlzRoom\Service\OrganizationCalendarContextService;
     use OCA\FlzDataProtection\PublicApi\V1\RetentionPreviewRequest;
     use OCA\FlzDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
     use OCA\FlzDataProtection\PublicApi\V1\DataSubjectRef;
@@ -165,7 +168,7 @@ namespace {
     };
     $policy = new RoomRetentionPolicyService($config, $groups, $session, $clock, $locking);
     $policy->save(['durationPeriod' => 'P30D', 'adminHistoryDurationPeriod' => 'P6M', 'interventionAuditDurationPeriod' => 'P90D', 'failedNotificationDurationPeriod' => 'P7D', 'expectedRevision' => 0]);
-    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new CalendarContextSettingsService($config, $systemConfig), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
+    $personal = new RoomPersonalDataProvider($repository, new RoomRepository(), $policy, new OrganizationCalendarContextService(), new TemporaryAdminAccessRepository(), new RoomAdminLayoutService($config, $logger));
     $report = $personal->collect(new PersonalDataRequest($subject, 'de', 'access-report', 20, []));
     if (count($report->entries()) !== 4 || $report->status() !== 'complete') throw new RuntimeException('Provider lässt Buchungen, Admin-Freigabehistorie, persönliche Adminlayouts oder Policybearbeitungen der betroffenen UID aus.');
     $item = $report->entries()[0]->toArray();
@@ -209,7 +212,7 @@ namespace {
         $repository,
         new RoomRepository(),
         $policy,
-        new CalendarContextSettingsService($config, $systemConfig),
+        new OrganizationCalendarContextService(),
         new TemporaryAdminAccessRepository(),
         new RoomAdminLayoutService($config, $logger),
         new BookingInterventionAuditRepository(),

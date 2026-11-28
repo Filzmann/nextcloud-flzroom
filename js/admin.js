@@ -18,7 +18,7 @@
         onRemove: room => workflow.remove(room),
     });
     let layoutSave = Promise.resolve();
-    const dashboard = new window.LocalBase.components.OrganizationDashboard({
+    const dashboard = new window.FlzRoom.OrganizationDashboard({
         root: byId('flzroom-admin'),
         onChange: layout => {
             layoutSave = layoutSave.then(() => client.request('/api/admin/layout', {

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "flzroom",
     {
+    "Der Block mit dem ungültigen Pflichtfeld wurde geöffnet." : "The block with the invalid required field was opened.",
+    "wurde" : "was",
+    "wurde an Position" : "was moved to position",
     "Berechtigungen werden gespeichert …" : "Permissions are being saved …",
     "Berechtigungsmatrix" : "Permission matrix",
     "Berechtigung" : "Permission",

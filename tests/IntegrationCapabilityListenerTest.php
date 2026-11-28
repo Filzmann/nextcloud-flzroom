@@ -7,14 +7,14 @@ namespace OCA\FlzRoom\AppInfo { final class Application { public const APP_ID = 
 
 namespace {
     use OCA\FlzRoom\Listener\IntegrationCapabilityQueryListener;
-    use OCA\LocalBase\Integration\FlzIntegrationCapabilities;
-    use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
+    use OCA\FlzOrganization\PublicApi\V1\IntegrationCapabilities;
+    use OCA\FlzOrganization\PublicApi\V1\IntegrationCapabilityQueryEvent;
 
-    $event = new IntegrationCapabilityQueryEvent(FlzIntegrationCapabilities::all());
+    $event = new IntegrationCapabilityQueryEvent(IntegrationCapabilities::all());
     (new IntegrationCapabilityQueryListener())->handle($event);
-    if ($event->providersFor(FlzIntegrationCapabilities::ROOM_AVAILABILITY_READ) !== ['flzroom']) throw new RuntimeException('Raum-Verfügbarkeitsfähigkeit fehlt.');
-    if ($event->providersFor(FlzIntegrationCapabilities::ROOM_BOOKING_WRITE) !== ['flzroom']) throw new RuntimeException('Raum-Buchungsfähigkeit fehlt.');
-    if ($event->isAvailable(FlzIntegrationCapabilities::ABSENCE_READ)) throw new RuntimeException('Raumplaner meldet eine fremde Fähigkeit.');
+    if ($event->providersFor(IntegrationCapabilities::ROOM_AVAILABILITY_READ) !== ['flzroom']) throw new RuntimeException('Raum-Verfügbarkeitsfähigkeit fehlt.');
+    if ($event->providersFor(IntegrationCapabilities::ROOM_BOOKING_WRITE) !== ['flzroom']) throw new RuntimeException('Raum-Buchungsfähigkeit fehlt.');
+    if ($event->isAvailable(IntegrationCapabilities::ABSENCE_READ)) throw new RuntimeException('Raumplaner meldet eine fremde Fähigkeit.');
 
     echo "FLZ Raum capability listener test passed\n";
 }

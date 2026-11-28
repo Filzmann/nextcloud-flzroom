@@ -3,14 +3,14 @@
 \OCP\Util::addScript('flzroom', 'shared/model');
 \OCP\Util::addScript('flzroom', 'shared/repository');
 \OCP\Util::addScript('flzroom', 'shared/ui');
-\OCP\Util::addScript('localbase', 'components/organization-dashboard');
+\OCP\Util::addScript('flzroom', 'components/organization-dashboard');
 \OCP\Util::addScript('flzroom', 'models/room');
 \OCP\Util::addScript('flzroom', 'models/booking');
 \OCP\Util::addScript('flzroom', 'repositories/room-repository');
 \OCP\Util::addScript('flzroom', 'modules/room-workflow');
 \OCP\Util::addScript('flzroom', 'components/room-settings');
 \OCP\Util::addScript('flzroom', 'admin');
-\OCP\Util::addStyle('localbase', 'organization-admin');
+\OCP\Util::addStyle('flzroom', 'organization-admin');
 \OCP\Util::addStyle('flzroom', 'style');
 ?>
 <section id="flzroom-admin" class="section flz-room-admin" aria-labelledby="flz-room-admin-heading">

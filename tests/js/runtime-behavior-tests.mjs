@@ -38,6 +38,16 @@ function makeElement(tag = 'div', attributes = {})
             {
                 return this.classes.has(name);
             },
+            toggle(name, force)
+            {
+                const on = force === undefined ? !this.classes.has(name) : Boolean(force);
+                if (on) this.classes.add(name); else this.classes.delete(name);
+                return on;
+            },
+            remove(...names)
+            {
+                names.forEach(name => this.classes.delete(name));
+            },
         },
         setAttribute(name, value)
         {
@@ -433,6 +443,45 @@ function baseContext(window, document)
 }
 
 // ---------------------------------------------------------------------------
+// js/components/organization-dashboard.js (app-lokale Dashboard-Komponente)
+// ---------------------------------------------------------------------------
+{
+    const changes = [];
+    const scope = makeElement('section', {'data-dashboard-scope': 'main'});
+    scope.dataset.dashboardScope = 'main';
+    const widget = makeElement('section', {'data-dashboard-widget': 'rooms'});
+    widget.dataset.widgetId = 'rooms';
+    const title = makeElement('h3', {'data-dashboard-title': 'Räume'});
+    title.textContent = 'Räume';
+    const toggle = makeElement('button', {'data-dashboard-toggle': ''});
+    toggle.setAttribute('aria-expanded', 'true');
+    const content = makeElement('div', {'data-dashboard-content': ''});
+    widget.append(title, toggle, content);
+    widget.querySelector = selector => ({'[data-dashboard-title]': title, '[data-dashboard-toggle]': toggle, '[data-dashboard-content]': content})[selector] ?? null;
+    widget.matches = selector => selector === '[data-dashboard-widget]';
+    widget.closest = selector => (selector === '[data-dashboard-widget]' ? widget : null);
+    scope.append(widget);
+    scope.querySelectorAll = () => [scope];
+    scope.matches = selector => selector === '[data-dashboard-scope]';
+    const feedback = makeElement('p', {'data-dashboard-feedback': ''});
+    const root = makeElement('div');
+    root.addEventListener = () => {};
+    root.querySelectorAll = selector => (selector === '[data-dashboard-scope]' ? [scope] : []);
+    root.querySelector = selector => (selector === '[data-dashboard-feedback]' ? feedback : null);
+    const window = {FlzRoom: {}};
+    runInNewContext(loadSource('components/organization-dashboard.js'), baseContext(window, {getElementById: () => null}), {filename: jsPath('components/organization-dashboard.js')});
+    const Dashboard = window.FlzRoom.OrganizationDashboard;
+    if (typeof Dashboard !== 'function') throw new Error('Dashboard-Komponente registriert kein window.FlzRoom.OrganizationDashboard.');
+    const dashboard = new Dashboard({root, onChange: layout => changes.push(layout)});
+    dashboard.set({version: 1, scopes: {main: {order: ['rooms'], collapsed: []}}, organigram: {zoom: 100}});
+    if (dashboard.collectLayout().scopes.main.order[0] !== 'rooms') throw new Error('Dashboard sammelt die Widget-Reihenfolge nicht.');
+    dashboard.setOrganigramZoom(150);
+    if (changes.length !== 1 || changes[0].organigram.zoom !== 150) throw new Error('Dashboard meldet Zoom-Änderung nicht über onChange.');
+    await toggle.dispatch?.('click');
+    console.log('organization-dashboard.js Verhaltenscharakterisierung OK');
+}
+
+// ---------------------------------------------------------------------------
 // js/admin.js
 // ---------------------------------------------------------------------------
 {
@@ -496,8 +545,7 @@ function baseContext(window, document)
     shared.ui.byId = id => ids[id] ?? null;
     const window = {
         OCA: {FlzRoom: {Shared: shared}},
-        FlzRoom: {RoomRepository, RoomWorkflow, RoomSettings},
-        LocalBase: {components: {OrganizationDashboard}},
+        FlzRoom: {RoomRepository, RoomWorkflow, RoomSettings, OrganizationDashboard},
     };
     const document = {getElementById: () => null};
     runInNewContext(loadSource('admin.js'), baseContext(window, document), {filename: jsPath('admin.js')});
@@ -550,8 +598,7 @@ function baseContext(window, document)
     shared2.ui.byId = id => ids2[id] ?? null;
     const window2 = {
         OCA: {FlzRoom: {Shared: shared2}},
-        FlzRoom: {RoomRepository: FailingRepository, RoomWorkflow, RoomSettings},
-        LocalBase: {components: {OrganizationDashboard: OrganizationDashboard2}},
+        FlzRoom: {RoomRepository: FailingRepository, RoomWorkflow, RoomSettings, OrganizationDashboard: OrganizationDashboard2},
     };
     runInNewContext(loadSource('admin.js'), baseContext(window2, document), {filename: jsPath('admin.js')});
     await flush();

@@ -21,7 +21,7 @@ use OCA\FlzDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
 use OCA\FlzDataProtection\PublicApi\V1\RegisterRetentionProvidersEvent;
 use OCA\FlzDataProtection\PublicApi\V2\RegisterRetentionExecutionProvidersEvent;
 use OCA\FlzPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
-use OCA\LocalBase\Integration\IntegrationCapabilityQueryEvent;
+use OCA\FlzOrganization\PublicApi\V1\IntegrationCapabilityQueryEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -35,6 +35,7 @@ final class Application extends App implements IBootstrap
 
     public function __construct(array $urlParams = [])
     {
+        require_once dirname(__DIR__, 2) . '/vendor/flz-shared/php/vendor/autoload.php';
         parent::__construct(self::APP_ID, $urlParams);
     }
 

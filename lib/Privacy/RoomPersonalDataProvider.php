@@ -11,6 +11,7 @@ use OCA\FlzRoom\Repository\BookingInterventionAuditRepository;
 use OCA\FlzRoom\Repository\InterventionNotificationQueueRepository;
 use OCA\FlzRoom\Repository\RoomRepository;
 use OCA\FlzRoom\Repository\TemporaryAdminAccessRepository;
+use OCA\FlzRoom\Service\OrganizationCalendarContextService;
 use OCA\FlzRoom\Service\RoomRetentionPolicyService;
 use OCA\FlzRoom\Service\RoomAdminLayoutService;
 use OCA\FlzDataProtection\PublicApi\V1\PersonalDataEntry;
@@ -18,7 +19,6 @@ use OCA\FlzDataProtection\PublicApi\V1\PersonalDataPage;
 use OCA\FlzDataProtection\PublicApi\V1\PersonalDataProvider;
 use OCA\FlzDataProtection\PublicApi\V1\PersonalDataRequest;
 use OCA\FlzDataProtection\PublicApi\V1\ProviderDescriptor;
-use OCA\LocalBase\Calendar\CalendarContextSettingsService;
 use InvalidArgumentException;
 
 final class RoomPersonalDataProvider implements PersonalDataProvider {
@@ -26,7 +26,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
         private BookingRepository $bookings,
         private RoomRepository $rooms,
         private RoomRetentionPolicyService $retentionPolicy,
-        private CalendarContextSettingsService $calendarContext,
+        private OrganizationCalendarContextService $calendarContext,
         private TemporaryAdminAccessRepository $adminAccess,
         private RoomAdminLayoutService $adminLayout,
         private ?BookingInterventionAuditRepository $interventionAudit = null,
@@ -52,7 +52,7 @@ final class RoomPersonalDataProvider implements PersonalDataProvider {
         }
 
         $policy = $this->retentionPolicy->policy();
-        $timezone = $this->calendarContext->context()->timezone();
+        $timezone = $this->calendarContext->timezone();
         $roomNames = [];
         foreach ($this->rooms->findAll() as $room) $roomNames[$room->id()] = $room->name();
         $bookings = $this->bookings->findByUserUid($request->subject()->subjectId(), $request->pageLimit() + 1);

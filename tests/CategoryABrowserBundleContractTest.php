@@ -55,9 +55,14 @@ if (!str_contains($indexTemplate, "addScript('flzroom','shared/overlay')")
 if (strpos($indexTemplate, 'shared/overlay') > strpos($indexTemplate, "addScript('flzroom','admin-access')")) {
     $violations[] = 'templates/index.php: shared/overlay wird nicht vor admin-access geladen';
 }
-if (!str_contains($adminTemplate, "addScript('localbase', 'components/organization-dashboard')")
-    || !str_contains($adminSource, 'window.LocalBase.components.OrganizationDashboard')) {
-    $violations[] = 'Der getrennte Kategorie-B-Dashboardvertrag wurde unbeabsichtigt verändert';
+if (!str_contains($adminTemplate, "addScript('flzroom', 'components/organization-dashboard')")
+    || !str_contains($adminSource, 'window.FlzRoom.OrganizationDashboard')
+    || !is_file($root . '/js/components/organization-dashboard.js')) {
+    $violations[] = 'Die app-lokale Dashboard-Komponente wird nicht app-lokal geladen';
+}
+if (str_contains($adminTemplate, "addScript('localbase'") || str_contains($adminTemplate, "addStyle('localbase'")
+    || str_contains($adminSource, 'window.LocalBase')) {
+    $violations[] = 'Admin lädt weiterhin LocalBase-Assets oder -Globals';
 }
 
 $sourceRoots = [$root . '/js', $root . '/templates'];
@@ -71,6 +76,9 @@ foreach ($sourceRoots as $sourceRoot) {
         }
         $contents = (string)file_get_contents($file->getPathname());
         foreach ([
+            'window.LocalBase',
+            "addScript('localbase'",
+            "addStyle('localbase'",
             'window.LocalBase.api',
             'window.LocalBase.models',
             'window.LocalBase.repositories',

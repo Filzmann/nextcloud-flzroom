@@ -3,12 +3,6 @@
 declare(strict_types=1);
 
 namespace OCP { interface IUserManager { public function get(string $uid); } }
-namespace OCA\LocalBase\Calendar {
-    class Context { public function timezone(): \DateTimeZone { return new \DateTimeZone('America/New_York'); } }
-    class CalendarContextSettingsService { public function context(): Context { return new Context(); } }
-    class HolidayCalendar { public function toArray(): array { return ['publicHolidays' => []]; } }
-    class HolidayCalendarService { public function forYear(int $year): HolidayCalendar { return new HolidayCalendar(); } }
-}
 namespace OCA\FlzRoom\Repository {
     class BookingRepository {
         public bool $overlap=false; public ?\OCA\FlzRoom\Model\Booking $saved=null;
@@ -20,13 +14,14 @@ namespace OCA\FlzRoom\Repository {
     }
 }
 namespace OCA\FlzRoom\Service {
+    class OrganizationCalendarContextService { public function timezone(): \DateTimeZone { return new \DateTimeZone('America/New_York'); } }
     class RoomService { public function get(int $id): ?object { return $id===1 ? (object)['id'=>1] : null; } public function all(): array { return []; } }
 }
 namespace {
     $repo=new OCA\FlzRoom\Repository\BookingRepository();
     $users=new class implements OCP\IUserManager { public function get(string $uid){ return null; } };
     $holidayCalendar=new class extends OCA\FlzRoom\Service\OrganizationHolidayCalendarService { public function __construct(){} public function forYear(int $year):?array{return ['publicHolidays'=>[]];} };
-    $service=new OCA\FlzRoom\Service\BookingService($repo,new OCA\FlzRoom\Service\RoomService(),$users,new OCA\FlzRoom\Service\HolidayService($holidayCalendar),new OCA\LocalBase\Calendar\CalendarContextSettingsService());
+    $service=new OCA\FlzRoom\Service\BookingService($repo,new OCA\FlzRoom\Service\RoomService(),$users,new OCA\FlzRoom\Service\HolidayService($holidayCalendar),new OCA\FlzRoom\Service\OrganizationCalendarContextService());
     if ($service->create(1,'2026-07-13T08:00','2026-07-13T09:00','Sitzung','Büroteam','admin')!==7) throw new RuntimeException('Gültige Buchung wurde nicht gespeichert.');
     if ($repo->saved?->startsAt()->format('H:i')!=='12:00') throw new RuntimeException('Administrative Fachzeitzone wurde nicht nach UTC normalisiert.');
     if ($repo->saved?->title()!=='Büroteam') throw new RuntimeException('Buchungstitel wurde nicht gespeichert.');

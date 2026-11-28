@@ -6,19 +6,27 @@ Monatliche, zeitlich ausgerichtete Raumbelegung mit kollisionsfreien Buchungen, 
 
 - Nextcloud 33 bis 35
 - PHP 8.3 oder neuer innerhalb des von Nextcloud 33 bis 35 unterstützten Bereichs
-- Laufzeitbasis: `localbase` und `flz_organization`; `orgsuite` ist ab zwei FLZ-Fachprodukten optional aktiv
-- Zustandslose Browser-Primitives: app-lokal gebündeltes und isoliertes `flz_shared`-Artefakt
+- Laufzeitbasis: keine. Filzmann Raumplaner ist alleinstehend lauffähig; `localbase` wird nicht benötigt
+- Optionale Integrationen über öffentliche, versionierte V1-Verträge (fehlender Provider ist ein gültiger Standalone-Zustand, deny by default):
+  `flz_organization` (Organisations-Snapshot, Kalenderkontext, Feiertage, Capability-Events),
+  `flz_data_protection` (Datenschutz-Registry), `flz_permission_matrix` (Berechtigungs-Registry),
+  `orgsuite` (gemeinsamer FLZ-/BR-Suite-Einstieg ab zwei Fachprodukten)
+- Zustandslose Browser- und PHP-Primitives: app-lokal gebündeltes und isoliertes `flz_shared`-Artefakt (`js/shared/`, `vendor/flz-shared/`)
 - App-ID und Installationsordner: `flzroom`
 
 ## Installation
 
-Das vorhandene Produktbundle `flz-product-flzroom-<release>.tar.gz` ist bis zur
-Erweiterung seines Installers um die Prüfung und Installation von
-`flz_organization` nicht auslieferungsfähig. Der heutige Installer prüft nur
-LocalBase und aktiviert ab dem zweiten FLZ-Fachprodukt OrgSuite; das genügt für
-den aktuellen Raumplaner-Vertrag nicht mehr.
+Filzmann Raumplaner funktioniert einzeln und ohne weitere Filzmann-Apps;
+Buchungen bleiben ohne Kalender oder Assistenzplanung manuell nutzbar.
 
-Filzmann Raumplaner funktioniert einzeln; Buchungen bleiben ohne Kalender oder Assistenzplanung manuell nutzbar.
+Für den offiziellen Nextcloud App Store wird ein Store-Kandidat ohne
+Entwicklungsdateien und ohne weitere App-Wurzel gebaut:
+
+    bash scripts/build-app-store-candidate.sh --app flzroom --label <label>
+
+im Parent-Workspace (erzeugt `dist/flzroom-store-<label>.tar.gz` plus SHA-256
+und Evidence). Signierung und Veröffentlichung bleiben getrennte, menschlich
+freizugebende Delivery-Ereignisse.
 
 Räume werden nach der Aktivierung im eigenen Nextcloud-Adminabschnitt `Filzmann Raumplaner` eingerichtet. `flzroom:demo:seed` ist ausschließlich für synthetische Testdaten bestimmt.
 
