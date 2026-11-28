@@ -21,6 +21,8 @@ foreach (['return Application::APP_ID;', "return 'Filzmann Raumplaner';", 'IIcon
     if (!str_contains($admin . $section, $contract)) throw new RuntimeException("Eigener Raumplaner-Adminabschnitt fehlt: {$contract}");
 }
 foreach (['data-dashboard-scope="main"', 'data-widget-id="rooms"', 'data-widget-id="demo"', 'data-dashboard-toggle', 'data-dashboard-move'] as $contract) if (!str_contains((string)$template,$contract)) throw new RuntimeException("Admin-Kartenvertrag fehlt: {$contract}");
+foreach (['id="flz-room-first-start"', 'id="flz-room-first-start-button"', "addScript('flzroom', 'components/first-start')", 'Erste Schritte'] as $contract) if (!str_contains((string)$template,$contract)) throw new RuntimeException("Erste-Schritte-Karte fehlt im Admin-Template: {$contract}");
+foreach (['FirstStart', 'flz-room-first-start', 'firstStart.render'] as $contract) if (!str_contains((string)$script,$contract)) throw new RuntimeException("Erste-Schritte-Anbindung fehlt im Admin-Skript: {$contract}");
 foreach (['OrganizationDashboard','/api/admin/settings','/api/admin/layout'] as $contract) if (!str_contains((string)$script.(string)$routes,$contract)) throw new RuntimeException("Admin-Kartenanbindung fehlt: {$contract}");
 foreach (['data-widget-id="retention"','flz-room-retention-form','/api/admin/retention-policy'] as $obsolete) if (str_contains((string)$template.(string)$script.(string)$routes,$obsolete)) throw new RuntimeException("Technische Admin-Retention ist noch aktiv: {$obsolete}");
 foreach (['/api/privacy/retention-policy','/api/privacy/retention-policy/review'] as $contract) if (!str_contains((string)$routes,$contract)) throw new RuntimeException("DPO-Retention-Route fehlt: {$contract}");
