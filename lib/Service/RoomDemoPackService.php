@@ -6,8 +6,7 @@ namespace OCA\FlzRoom\Service;
 
 use DateTimeImmutable;
 use OCA\FlzRoom\Exception\BookingConflictException;
-use OCA\LocalBase\Calendar\CalendarContextSettingsService;
-use OCA\LocalBase\Service\DemoAccountProvisioningService;
+use OCA\FlzRoom\Vendor\Filzmann\Shared\Service\DemoAccountProvisioningService;
 
 /** Zweck: Installiert neutrale Räume und Beispielbuchungen unter einem registrierten lokalen Demokonto. */
 final class RoomDemoPackService {
@@ -15,12 +14,12 @@ final class RoomDemoPackService {
         private DemoAccountProvisioningService $accounts,
         private RoomService $rooms,
         private BookingService $bookings,
-        private CalendarContextSettingsService $contexts,
+        private OrganizationCalendarContextService $contexts,
     ) {}
 
     /** @return array{accounts:array,rooms:int,createdBookings:int,skippedBookings:int} */
     public function install(): array {
-        $accounts = $this->accounts->provision('flz-full-suite-demo', [[
+        $accounts = $this->accounts->provision('flzroom-demo', [[
             'uid' => 'flz-demo-room', 'displayName' => 'Romy Baum (Raumplaner-Demo)', 'groups' => [],
         ]]);
         $definitions = [
@@ -34,7 +33,7 @@ final class RoomDemoPackService {
             if (!isset($existing[$definition['name']])) $existing[$definition['name']] = $this->rooms->save(null, $definition['name'], $definition['description'], $definition['sortOrder']);
         }
 
-        $day = new DateTimeImmutable('next monday', $this->contexts->context()->timezone());
+        $day = new DateTimeImmutable('next monday', $this->contexts->timezone());
         $samples = [
             ['Besprechungsraum Nord', '10:00', '11:00', 'AT', 'ASN Team A'],
             ['Besprechungsraum Süd', '12:00', '13:30', 'Sitzung', 'Büroteam Süd'],

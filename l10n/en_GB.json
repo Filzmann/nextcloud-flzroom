@@ -32,6 +32,7 @@
     "Demo-Pack eine Position zurück verschieben": "Move demo pack one position up",
     "Demo-Pack per Drag-and-drop verschieben": "Move demo pack by drag and drop",
     "Demo-Pack wird geprüft und installiert …": "Demo pack is being checked and installed …",
+    "Der Block mit dem ungültigen Pflichtfeld wurde geöffnet.": "The block with the invalid required field was opened.",
     "Der Raum konnte nicht angelegt werden.": "The room could not be created.",
     "Der Raum konnte nicht gelöscht werden.": "The room could not be deleted.",
     "Der Raum konnte nicht gespeichert werden.": "The room could not be saved.",
@@ -121,6 +122,8 @@
     "Zieldatensatz wurde nicht gefunden.": "Target record was not found.",
     "Zielkonto ist keine aktuelle Nextcloud-Administration.": "Target account is not a current Nextcloud administration.",
     "Zugriff verweigert.": "Access denied.",
-    "Zweck ist erforderlich.": "Purpose is required."
+    "Zweck ist erforderlich.": "Purpose is required.",
+    "wurde": "was",
+    "wurde an Position": "was moved to position"
   }
 }

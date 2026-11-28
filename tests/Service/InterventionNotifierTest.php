@@ -25,19 +25,15 @@ namespace OCP\Notification {
     }
 }
 
-namespace OCA\LocalBase\Calendar {
-    final class CalendarContextSettingsService {
-        public function context(): object {
-            return new class {
-                public function timezone(): \DateTimeZone { return new \DateTimeZone('Europe/Berlin'); }
-            };
-        }
+namespace OCA\FlzRoom\Service {
+    class OrganizationCalendarContextService {
+        public function timezone(): \DateTimeZone { return new \DateTimeZone('Europe/Berlin'); }
     }
 }
 
 namespace {
     use OCA\FlzRoom\Notification\Notifier;
-    use OCA\LocalBase\Calendar\CalendarContextSettingsService;
+    use OCA\FlzRoom\Service\OrganizationCalendarContextService;
     use OCP\Notification\INotification;
 
     $assert = static function (bool $condition, string $message): void {
@@ -75,7 +71,7 @@ namespace {
             return 'https://nextcloud.example.test/index.php/apps/flzroom/';
         }
     };
-    $notifier = new Notifier(new CalendarContextSettingsService(), $urls);
+    $notifier = new Notifier(new OrganizationCalendarContextService(), $urls);
 
     $notifier->prepare($notification, 'de');
     $assert(filter_var($notification->link, FILTER_VALIDATE_URL) !== false, 'Der Benachrichtigungslink muss eine vollständige, von Nextcloud akzeptierte URL sein.');

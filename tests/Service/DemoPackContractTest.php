@@ -10,7 +10,7 @@ $routes = file_get_contents($root . '/appinfo/routes.php');
 $template = file_get_contents($root . '/templates/admin.php');
 $script = file_get_contents($root . '/js/admin.js');
 if (in_array(false, [$service, $command, $controller, $routes, $template, $script], true)) throw new RuntimeException('Raum-Demo-Pack ist unvollständig.');
-foreach (['DemoAccountProvisioningService', "->provision('flz-full-suite-demo'", 'flz-demo-room', 'Besprechungsraum Nord', 'BookingConflictException'] as $contract) if (!str_contains($service, $contract)) throw new RuntimeException("Raum-Demo-Vertrag fehlt: {$contract}");
+foreach (['DemoAccountProvisioningService', "->provision('flzroom-demo'", 'flz-demo-room', 'Besprechungsraum Nord', 'BookingConflictException'] as $contract) if (!str_contains($service, $contract)) throw new RuntimeException("Raum-Demo-Vertrag fehlt: {$contract}");
 foreach (['RoomDemoPackService', '->install()'] as $contract) if (!str_contains($command, $contract)) throw new RuntimeException("Demo-Command delegiert nicht: {$contract}");
 foreach (['IUserManager', "addOption('user'", "getOption('user'"] as $unsafe) if (str_contains($command, $unsafe)) throw new RuntimeException("Raum-Demo verwendet ein reales Konto: {$unsafe}");
 foreach (['/api/admin/demo-pack/install', "'verb' => 'POST'"] as $contract) if (!str_contains($routes, $contract)) throw new RuntimeException("Demo-Route fehlt: {$contract}");

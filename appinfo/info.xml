@@ -10,7 +10,7 @@
     <author>Filzmann Software</author>
     <namespace>FlzRoom</namespace>
     <category>organization</category>
-    <website>https://github.com/Filzmann/flz-full-suite</website>
+    <website>https://github.com/Filzmann/nextcloud-flzroom</website>
     <bugs>https://github.com/Filzmann/nextcloud-flzroom/issues</bugs>
     <repository type="git">https://github.com/Filzmann/nextcloud-flzroom</repository>
     <dependencies>

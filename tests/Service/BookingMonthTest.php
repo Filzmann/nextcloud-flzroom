@@ -6,13 +6,6 @@ namespace OCP {
     interface IUser { public function getDisplayName(): string; }
     interface IUserManager { public function get(string $uid): ?IUser; }
 }
-namespace OCA\LocalBase\Calendar {
-    class Context { public function timezone(): \DateTimeZone { return new \DateTimeZone('Europe/London'); } }
-    class CalendarContextSettingsService { public function context(): Context { return new Context(); } }
-    class HolidayCalendar { public function toArray(): array { return ['publicHolidays' => [['name' => 'Feiertag', 'startDate' => '2026-05-01', 'endDate' => '2026-05-01']]]; } }
-    class HolidayCalendarService { public function forYear(int $year): HolidayCalendar { return new HolidayCalendar(); } }
-}
-
 namespace OCA\FlzRoom\Repository {
     use DateTimeImmutable;
     use OCA\FlzRoom\Model\Booking;
@@ -37,6 +30,7 @@ namespace OCA\FlzRoom\Service {
         public function all(): array { return [Room::get(['id' => 2, 'name' => 'Konferenz', 'description' => '', 'sortOrder' => 1])]; }
         public function get(int $id): ?Room { return $id === 2 ? $this->all()[0] : null; }
     }
+    class OrganizationCalendarContextService { public function timezone(): \DateTimeZone { return new \DateTimeZone('Europe/London'); } }
     class RoomAccessService {
         public bool $canSeeTitle = false;
         public function canManageBooking(Booking $booking): bool { return $booking->userUid() === 'anna'; }
@@ -63,7 +57,7 @@ namespace {
         public function __construct() {}
         public function forYear(int $year): ?array { return ['publicHolidays' => [['name' => 'Feiertag', 'startDate' => '2026-05-01', 'endDate' => '2026-05-01']]]; }
     };
-    $service = new BookingService($repository, new RoomService(), $users, new HolidayService($holidayCalendar), new \OCA\LocalBase\Calendar\CalendarContextSettingsService());
+    $service = new BookingService($repository, new RoomService(), $users, new HolidayService($holidayCalendar), new \OCA\FlzRoom\Service\OrganizationCalendarContextService());
     $access = new RoomAccessService();
     $month = $service->month('2026-05', $access);
     if ($month['month'] !== '2026-05' || $month['bookings'][0]['userName'] !== 'Anna Beispiel' || !$month['bookings'][0]['canManage'] || !$month['capabilities']['canManageRooms']) {
